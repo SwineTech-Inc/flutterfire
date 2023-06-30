@@ -13,7 +13,7 @@ dependencies:
   _flutterfire_internals: ^1.1.1
   cloud_firestore_platform_interface:
     git:
-      url: https://github.com/bswhite1/flutterfire.git
+      url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/cloud_firestore/cloud_firestore_platform_interface
       ref: snapshot_changes_git_paths
   collection: ^1.0.0
