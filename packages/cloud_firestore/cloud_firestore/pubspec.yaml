@@ -16,20 +16,24 @@ environment:
 
 dependencies:
   cloud_firestore_platform_interface:
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/cloud_firestore/cloud_firestore_platform_interface
-      ref: firestore-query-snapshot-changes-git_paths
+    path: ../cloud_firestore_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/cloud_firestore/cloud_firestore_platform_interface
+#      ref: firestore-query-snapshot-changes-git_paths
 
   cloud_firestore_web:
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/cloud_firestore/cloud_firestore_web
-      ref: firestore-query-snapshot-changes-git_paths
+    path: ../cloud_firestore_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/cloud_firestore/cloud_firestore_web
+#      ref: firestore-query-snapshot-changes-git_paths
 
   collection: ^1.0.0
-  firebase_core: ^2.16.0
-  firebase_core_platform_interface: ^4.8.0
+  firebase_core: #^2.16.0
+    path: ../../firebase_core/firebase_core
+  firebase_core_platform_interface: #^4.8.0
+    path: ../../firebase_core/firebase_core_platform_interface
   flutter:
     sdk: flutter
   meta: ^1.8.0

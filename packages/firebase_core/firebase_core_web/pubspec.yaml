@@ -9,7 +9,8 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  firebase_core_platform_interface: ^4.8.0
+  firebase_core_platform_interface: #^4.8.0
+    path: ../firebase_core_platform_interface
   flutter:
     sdk: flutter
   flutter_web_plugins:

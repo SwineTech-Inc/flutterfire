@@ -13,10 +13,14 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  firebase_core: ^2.16.0
-  firebase_core_platform_interface: ^4.8.0
-  firebase_messaging_platform_interface: ^4.5.7
-  firebase_messaging_web: ^3.5.7
+  firebase_core: #^2.16.0
+    path: ../../firebase_core/firebase_core
+  firebase_core_platform_interface: #^4.8.0
+    path: ../../firebase_core/firebase_core_platform_interface
+  firebase_messaging_platform_interface: #^4.5.7
+    path: ../firebase_messaging_platform_interface
+  firebase_messaging_web: #^3.5.7
+    path: ../firebase_messaging_web
   flutter:
     sdk: flutter
   meta: ^1.8.0
