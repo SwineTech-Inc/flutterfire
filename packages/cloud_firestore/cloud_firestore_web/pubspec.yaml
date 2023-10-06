@@ -15,7 +15,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/cloud_firestore/cloud_firestore_platform_interface
-      ref: SwineTech/v4.9.3-a
+      ref: firestore-query-snapshot-changes-git_paths
 
   collection: ^1.0.0
   firebase_core: ^2.17.0
