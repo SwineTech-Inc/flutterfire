@@ -4,11 +4,8 @@ description:
   live synchronization and offline support on Android and iOS.
 homepage: https://firebase.google.com/docs/firestore
 repository: https://github.com/firebase/flutterfire/tree/master/packages/cloud_firestore/cloud_firestore
-<<<<<<< HEAD
-version: 4.9.2-b
-=======
-version: 4.9.3
->>>>>>> 925f560e97d14590e39721d02de3c33828cb1f00
+version: 4.9.3-a
+
 
 false_secrets:
   - example/**
