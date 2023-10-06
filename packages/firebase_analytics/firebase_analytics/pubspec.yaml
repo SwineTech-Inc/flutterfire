@@ -4,7 +4,9 @@ description:
   solution that provides insight on app usage and user engagement on Android and iOS.
 homepage: https://firebase.google.com/docs/analytics
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_analytics/firebase_analytics
-version: 10.5.1
+version: 10.5.1-a
+
+publish_to: none
 
 false_secrets:
   - example/**
@@ -14,14 +16,34 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  firebase_analytics_platform_interface: #^3.7.1
-    path: ../firebase_analytics_platform_interface
-  firebase_analytics_web: #^0.5.5+1
-    path: ../firebase_analytics_web
-  firebase_core: #^2.17.0
-    path: ../../firebase_core/firebase_core
-  firebase_core_platform_interface: #^4.8.0
-    path: ../../firebase_core/firebase_core_platform_interface
+  firebase_analytics_platform_interface:
+#    path: ../firebase_analytics_platform_interface
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_analytics/firebase_analytics_platform_interface
+      ref: SwineTech/v4.9.3-b
+
+  firebase_analytics_web:
+#    path: ../firebase_analytics_web
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_analytics/firebase_analytics_web
+      ref: SwineTech/v4.9.3-b
+
+  firebase_core:
+#    path: ../../firebase_core/firebase_core
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_core/firebase_core
+      ref: SwineTech/v4.9.3-b
+
+  firebase_core_platform_interface:
+#    path: ../../firebase_core/firebase_core_platform_interface
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_core/firebase_core_platform_interface
+      ref: SwineTech/v4.9.3-b
+
   flutter:
     sdk: flutter
 
