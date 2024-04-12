@@ -1,6 +1,6 @@
 name: firebase_crashlytics_platform_interface
 description: A common platform interface for the firebase_crashlytics plugin.
-version: 3.6.7-a
+version: 3.6.29-a
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_crashlytics/firebase_crashlytics_platform_interface
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_crashlytics/firebase_crashlytics_platform_interface
 
@@ -12,20 +12,20 @@ environment:
 
 dependencies:
   _flutterfire_internals:
-#    path: ../../_flutterfire_internals
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/_flutterfire_internals
-      ref: SwineTech/v4.9.3-b
+    path: ../../_flutterfire_internals
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/_flutterfire_internals
+#      ref: SwineTech/v4.16.1-a
 
   collection: ^1.15.0
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter
@@ -34,11 +34,11 @@ dependencies:
 
 dev_dependencies:
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter_test:
     sdk: flutter

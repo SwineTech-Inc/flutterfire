@@ -4,9 +4,7 @@ description:
   solution that provides insight on app usage and user engagement on Android and iOS.
 homepage: https://firebase.google.com/docs/analytics
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_analytics/firebase_analytics
-version: 10.5.1-a
-
-publish_to: none
+version: 10.10.1-a
 
 false_secrets:
   - example/**
@@ -17,32 +15,32 @@ environment:
 
 dependencies:
   firebase_analytics_platform_interface:
-#    path: ../firebase_analytics_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_analytics/firebase_analytics_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../firebase_analytics_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_analytics/firebase_analytics_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   firebase_analytics_web:
-#    path: ../firebase_analytics_web
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_analytics/firebase_analytics_web
-      ref: SwineTech/v4.9.3-b
+    path: ../firebase_analytics_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_analytics/firebase_analytics_web
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter

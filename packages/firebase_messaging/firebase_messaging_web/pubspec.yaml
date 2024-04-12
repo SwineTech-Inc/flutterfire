@@ -2,57 +2,55 @@ name: firebase_messaging_web
 description: The web implementation of firebase_messaging
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_messaging/firebase_messaging_web
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_messaging/firebase_messaging_web
-version: 3.5.8-a
-
-publish_to: none
+version: 3.8.1-a
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
   _flutterfire_internals:
-#    path: ../../_flutterfire_internals
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/_flutterfire_internals
-      ref: SwineTech/v4.9.3-b
+    path: ../../_flutterfire_internals
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/_flutterfire_internals
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core_web:
-#    path: ../../firebase_core/firebase_core_web
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_web
+#      ref: SwineTech/v4.16.1-a
 
   firebase_messaging_platform_interface:
-#    path: ../firebase_messaging_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_messaging/firebase_messaging_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../firebase_messaging_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_messaging/firebase_messaging_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  js: ^0.6.3
   meta: ^1.8.0
+  web: ^0.5.1
 
 dev_dependencies:
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter_test:
     sdk: flutter

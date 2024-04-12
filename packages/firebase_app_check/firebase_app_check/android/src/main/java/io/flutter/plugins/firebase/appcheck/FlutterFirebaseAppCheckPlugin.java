@@ -16,7 +16,7 @@ import com.google.firebase.appcheck.AppCheckToken;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
-import com.google.firebase.appcheck.safetynet.SafetyNetAppCheckProviderFactory;
+import com.google.firebase.appcheck.safetynet.*;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
@@ -34,7 +34,6 @@ public class FlutterFirebaseAppCheckPlugin
 
   private static final String METHOD_CHANNEL_NAME = "plugins.flutter.io/firebase_app_check";
   private final Map<EventChannel, TokenChannelStreamHandler> streamHandlers = new HashMap<>();
-  private final String TAG = "FLTAppCheckPlugin";
 
   private final String debugProvider = "debug";
   private final String safetyNetProvider = "safetyNet";
@@ -89,6 +88,8 @@ public class FlutterFirebaseAppCheckPlugin
     return taskCompletionSource.getTask();
   }
 
+  // SafetyNet is deprecated and is already annotated as such on the user facing Dart API. Please remove annotation when SafetyNet is removed.
+  @SuppressWarnings("deprecation")
   private Task<Void> activate(Map<String, Object> arguments) {
     TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
 
@@ -100,7 +101,7 @@ public class FlutterFirebaseAppCheckPlugin
             switch (provider) {
               case debugProvider:
                 {
-                  FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
+                  FirebaseAppCheck firebaseAppCheck = getAppCheck(arguments);
                   firebaseAppCheck.installAppCheckProviderFactory(
                       DebugAppCheckProviderFactory.getInstance());
                   break;
@@ -279,6 +280,7 @@ public class FlutterFirebaseAppCheckPlugin
   private void removeEventListeners() {
     for (EventChannel eventChannel : streamHandlers.keySet()) {
       EventChannel.StreamHandler streamHandler = streamHandlers.get(eventChannel);
+      assert streamHandler != null;
       streamHandler.onCancel(null);
       eventChannel.setStreamHandler(null);
     }

@@ -7,7 +7,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void runQueryTests() {
@@ -210,8 +209,6 @@ void runQueryTests() {
           }
           fail('Should have thrown a [FirebaseException]');
         },
-        // This will fail until this is resolved: https://github.com/dart-lang/sdk/issues/52572
-        skip: kIsWeb,
       );
 
       testWidgets(
@@ -234,8 +231,6 @@ void runQueryTests() {
             );
           }
         },
-        // This will fail until this is resolved: https://github.com/dart-lang/sdk/issues/52572
-        skip: kIsWeb,
       );
     });
 
@@ -257,27 +252,50 @@ void runQueryTests() {
         await collection.add({'foo': 'bar'});
         Stream<QuerySnapshot<Map<String, dynamic>>> stream =
             collection.snapshots();
-        int call = 0;
+        StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? subscription;
 
-        stream.listen(
+        subscription = stream.listen(
           expectAsync1(
             (QuerySnapshot<Map<String, dynamic>> snapshot) {
-              call++;
-              if (call == 1) {
-                expect(snapshot.docs.length, equals(1));
-
-                expect(snapshot.docs[0], isA<QueryDocumentSnapshot>());
-                QueryDocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-                    snapshot.docs[0];
-                expect(documentSnapshot.data()['foo'], equals('bar'));
-              } else {
-                fail('Should not have been called');
-              }
+              expect(snapshot.docs.length, equals(1));
+              expect(snapshot.docs[0], isA<QueryDocumentSnapshot>());
+              QueryDocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+                  snapshot.docs[0];
+              expect(documentSnapshot.data()['foo'], equals('bar'));
             },
             count: 1,
             reason: 'Stream should only have been called once.',
           ),
         );
+        addTearDown(() async {
+          await subscription?.cancel();
+        });
+      });
+
+      testWidgets('listens to a single response from cache', (_) async {
+        CollectionReference<Map<String, dynamic>> collection =
+            await initializeTest('get-single-cache');
+        await collection.add({'foo': 'bar'});
+        Stream<QuerySnapshot<Map<String, dynamic>>> stream =
+            collection.snapshots(source: ListenSource.cache);
+        StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? subscription;
+
+        subscription = stream.listen(
+          expectAsync1(
+            (QuerySnapshot<Map<String, dynamic>> snapshot) {
+              expect(snapshot.docs.length, equals(1));
+              expect(snapshot.docs[0], isA<QueryDocumentSnapshot>());
+              QueryDocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+                  snapshot.docs[0];
+              expect(documentSnapshot.data()['foo'], equals('bar'));
+            },
+            count: 1,
+            reason: 'Stream should only have been called once.',
+          ),
+        );
+        addTearDown(() async {
+          await subscription?.cancel();
+        });
       });
 
       testWidgets('listens to multiple queries', (_) async {
@@ -381,9 +399,7 @@ void runQueryTests() {
           }
 
           fail('Should have thrown a [FirebaseException]');
-          // This will fail until this is resolved: https://github.com/dart-lang/sdk/issues/52572
         },
-        skip: kIsWeb,
       );
     });
 
@@ -1816,10 +1832,11 @@ void runQueryTests() {
     });
 
     group('Query.where() with Filter class', () {
-      testWidgets('returns documents with `DocumentReference` as an argument',
+      testWidgets(
+          'returns documents with `DocumentReference` as an argument in `isEqualTo`',
           (_) async {
         CollectionReference<Map<String, dynamic>> collection =
-            await initializeTest('doc-ref-arg');
+            await initializeTest('doc-ref-arg-isequal-to');
         final ref = FirebaseFirestore.instance.doc('foo/bar');
         final ref2 = FirebaseFirestore.instance.doc('foo/foo');
         await Future.wait([
@@ -1852,6 +1869,56 @@ void runQueryTests() {
                   Filter(
                     'ref',
                     isEqualTo: ref2,
+                  ),
+                ),
+              ),
+            )
+            .orderBy('title', descending: true)
+            .get();
+
+        expect(results.docs.length, equals(3));
+        expect(results.docs[0].data()['title'], equals('Book C'));
+        expect(results.docs[1].data()['title'], equals('Book B'));
+        expect(results.docs[2].data()['title'], equals('Book A'));
+      });
+
+      testWidgets(
+          'returns documents with `DocumentReference` as an argument in `arrayContains`',
+          (_) async {
+        CollectionReference<Map<String, dynamic>> collection =
+            await initializeTest('doc-ref-arg-array-contains');
+        final ref = FirebaseFirestore.instance.doc('foo/bar');
+        final ref2 = FirebaseFirestore.instance.doc('foo/foo');
+        await Future.wait([
+          collection.doc('doc1').set({
+            'genre': 'fantasy',
+            'title': 'Book A',
+            'ref': [ref],
+          }),
+          collection.doc('doc2').set({
+            'genre': 'fantasy',
+            'title': 'Book B',
+            'ref': [ref],
+          }),
+          collection.doc('doc3').set({
+            'genre': 'adventure',
+            'title': 'Book C',
+            'ref': [ref2],
+          }),
+        ]);
+
+        final results = await collection
+            .where(
+              Filter.or(
+                Filter.and(
+                  Filter('genre', isEqualTo: 'fantasy'),
+                  Filter('ref', arrayContains: ref),
+                ),
+                Filter.and(
+                  Filter('genre', isEqualTo: 'adventure'),
+                  Filter(
+                    'ref',
+                    arrayContains: ref2,
                   ),
                 ),
               ),
@@ -1931,6 +1998,46 @@ void runQueryTests() {
         expect(results.docs[0].id, equals('doc3'));
         expect(results.docs[0].data()['rating'], equals(4.2));
         expect(results.docs[0].data()['genre'], equals(['sci-fi', 'action']));
+      });
+
+      testWidgets('returns documents with OR filter and a previous condition',
+          (_) async {
+        CollectionReference<Map<String, dynamic>> collection =
+            await initializeTest('where-filter-and');
+        await Future.wait([
+          collection.doc('doc1').set({
+            'genre': 'fantasy',
+            'rating': 4.5,
+            'year': 1970,
+          }),
+          collection.doc('doc2').set({
+            'genre': 'fantasy',
+            'rating': 3.8,
+            'year': 1980,
+          }),
+          collection.doc('doc3').set({
+            'genre': 'sci-fi',
+            'rating': 4.2,
+            'year': 1980,
+          }),
+        ]);
+
+        final results = await collection
+            .where('genre', isEqualTo: 'fantasy')
+            .where(
+              Filter.or(
+                Filter('year', isEqualTo: 1980),
+                Filter('rating', isGreaterThanOrEqualTo: 4.0),
+              ),
+            )
+            .orderBy('rating')
+            .get();
+
+        expect(results.docs.length, equals(2));
+        expect(results.docs[0].id, equals('doc2'));
+        expect(results.docs[0].data()['rating'], equals(3.8));
+        expect(results.docs[1].id, equals('doc1'));
+        expect(results.docs[1].data()['rating'], equals(4.5));
       });
 
       testWidgets('returns documents with nested OR and AND filters',
@@ -2128,60 +2235,42 @@ void runQueryTests() {
       });
 
       testWidgets(
-        'Exception thrown when combining `arrayContainsAny` & `isNotEqualTo` in multiple conjunctive queries',
+        'Can combine `arrayContainsAny` & `isNotEqualTo` in multiple conjunctive queries',
         (_) async {
           CollectionReference<Map<String, dynamic>> collection =
-              await initializeTest('multiple-conjunctive-queries');
+              await initializeTest(
+            'array-contain-not-equal-conjunctive-queries',
+          );
 
-          try {
-            await collection
-                .where(
-                  Filter.and(
-                    Filter('rating1', isEqualTo: 3.8),
-                    Filter('year1', isEqualTo: 1970),
-                    Filter('runtime1', isEqualTo: 90),
-                    Filter('director1', isEqualTo: 'Director2'),
-                    Filter('producer1', isEqualTo: 'Producer2'),
-                    Filter('budget1', isEqualTo: 20000000),
-                    Filter('boxOffice1', isEqualTo: 50000000),
-                    Filter('actor1', isEqualTo: 'Actor2'),
-                    Filter('language1', isEqualTo: 'English'),
-                    Filter('award1', isEqualTo: 'Award2'),
-                    Filter('genre1', arrayContainsAny: ['sci-fi']),
-                    Filter('country1', isEqualTo: 'USA'),
-                    Filter('released1', isEqualTo: true),
-                    Filter('screenplay1', isEqualTo: 'Screenplay2'),
-                    Filter('cinematography1', isEqualTo: 'Cinematography2'),
-                    Filter('music1', isEqualTo: 'Music2'),
-                    Filter('rating2', isEqualTo: 4.2),
-                    Filter('year2', isEqualTo: 1982),
-                    Filter('runtime2', isEqualTo: 60),
-                    Filter('director2', isEqualTo: 'Director3'),
-                    Filter('producer2', isEqualTo: 'Producer3'),
-                    Filter('budget2', isEqualTo: 30000000),
-                    Filter('boxOffice2', isEqualTo: 60000000),
-                    Filter('actor2', isEqualTo: 'Actor3'),
-                    Filter('language2', isEqualTo: 'Korean'),
-                    Filter('award2', isEqualTo: 'Award3'),
-                    Filter('genre2', isEqualTo: ['sci-fi', 'action']),
-                    Filter('country2', isEqualTo: 'South Korea'),
-                    Filter('released2', isEqualTo: false),
-                    // Fails because this is not allowed when arrayContainsAny is included in the Query
-                    Filter('screenplay2', isNotEqualTo: 'blah'),
-                  ),
-                )
-                .orderBy('rating1', descending: true)
-                .get();
-          } catch (e) {
-            expect(
-              (e as FirebaseException).message,
-              contains('An error occurred while parsing query arguments'),
-            );
-            expect(e, isA<FirebaseException>());
-          }
+          await Future.wait([
+            collection.doc('doc1').set({
+              'genre': ['fantasy', 'sci-fi'],
+              'screenplay2': 'bar',
+            }),
+            collection.doc('doc2').set({
+              'genre': ['fantasy', 'sci-fi'],
+              'screenplay2': 'bar',
+            }),
+            collection.doc('doc3').set({
+              'genre': ['fantasy', 'sci-fi'],
+              'screenplay2': 'foo',
+            }),
+          ]);
+
+          final results = await collection
+              .where(
+                Filter.and(
+                  Filter('genre', arrayContainsAny: ['sci-fi']),
+                  Filter('screenplay2', isNotEqualTo: 'foo'),
+                ),
+              )
+              .orderBy('screenplay2', descending: true)
+              .get();
+
+          expect(results.docs.length, equals(2));
+          expect(results.docs[0].id, equals('doc2'));
+          expect(results.docs[1].id, equals('doc1'));
         },
-        // This will fail until this is resolved: https://github.com/dart-lang/sdk/issues/52572
-        skip: kIsWeb,
       );
 
       testWidgets('allow multiple disjunctive queries', (_) async {
@@ -2300,68 +2389,46 @@ void runQueryTests() {
       });
 
       testWidgets(
-        'Exception thrown when combining `arrayContainsAny` & `isNotEqualTo` in multiple disjunctive queries',
+        'Can combine  `arrayContainsAny` & `isNotEqualTo` in disjunctive queries',
         (_) async {
           CollectionReference<Map<String, dynamic>> collection =
-              await initializeTest('multiple-disjunctive-queries');
+              await initializeTest(
+            'array-contain-not-equal-disjunctive-queries',
+          );
 
-          try {
-            await collection
-                .where(
-                  Filter.or(
-                    Filter('rating', isEqualTo: 3.8),
-                    Filter('year', isEqualTo: 1970),
-                    Filter('runtime', isEqualTo: 90),
-                    Filter('director', isEqualTo: 'Director2'),
-                    Filter('country', isEqualTo: 'Wales'),
-                    Filter('budget', isEqualTo: 20000000),
-                    Filter('boxOffice', isEqualTo: 50000000),
-                    Filter('genre', arrayContainsAny: ['sci-fi']),
-                    Filter('actor', isEqualTo: 'Actor2'),
-                    Filter('language', isEqualTo: 'English'),
-                    Filter('award', isEqualTo: 'Award2'),
-                    Filter('screenWriter', isEqualTo: 'ScreenWriter2'),
-                    Filter('editor', isEqualTo: 'Editor2'),
-                    Filter('cinematographer', isEqualTo: 'Cinematographer2'),
-                    Filter('releaseCountry', isEqualTo: 'Country2'),
-                    Filter('distributor', isEqualTo: 'Distributor2'),
-                    Filter('ratingSystem', isEqualTo: 'RatingSystem2'),
-                    Filter('soundtrackComposer', isEqualTo: 'Composer2'),
-                    Filter(
-                      'visualEffectsCompany',
-                      isEqualTo: 'EffectsCompany2',
-                    ),
-                    Filter(
-                      'productionCompany',
-                      isEqualTo: 'ProductionCompany2',
-                    ),
-                    Filter('filmFormat', isEqualTo: 'FilmFormat2'),
-                    Filter('aspectRatio', isEqualTo: 'AspectRatio2'),
-                    Filter('colorProcess', isEqualTo: 'ColorProcess2'),
-                    Filter('soundProcess', isEqualTo: 'SoundProcess2'),
-                    Filter('numberOfTheaters', isEqualTo: 2000),
-                    Filter('openingWeekendRevenue', isEqualTo: 10000000),
-                    Filter('totalDomesticRevenue', isEqualTo: 60000000),
-                    Filter('totalWorldwideRevenue', isEqualTo: 200000000),
-                    Filter('estimatedProfit', isEqualTo: 140000000),
-                    // Fails because this is not allowed when arrayContainsAny is included in the Query
-                    Filter('mainCharacter', isNotEqualTo: 'MainCharacter2'),
-                  ),
-                )
-                .orderBy('rating', descending: true)
-                .get();
-          } catch (e) {
-            expect(
-              (e as FirebaseException).message,
-              contains(
-                'An error occurred while parsing query arguments',
-              ),
-            );
-            expect(e, isA<FirebaseException>());
-          }
+          await Future.wait([
+            collection.doc('doc1').set({
+              'genre': ['fantasy', 'sci-fi'],
+              'screenplay2': 'bar',
+            }),
+            collection.doc('doc2').set({
+              'genre': ['fantasy', 'sci-fi'],
+              'mainCharacter': 'MainCharacter2',
+            }),
+            collection.doc('doc3').set({
+              'genre': ['fantasy', 'something else'],
+              'mainCharacter': 'foo',
+            }),
+            collection.doc('doc4').set({
+              'genre': ['fantasy', 'something else'],
+              'mainCharacter': 'MainCharacter2',
+            }),
+          ]);
+
+          final results = await collection
+              .where(
+                Filter.or(
+                  Filter('genre', arrayContainsAny: ['sci-fi']),
+                  Filter('mainCharacter', isNotEqualTo: 'MainCharacter2'),
+                ),
+              )
+              .orderBy('mainCharacter', descending: true)
+              .get();
+
+          expect(results.docs.length, equals(2));
+          expect(results.docs[0].id, equals('doc3'));
+          expect(results.docs[1].id, equals('doc2'));
         },
-        // This will fail until this is resolved: https://github.com/dart-lang/sdk/issues/52572
-        skip: kIsWeb,
       );
 
       testWidgets(
@@ -3054,7 +3121,7 @@ void runQueryTests() {
         (_) async {
           final collection = await initializeTest('foo');
 
-          final query = collection //
+          final query = collection
               .where(Filter('value', isGreaterThan: 0))
               .withConverter<int>(
                 fromFirestore: (snapshots, _) =>
@@ -3550,7 +3617,9 @@ void runQueryTests() {
         },
         timeout: const Timeout.factor(3),
       );
+    });
 
+    group('Aggregate Queries', () {
       testWidgets(
         'count()',
         (_) async {
@@ -3593,6 +3662,205 @@ void runQueryTests() {
           );
         },
       );
+
+      testWidgets(
+        'sum()',
+        (_) async {
+          final collection = await initializeTest('sum');
+
+          await Future.wait([
+            collection.add({'foo': 1}),
+            collection.add({'foo': 2}),
+          ]);
+
+          AggregateQuery query = collection.aggregate(sum('foo'));
+
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.getSum('foo'),
+            3,
+          );
+        },
+      );
+
+      testWidgets(
+        'sum() with query',
+        (_) async {
+          final collection = await initializeTest('sum');
+
+          await Future.wait([
+            collection.add({'foo': 1}),
+            collection.add({'foo': 2}),
+          ]);
+
+          AggregateQuery query =
+              collection.where('foo', isEqualTo: 1).aggregate(sum('foo'));
+
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.getSum('foo'),
+            1,
+          );
+        },
+      );
+
+      testWidgets(
+        'average()',
+        (_) async {
+          final collection = await initializeTest('avg');
+
+          await Future.wait([
+            collection.add({'foo': 1}),
+            collection.add({'foo': 2}),
+          ]);
+
+          AggregateQuery query = collection.aggregate(average('foo'));
+
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.getAverage('foo'),
+            1.5,
+          );
+        },
+      );
+
+      testWidgets(
+        'average() with query',
+        (_) async {
+          final collection = await initializeTest('avg');
+
+          await Future.wait([
+            collection.add({'foo': 1}),
+            collection.add({'foo': 2}),
+          ]);
+
+          AggregateQuery query =
+              collection.where('foo', isEqualTo: 1).aggregate(average('foo'));
+
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.getAverage('foo'),
+            1,
+          );
+        },
+      );
+
+      testWidgets(
+        'chaining aggregate queries',
+        (_) async {
+          final collection = await initializeTest('chaining');
+
+          await Future.wait([
+            collection.add({'foo': 1}),
+            collection.add({'foo': 2}),
+          ]);
+
+          AggregateQuery query =
+              collection.aggregate(count(), sum('foo'), average('foo'));
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.count,
+            2,
+          );
+
+          expect(
+            snapshot.getSum('foo'),
+            3,
+          );
+
+          expect(
+            snapshot.getAverage('foo'),
+            1.5,
+          );
+        },
+      );
+
+      testWidgets('chaining multiples aggregate queries', (_) async {
+        final collection = await initializeTest('chaining');
+
+        await Future.wait([
+          collection.add({'foo': 1}),
+          collection.add({'foo': 2}),
+        ]);
+
+        AggregateQuery query = collection
+            .where('foo', isEqualTo: 1)
+            .aggregate(count(), sum('foo'), average('foo'));
+
+        AggregateQuerySnapshot snapshot = await query.get();
+
+        expect(
+          snapshot.count,
+          1,
+        );
+
+        expect(
+          snapshot.getSum('foo'),
+          1,
+        );
+
+        expect(
+          snapshot.getAverage('foo'),
+          1,
+        );
+      });
+
+      testWidgets(
+        'count() with collectionGroup',
+        (_) async {
+          const subCollection = 'aggregate-group-count';
+          final doc1 = FirebaseFirestore.instance
+              .collection('flutter-tests')
+              .doc('agg1');
+          final doc2 = FirebaseFirestore.instance
+              .collection('flutter-tests')
+              .doc('agg2');
+          await Future.wait([
+            doc1.set({'foo': 'bar'}),
+            doc2.set({'foo': 'baz'}),
+          ]);
+
+          final collection = doc1.collection(subCollection);
+          final collection2 = doc2.collection(subCollection);
+
+          await Future.wait([
+            // 6 sub-documents
+            collection.doc('agg1').set({'foo': 'bar'}),
+            collection.doc('agg2').set({'foo': 'bar'}),
+            collection.doc('agg3').set({'foo': 'bar'}),
+            collection2.doc('agg4').set({'foo': 'bar'}),
+            collection2.doc('agg5').set({'foo': 'bar'}),
+            collection2.doc('agg6').set({'foo': 'bar'}),
+          ]);
+
+          AggregateQuery query =
+              FirebaseFirestore.instance.collectionGroup(subCollection).count();
+
+          AggregateQuerySnapshot snapshot = await query.get();
+
+          expect(
+            snapshot.count,
+            6,
+          );
+        },
+      );
+
+      testWidgets('count(), average() & sum() on empty collection',
+          (widgetTester) async {
+        final collection = await initializeTest('empty-collection');
+
+        final snapshot = await collection
+            .aggregate(count(), sum('foo'), average('foo'))
+            .get();
+        expect(snapshot.count, 0);
+        expect(snapshot.getSum('foo'), 0);
+        expect(snapshot.getAverage('foo'), null);
+      });
     });
 
     group('startAfterDocument', () {

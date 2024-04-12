@@ -2,13 +2,12 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_query.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
-
-import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
 
 /// This codec is able to decode FieldValues.
 /// This ability is only required in tests, hence why
@@ -61,12 +60,12 @@ class TestFirestoreMessageCodec extends FirestoreMessageCodec {
         );
       case _kFirestoreInstance:
         String appName = readValue(buffer)! as String;
-        String databaseURL = readValue(buffer)! as String;
+        String databaseId = readValue(buffer)! as String;
         readValue(buffer);
         final FirebaseApp app = Firebase.app(appName);
         return MethodChannelFirebaseFirestore(
           app: app,
-          databaseURL: databaseURL,
+          databaseId: databaseId,
         );
       case _kFirestoreQuery:
         String appName = readValue(buffer)! as String;
@@ -74,8 +73,13 @@ class TestFirestoreMessageCodec extends FirestoreMessageCodec {
             readValue(buffer)! as Map<dynamic, dynamic>;
         final FirebaseApp app = Firebase.app(appName);
         return MethodChannelQuery(
-          MethodChannelFirebaseFirestore(app: app, databaseURL: '(default)'),
+          MethodChannelFirebaseFirestore(app: app, databaseId: '(default)'),
           values['path'],
+          FirestorePigeonFirebaseApp(
+            appName: "['DEFAULT']",
+            settings: PigeonFirebaseSettings(ignoreUndefinedProperties: true),
+            databaseURL: '',
+          ),
         );
       case _kFirestoreSettings:
         readValue(buffer);

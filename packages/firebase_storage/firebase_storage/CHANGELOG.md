@@ -1,3 +1,108 @@
+## 11.7.1
+
+ - **FIX**(web): remove remaining references to `dart:html` ([#12601](https://github.com/firebase/flutterfire/issues/12601)). ([fbffedb6](https://github.com/firebase/flutterfire/commit/fbffedb65c180d29a07436af90b36ca56e97bfe7))
+
+## 11.7.0
+
+ - **FEAT**(android): Bump `compileSdk` version of Android plugins to latest stable (34) ([#12566](https://github.com/firebase/flutterfire/issues/12566)). ([e891fab2](https://github.com/firebase/flutterfire/commit/e891fab291e9beebc223000b133a6097e066a7fc))
+
+## 11.6.11
+
+ - Update a dependency to the latest release.
+
+## 11.6.10
+
+ - Update a dependency to the latest release.
+
+## 11.6.9
+
+ - Update a dependency to the latest release.
+
+## 11.6.8
+
+ - Update a dependency to the latest release.
+
+## 11.6.7
+
+ - **FIX**(storage): `Task.cancel()` method wasn't properly updating `task.snapshot` and `cancel()` wasn't working in certain conditions. ([#12322](https://github.com/firebase/flutterfire/issues/12322)). ([c3ca5d10](https://github.com/firebase/flutterfire/commit/c3ca5d101b735e2203ca3d4e52f0b457794b3a47))
+
+## 11.6.6
+
+ - Update a dependency to the latest release.
+
+## 11.6.5
+
+ - Update a dependency to the latest release.
+
+## 11.6.4
+
+ - Update a dependency to the latest release.
+
+## 11.6.3
+
+ - Update a dependency to the latest release.
+
+## 11.6.2
+
+ - Update a dependency to the latest release.
+
+## 11.6.1
+
+ - **FIX**(storage,windows): `getData()` crash has been fixed ([#12185](https://github.com/firebase/flutterfire/issues/12185)). ([ed8c7c51](https://github.com/firebase/flutterfire/commit/ed8c7c51d28398b1f68af404bdd855b75a1b1f56))
+ - **FIX**(storage): ensure Task listeners correctly propagate exceptions and close properly. ([#12160](https://github.com/firebase/flutterfire/issues/12160)). ([759684b1](https://github.com/firebase/flutterfire/commit/759684b1b445bf238e9644ef1dc495cdc6a55dd8))
+ - **FIX**(storage,android): fix `refFromUrl()` when using firebase storage emulator. Essentially, check `10.0.2.2` domain as well. ([#12047](https://github.com/firebase/flutterfire/issues/12047)). ([cef006a6](https://github.com/firebase/flutterfire/commit/cef006a69bafeae1d3481220e2a5fb7386bdfbe3))
+ - **DOCS**: change old documentation links of packages in README files ([#12136](https://github.com/firebase/flutterfire/issues/12136)). ([24b9ac7e](https://github.com/firebase/flutterfire/commit/24b9ac7ec29fc9ca466c0941c2cff26d75b8568d))
+
+## 11.6.0
+
+ - **FEAT**: allow users to disable automatic host mapping ([#11962](https://github.com/firebase/flutterfire/issues/11962)). ([13c1ce33](https://github.com/firebase/flutterfire/commit/13c1ce333b8cd113241a1f7ac07181c1c76194bc))
+
+## 11.5.6
+
+ - **FIX**(storage,windows): fix an issue where getData function would statically allocate memory ([#12020](https://github.com/firebase/flutterfire/issues/12020)). ([7d51dbdc](https://github.com/firebase/flutterfire/commit/7d51dbdc1795ff9708dc3e60e4fb7089e0af8d36))
+
+## 11.5.5
+
+ - Update a dependency to the latest release.
+
+## 11.5.4
+
+ - Update a dependency to the latest release.
+
+## 11.5.3
+
+ - Update a dependency to the latest release.
+
+## 11.5.2
+
+ - Update a dependency to the latest release.
+
+## 11.5.1
+
+ - **FIX**(storage,apple): set the storage emulator only once to stop it from crashing on hot restart ([#11862](https://github.com/firebase/flutterfire/issues/11862)). ([7f07d7aa](https://github.com/firebase/flutterfire/commit/7f07d7aaf3e4c978b7404660f736032b90bffd61))
+
+## 11.5.0
+
+ - **FIX**(storage): ensure bucket value is used to create FirebaseStorage instance to stop incorrect default bucket usage ([#11844](https://github.com/firebase/flutterfire/issues/11844)). ([49542f32](https://github.com/firebase/flutterfire/commit/49542f32ca8ae1eef6065e40ddb21fa40e66d7f0))
+ - **FEAT**(windows): add platform logging for core, auth, firestore and storage ([#11790](https://github.com/firebase/flutterfire/issues/11790)). ([e7d428d1](https://github.com/firebase/flutterfire/commit/e7d428d14be1535a2d579d4b2d376fbb81f06742))
+
+## 11.4.1
+
+ - Update a dependency to the latest release.
+
+## 11.4.0
+
+ - **FEAT**(storage,windows): Add windows support ([#11617](https://github.com/firebase/flutterfire/issues/11617)). ([87ea02c8](https://github.com/firebase/flutterfire/commit/87ea02c8ae03eb351636cf202961ad0df6caebd8))
+ - **FEAT**(storage): move Storage to use Pigeon for platform channels ([#11521](https://github.com/firebase/flutterfire/issues/11521)). ([edddc1de](https://github.com/firebase/flutterfire/commit/edddc1def508d0c516534b80c13d41a919fd39bc))
+
+## 11.3.1
+
+ - Update a dependency to the latest release.
+
+## 11.3.0
+
+ - **FEAT**: Full support of AGP 8 ([#11699](https://github.com/firebase/flutterfire/issues/11699)). ([bdb5b270](https://github.com/firebase/flutterfire/commit/bdb5b27084d225809883bdaa6aa5954650551927))
+
 ## 11.2.8
 
  - Update a dependency to the latest release.

@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -32,7 +34,7 @@ void setupTaskTests() {
 
       Future<void> _testPauseTask(String type) async {
         List<TaskSnapshot> snapshots = [];
-        late FirebaseException streamError;
+        FirebaseException? streamError;
         expect(task!.snapshot.state, TaskState.running);
 
         task!.snapshotEvents.listen(
@@ -56,6 +58,8 @@ void setupTaskTests() {
           bool? paused = await task!.pause();
           expect(paused, isTrue);
           expect(task!.snapshot.state, TaskState.paused);
+
+          await Future.delayed(const Duration(milliseconds: 500));
 
           bool? resumed = await task!.resume();
           expect(resumed, isTrue);
@@ -90,65 +94,104 @@ void setupTaskTests() {
         }
       }
 
-      // TODO(Salakar): Test fails on emulator.
       test(
         'successfully pauses and resumes a download task',
         () async {
-          file = await createFile('ok.jpeg');
-          await downloadRef.writeToFile(file);
+          if (!kIsWeb) {
+            file = await createFile('ok.jpeg');
+            task = downloadRef.writeToFile(file);
+          } else {
+            task = downloadRef
+                .putBlob(createBlob('some content to write to blob'));
+          }
           await _testPauseTask('Download');
-          // Skip on web: There's no DownloadTask on web.
         },
-        skip: true,
+        retry: 3,
       );
 
       // TODO(Salakar): Test is flaky on CI - needs investigating ('[firebase_storage/unknown] An unknown error occurred, please check the server response.')
       test(
         'successfully pauses and resumes a upload task',
         () async {
-          await uploadRef.putString('This is an upload task!');
+          task = uploadRef.putString('This is an upload task!');
           await _testPauseTask('Upload');
         },
-        skip: true,
+        retry: 3,
+        // This task is flaky on mac, skip for now.
+        skip: defaultTargetPlatform == TargetPlatform.macOS,
       );
 
-      //TODO(pr-mais): causes the emulator to crash
-      // test('handles errors, e.g. if permission denied', () async {
-      //   late FirebaseException streamError;
+      test('handles errors, e.g. if permission denied for `snapshotEvents`',
+          () async {
+        late FirebaseException streamError;
 
-      //   List<int> list = utf8.encode('hello world');
-      //   Uint8List data = Uint8List.fromList(list);
-      //   UploadTask task = storage.ref('/uploadNope.jpeg').putData(data);
+        List<int> list = utf8.encode('hello world');
+        Uint8List data = Uint8List.fromList(list);
+        UploadTask task = storage.ref('/uploadNope.jpeg').putData(data);
 
-      //   expect(task.snapshot.state, TaskState.running);
+        bool callsDoneWhenFinished = false;
+        task.snapshotEvents.listen(
+          (TaskSnapshot snapshot) {
+            // noop
+          },
+          onError: (error) {
+            streamError = error;
+          },
+          onDone: () {
+            callsDoneWhenFinished = true;
+          },
+        );
+        // Allow time for listener events to be called
+        await Future.delayed(
+          const Duration(seconds: 2),
+        );
 
-      //   task.snapshotEvents.listen((TaskSnapshot snapshot) {
-      //     // noop
-      //   }, onError: (error) {
-      //     streamError = error;
-      //   }, cancelOnError: true);
+        expect(callsDoneWhenFinished, isTrue);
 
-      //   await expectLater(
-      //     task,
-      //     throwsA(isA<FirebaseException>()
-      //         .having((e) => e.code, 'code', 'unauthorized')),
-      //   );
+        expect(streamError.plugin, 'firebase_storage');
+        expect(streamError.code, 'unauthorized');
+        expect(
+          streamError.message,
+          'User is not authorized to perform the desired action.',
+        );
 
-      //   expect(streamError.plugin, 'firebase_storage');
-      //   expect(streamError.code, 'unauthorized');
-      //   expect(streamError.message,
-      //       'User is not authorized to perform the desired action.');
+        expect(task.snapshot.state, TaskState.error);
+      });
 
-      //   expect(task.snapshot.state, TaskState.error);
-      // });
+      test('handles errors, e.g. if permission denied for `await Task`',
+          () async {
+        List<int> list = utf8.encode('hello world');
+        Uint8List data = Uint8List.fromList(list);
+        UploadTask task = storage.ref('/uploadNope.jpeg').putData(data);
+        try {
+          await task;
+        } catch (e) {
+          expect(e, isA<FirebaseException>());
+          FirebaseException exception = e as FirebaseException;
+          expect(exception.plugin, 'firebase_storage');
+          expect(exception.code, 'unauthorized');
+          expect(
+            exception.message,
+            'User is not authorized to perform the desired action.',
+          );
+        }
+
+        expect(task.snapshot.state, TaskState.error);
+      });
     });
 
     group('snapshot', () {
       test(
         'returns the latest snapshot for download task',
         () async {
-          file = await createFile('ok.jpeg');
-          final downloadTask = downloadRef.writeToFile(file);
+          Task downloadTask;
+          if (!kIsWeb) {
+            file = await createFile('ok.jpeg');
+            downloadTask = downloadRef.writeToFile(file);
+          } else {
+            downloadTask = downloadRef
+                .putBlob(createBlob('some content to write to blob'));
+          }
 
           expect(downloadTask.snapshot, isNotNull);
 
@@ -159,12 +202,8 @@ void setupTaskTests() {
           expect(snapshot.state, TaskState.success);
           expect(snapshot.bytesTransferred, completedSnapshot.bytesTransferred);
           expect(snapshot.totalBytes, completedSnapshot.totalBytes);
-          expect(snapshot.metadata, isNull);
+          expect(snapshot.metadata, isA<FullMetadata?>());
         },
-        // TODO(salakar): this test is flakey when using the Firebase Storage Emulator.
-        skip: true,
-        // There's no DownloadTask on web.
-        // skip: kIsWeb
         retry: 2,
       );
 
@@ -179,38 +218,12 @@ void setupTaskTests() {
           expect(snapshot, isA<TaskSnapshot>());
           expect(snapshot.bytesTransferred, completedSnapshot.bytesTransferred);
           expect(snapshot.totalBytes, completedSnapshot.totalBytes);
-          expect(snapshot.metadata, isA<FullMetadata>());
+          expect(snapshot.metadata, isA<FullMetadata?>());
         },
         retry: 2,
-        // TODO(salakar): this test is flakey when using the Firebase Storage Emulator.
-        skip: true,
-      );
-
-      test(
-        'upload task to a custom bucket',
-        () async {
-          String secondaryBucket = 'flutterfire-e2e-tests-two';
-          Reference storageReference =
-              FirebaseStorage.instanceFor(bucket: secondaryBucket)
-                  .ref('flutter-tests/ok.txt');
-
-          expect(storageReference.bucket, secondaryBucket);
-
-          final task = storageReference.putString('test second bucket');
-          final snapshot = await task;
-
-          expect(snapshot.ref.bucket, secondaryBucket);
-
-          String url = await storageReference.getDownloadURL();
-
-          expect(url, contains('/$secondaryBucket/'));
-        },
-        // TODO(salakar): blocked by https://github.com/firebase/firebase-tools/issues/3390
-        skip: true,
       );
     });
 
-    // TODO(Salakar): Test fails on Firebase Storage emulator since the task completes before .cancel() has a chance to be called.
     group(
       'cancel()',
       () {
@@ -218,17 +231,17 @@ void setupTaskTests() {
 
         Future<void> _testCancelTask() async {
           List<TaskSnapshot> snapshots = [];
-          late FirebaseException streamError;
           expect(task.snapshot.state, TaskState.running);
+          final Completer<FirebaseException> errorReceived =
+              Completer<FirebaseException>();
 
           task.snapshotEvents.listen(
             (TaskSnapshot snapshot) {
               snapshots.add(snapshot);
             },
             onError: (error) {
-              streamError = error;
+              errorReceived.complete(error);
             },
-            cancelOnError: true,
           );
 
           bool canceled = await task.cancel();
@@ -245,6 +258,9 @@ void setupTaskTests() {
 
           expect(task.snapshot.state, TaskState.canceled);
 
+          // Need to wait for error to be received before checking
+          final streamError = await errorReceived.future;
+
           expect(streamError, isNotNull);
           expect(streamError.code, 'canceled');
           // Expecting there to only be running states, canceled should not get sent as an event.
@@ -257,19 +273,98 @@ void setupTaskTests() {
         test(
           'successfully cancels download task',
           () async {
-            file = await createFile('ok.jpeg');
+            file = await createFile('ok.jpeg', largeString: 'A' * 20000000);
             task = downloadRef.writeToFile(file);
             await _testCancelTask();
-            // There's no DownloadTask on web.
+          },
+          // There's no DownloadTask on web.
+          skip: kIsWeb,
+          retry: 2,
+        );
+
+        test(
+          'successfully cancels upload task',
+          () async {
+            task = uploadRef.putString('A' * 20000000);
+            await _testCancelTask();
+          },
+          retry: 2,
+        );
+      },
+    );
+
+    group('snapshotEvents', () {
+      test('loop through successful `snapshotEvents`', () async {
+        final snapshots = <TaskSnapshot>[];
+        final task = uploadRef.putString('This is an upload task!');
+        // ignore: prefer_foreach
+        await for (final event in task.snapshotEvents) {
+          snapshots.add(event);
+        }
+        expect(snapshots.last.state, TaskState.success);
+      });
+
+      test('failed `snapshotEvents` loop', () async {
+        final snapshots = <TaskSnapshot>[];
+        UploadTask task =
+            storage.ref('/uploadNope.jpeg').putString('This will fail');
+        try {
+          // ignore: prefer_foreach
+          await for (final event in task.snapshotEvents) {
+            snapshots.add(event);
+          }
+        } catch (e) {
+          expect(e, isA<FirebaseException>());
+          FirebaseException exception = e as FirebaseException;
+          expect(exception.plugin, 'firebase_storage');
+          expect(exception.code, 'unauthorized');
+          expect(
+            exception.message,
+            'User is not authorized to perform the desired action.',
+          );
+        }
+      });
+
+      test('listen to successful snapshotEvents, ensure `onDone` is called',
+          () async {
+        final snapshots = <TaskSnapshot>[];
+        final task = uploadRef.putString('This is an upload task!');
+        bool onDoneIsCalled = false;
+        task.snapshotEvents.listen(
+          snapshots.add,
+          onDone: () {
+            onDoneIsCalled = true;
           },
         );
 
-        test('successfully cancels upload task', () async {
-          task = uploadRef.putString('This is an upload task!');
-          await _testCancelTask();
-        });
-      },
-      skip: true,
-    );
+        await Future.delayed(const Duration(seconds: 1));
+        expect(onDoneIsCalled, isTrue);
+        expect(snapshots.last.state, TaskState.success);
+      });
+
+      test('listen to failed snapshotEvents, ensure `onDone` is called',
+          () async {
+        final snapshots = <TaskSnapshot>[];
+        final task = storage
+            .ref('/uploadNope.jpeg')
+            .putString('This is an upload task!');
+        bool onDoneIsCalled = false;
+        FirebaseException? streamError;
+        task.snapshotEvents.listen(
+          snapshots.add,
+          onError: (e) {
+            streamError = e;
+          },
+          onDone: () {
+            onDoneIsCalled = true;
+          },
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        expect(onDoneIsCalled, isTrue);
+        expect(snapshots.last.state, TaskState.running);
+        expect(streamError, isA<FirebaseException>());
+      });
+    });
   });
 }

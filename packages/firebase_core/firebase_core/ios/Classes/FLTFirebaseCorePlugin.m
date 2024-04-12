@@ -51,6 +51,20 @@
   return instance;
 }
 
+static NSMutableDictionary<NSString *, NSString *> *customAuthDomains;
+
+// Initialize static properties
+
++ (void)initialize {
+  if (self == [FLTFirebaseCorePlugin self]) {
+    customAuthDomains = [[NSMutableDictionary alloc] init];
+  }
+}
+
++ (NSString *)getCustomDomain:(NSString *)appName {
+  return customAuthDomains[appName];
+}
+
 #pragma mark - Helpers
 
 - (PigeonFirebaseOptions *)optionsFromFIROptions:(FIROptions *)options {
@@ -61,9 +75,7 @@
   pigeonOptions.projectId = (id)options.projectID ?: [NSNull null];
   pigeonOptions.databaseURL = (id)options.databaseURL ?: [NSNull null];
   pigeonOptions.storageBucket = (id)options.storageBucket ?: [NSNull null];
-  pigeonOptions.trackingId = (id)options.trackingID ?: [NSNull null];
   pigeonOptions.deepLinkURLScheme = (id)options.deepLinkURLScheme ?: [NSNull null];
-  pigeonOptions.androidClientId = (id)options.androidClientID ?: [NSNull null];
   pigeonOptions.iosBundleId = (id)options.bundleID ?: [NSNull null];
   pigeonOptions.iosClientId = (id)options.clientID ?: [NSNull null];
   pigeonOptions.appGroupId = (id)options.appGroupID ?: [NSNull null];
@@ -137,19 +149,9 @@
     options.storageBucket = initializeAppRequest.storageBucket;
   }
 
-  // kFirebaseOptionsTrackingId
-  if (![initializeAppRequest.trackingId isEqual:[NSNull null]]) {
-    options.trackingID = initializeAppRequest.trackingId;
-  }
-
   // kFirebaseOptionsDeepLinkURLScheme
   if (![initializeAppRequest.deepLinkURLScheme isEqual:[NSNull null]]) {
     options.deepLinkURLScheme = initializeAppRequest.deepLinkURLScheme;
-  }
-
-  // kFirebaseOptionsAndroidClientId
-  if (![initializeAppRequest.androidClientId isEqual:[NSNull null]]) {
-    options.androidClientID = initializeAppRequest.androidClientId;
   }
 
   // kFirebaseOptionsIosBundleId
@@ -165,6 +167,10 @@
   // kFirebaseOptionsAppGroupId
   if (![initializeAppRequest.appGroupId isEqual:[NSNull null]]) {
     options.appGroupID = initializeAppRequest.appGroupId;
+  }
+
+  if (initializeAppRequest.authDomain != nil) {
+    customAuthDomains[appNameIos] = initializeAppRequest.authDomain;
   }
 
   [FIRApp configureWithName:appNameIos options:options];

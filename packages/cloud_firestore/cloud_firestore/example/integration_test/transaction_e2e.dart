@@ -91,37 +91,40 @@ void runTransactionTests() {
         }
       });
 
-      testWidgets('should not collide if number of maxAttempts is enough',
-          (_) async {
-        DocumentReference<Map<String, dynamic>> doc1 =
-            await initializeTest('transaction-maxAttempts-1');
+      testWidgets(
+        'should not collide if number of maxAttempts is enough',
+        (_) async {
+          DocumentReference<Map<String, dynamic>> doc1 =
+              await initializeTest('transaction-maxAttempts-1');
 
-        await doc1.set({'test': 0});
+          await doc1.set({'test': 0});
 
-        await Future.wait([
-          firestore.runTransaction(
-            (Transaction transaction) async {
-              final value = await transaction.get(doc1);
-              transaction.set(doc1, {
-                'test': value['test'] + 1,
-              });
-            },
-            maxAttempts: 2,
-          ),
-          firestore.runTransaction(
-            (Transaction transaction) async {
-              final value = await transaction.get(doc1);
-              transaction.set(doc1, {
-                'test': value['test'] + 1,
-              });
-            },
-            maxAttempts: 2,
-          ),
-        ]);
+          await Future.wait([
+            firestore.runTransaction(
+              (Transaction transaction) async {
+                final value = await transaction.get(doc1);
+                transaction.set(doc1, {
+                  'test': value['test'] + 1,
+                });
+              },
+              maxAttempts: 2,
+            ),
+            firestore.runTransaction(
+              (Transaction transaction) async {
+                final value = await transaction.get(doc1);
+                transaction.set(doc1, {
+                  'test': value['test'] + 1,
+                });
+              },
+              maxAttempts: 2,
+            ),
+          ]);
 
-        DocumentSnapshot<Map<String, dynamic>> snapshot1 = await doc1.get();
-        expect(snapshot1.data()!['test'], equals(2));
-      });
+          DocumentSnapshot<Map<String, dynamic>> snapshot1 = await doc1.get();
+          expect(snapshot1.data()!['test'], equals(2));
+        },
+        retry: 2,
+      );
 
       testWidgets('should collide if number of maxAttempts is too low',
           (_) async {
@@ -230,7 +233,7 @@ void runTransactionTests() {
           expect(e.code, equals('permission-denied'));
           return;
         } catch (e) {
-          fail('Transaction threw invalid exeption');
+          fail('Transaction threw invalid exception');
         }
       });
 
@@ -247,6 +250,25 @@ void runTransactionTests() {
             }),
             throwsAssertionError,
           );
+        });
+
+        testWidgets(
+            'should throw a native error, and convert to a [FirebaseException]',
+            (_) async {
+          DocumentReference<Map<String, dynamic>> documentReference =
+              firestore.doc('not-allowed/document');
+
+          try {
+            await firestore.runTransaction((Transaction transaction) async {
+              await transaction.get(documentReference);
+            });
+            fail('Transaction should not have resolved');
+          } on FirebaseException catch (e) {
+            expect(e.code, equals('permission-denied'));
+            return;
+          } catch (e) {
+            fail('Transaction threw invalid exception');
+          }
         });
 
         // ignore: todo
@@ -424,6 +446,45 @@ void runTransactionTests() {
             await documentReference2.get();
         expect(snapshot2.exists, isFalse);
       });
+
+      // TODO(Lyokone): adding auth make some tests fails in macOS
+      // testWidgets(
+      //     'should not fail to complete transaction if user is authenticated',
+      //     (_) async {
+      //   DocumentReference<Map<String, dynamic>> doc1 =
+      //       await initializeTest('transaction-authentified-1');
+
+      //   try {
+      //     await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      //       email: 'firestore@mail.com',
+      //       password: 'this-is-a-password',
+      //     );
+      //   } catch (e) {
+      //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+      //       email: 'firestore@mail.com',
+      //       password: 'this-is-a-password',
+      //     );
+      //   }
+
+      //   await doc1.set({'test': 0});
+
+      //   final value = await firestore.runTransaction(
+      //     (Transaction transaction) async {
+      //       final value = await transaction.get(doc1);
+      //       final newValue = value['test'] + 1;
+      //       transaction.set(doc1, {
+      //         'test': newValue,
+      //       });
+
+      //       return newValue;
+      //     },
+      //     maxAttempts: 1,
+      //   );
+
+      //   expect(value, equals(1));
+
+      //   await FirebaseAuth.instance.signOut();
+      // });
     },
     skip: kIsWeb,
   );

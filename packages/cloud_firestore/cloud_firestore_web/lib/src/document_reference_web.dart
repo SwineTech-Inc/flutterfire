@@ -40,7 +40,8 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
   @override
   Future<void> update(Map<Object, dynamic> data) {
     return convertWebExceptions(
-        () => _delegate.update(EncodeUtility.encodeMapDataFieldPath(data)!));
+      () => _delegate.update(EncodeUtility.encodeMapDataFieldPath(data)!),
+    );
   }
 
   @override
@@ -54,7 +55,7 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
     return convertWebDocumentSnapshot(
       firestore,
       documentSnapshot,
-      getServerTimestampBehaviorString(options.serverTimestampBehavior),
+      options.serverTimestampBehavior,
     );
   }
 
@@ -66,19 +67,20 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
   @override
   Stream<DocumentSnapshotPlatform> snapshots({
     bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
   }) {
     Stream<firestore_interop.DocumentSnapshot> querySnapshots =
-        _delegate.onSnapshot;
-    if (includeMetadataChanges) {
-      querySnapshots = _delegate.onMetadataChangesSnapshot;
-    }
+        _delegate.onSnapshot(
+      includeMetadataChanges: includeMetadataChanges,
+      source: source,
+    );
 
     return convertWebExceptions(
       () => querySnapshots.map((webSnapshot) {
         return convertWebDocumentSnapshot(
           firestore,
           webSnapshot,
-          ServerTimestampBehavior.none.name,
+          ServerTimestampBehavior.none,
         );
       }),
     );

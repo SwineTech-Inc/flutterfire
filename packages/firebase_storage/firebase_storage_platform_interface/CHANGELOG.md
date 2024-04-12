@@ -1,3 +1,94 @@
+## 5.1.16
+
+ - Update a dependency to the latest release.
+
+## 5.1.15
+
+ - Update a dependency to the latest release.
+
+## 5.1.14
+
+ - Update a dependency to the latest release.
+
+## 5.1.13
+
+ - Update a dependency to the latest release.
+
+## 5.1.12
+
+ - Update a dependency to the latest release.
+
+## 5.1.11
+
+ - Update a dependency to the latest release.
+
+## 5.1.10
+
+ - **FIX**(storage): `Task.cancel()` method wasn't properly updating `task.snapshot` and `cancel()` wasn't working in certain conditions. ([#12322](https://github.com/firebase/flutterfire/issues/12322)). ([c3ca5d10](https://github.com/firebase/flutterfire/commit/c3ca5d101b735e2203ca3d4e52f0b457794b3a47))
+
+## 5.1.9
+
+ - Update a dependency to the latest release.
+
+## 5.1.8
+
+ - Update a dependency to the latest release.
+
+## 5.1.7
+
+ - Update a dependency to the latest release.
+
+## 5.1.6
+
+ - Update a dependency to the latest release.
+
+## 5.1.5
+
+ - Update a dependency to the latest release.
+
+## 5.1.4
+
+ - **FIX**(storage): ensure Task listeners correctly propagate exceptions and close properly. ([#12160](https://github.com/firebase/flutterfire/issues/12160)). ([759684b1](https://github.com/firebase/flutterfire/commit/759684b1b445bf238e9644ef1dc495cdc6a55dd8))
+
+## 5.1.3
+
+ - Update a dependency to the latest release.
+
+## 5.1.2
+
+ - Update a dependency to the latest release.
+
+## 5.1.1
+
+ - Update a dependency to the latest release.
+
+## 5.1.0
+
+ - **FEAT**: update code to remove warnings using Flutter 3.16 ([#11902](https://github.com/firebase/flutterfire/issues/11902)). ([bdb57b53](https://github.com/firebase/flutterfire/commit/bdb57b53c1bb8e528127b8d167b44d5346fcbcdf))
+
+## 5.0.2
+
+ - **FIX**(storage): ensure bucket value is used to create FirebaseStorage instance to stop incorrect default bucket usage ([#11844](https://github.com/firebase/flutterfire/issues/11844)). ([49542f32](https://github.com/firebase/flutterfire/commit/49542f32ca8ae1eef6065e40ddb21fa40e66d7f0))
+
+## 5.0.1
+
+ - **FIX**(storage,windows): add missing c++ generated files into pigeon template ([#11799](https://github.com/firebase/flutterfire/issues/11799)). ([ad9e018b](https://github.com/firebase/flutterfire/commit/ad9e018bf7943e7b300aa5adea9845a306c1f12d))
+
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **FEAT**(storage,windows): Add windows support ([#11617](https://github.com/firebase/flutterfire/issues/11617)). ([87ea02c8](https://github.com/firebase/flutterfire/commit/87ea02c8ae03eb351636cf202961ad0df6caebd8))
+ - **BREAKING** **FEAT**(storage): move Storage to use Pigeon for platform channels ([#11521](https://github.com/firebase/flutterfire/issues/11521)). ([edddc1de](https://github.com/firebase/flutterfire/commit/edddc1def508d0c516534b80c13d41a919fd39bc))
+
+## 4.4.9
+
+ - Update a dependency to the latest release.
+
+## 4.4.8
+
+ - Update a dependency to the latest release.
+
 ## 4.4.7
 
  - Update a dependency to the latest release.

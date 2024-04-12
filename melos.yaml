@@ -25,10 +25,10 @@ command:
 
 scripts:
   lint:all:
-    run: melos run analyze && melos run format
+    run: melos run analyze-ci && melos run format-ci
     description: Run all static analysis checks.
 
-  analyze:
+  analyze-ci:
     # We are setting the concurrency to 1 because a higher concurrency can crash
     # the analysis server on low performance machines (like GitHub Actions).
     run: |
@@ -46,7 +46,7 @@ scripts:
       integration testing.
        - Requires Node.js and NPM installed.
 
-  format:
+  format-ci:
     run: |
       dart pub global run flutter_plugin_tools format && \
       swiftformat .
@@ -133,7 +133,6 @@ scripts:
         - test
       ignore:
         - '*web*'
-        - '*odm*'
         - '*example*'
 
   test:web:
@@ -185,7 +184,7 @@ scripts:
   test:e2e:web:cloud_firestore:
     run: |
       cd packages/cloud_firestore/cloud_firestore/example
-      flutter drive --target=./integration_test/cloud_firestore_e2e_test.dart --driver=./test_driver/integration_test.dart --release -d chrome
+      flutter drive --target=./integration_test/e2e_test.dart --driver=./test_driver/integration_test.dart -d chrome
     description: |
       Run all e2e tests for cloud_firestore on web platform. Please ensure you have "chromedriver" installed and running.
 
@@ -214,6 +213,7 @@ scripts:
     run: |
       melos exec -- "flutter pub run pigeon --input ./pigeons/messages.dart" && \
       melos run generate:pigeon:macos --no-select && \
+      melos run generate:pigeon:android --no-select && \
       melos run format --no-select
     packageFilters:
       fileExists: 'pigeons/messages.dart'
@@ -226,56 +226,13 @@ scripts:
       fileExists: 'ios/Classes/messages.g.m'
     description: Pigeon does not add the condition to import Flutter or FlutterMacOs. Add the condition
 
-  odm:test:
+  generate:pigeon:android:
     run: |
-      melos run odm:test:dart &&
-      melos run odm:test:flutter
-    description: Run all tests for the ODM.
-
-  odm:test:dart:
-    run: |
-      melos exec -- \
-        "dart test"
-    description: Run Dart tests for the ODM.
+      melos exec -- "find ./android -type f -name '*Generated*' | xargs sed -i '.bak' 's/ArrayList<Object> toList() {/public ArrayList<Object> toList() {/g'" && \
+      melos exec -- "find ./android -type f -name '*.bak' -delete"
     packageFilters:
-      dirExists: 'test'
-      dependsOn: 'test'
-      scope: '*odm*'
-
-  odm:test:flutter:
-    run: |
-      melos exec -- \
-        "flutter test"
-    description: Run Flutter tests for the ODM.
-    packageFilters:
-      dirExists: 'test'
-      noDependsOn: 'test'
-      scope: '*odm*'
-
-  odm:example_build_runner:build:
-    run: |
-      melos exec -- \
-        "flutter pub run build_runner build --delete-conflicting-outputs"
-    description: Run a build_runner build in the ODM example app.
-    packageFilters:
-      scope: '*odm_example*'
-
-  odm:generator_test_build_runner:build:
-    run: |
-      melos exec -c 1 -- \
-        "dart pub get && flutter pub run build_runner build --delete-conflicting-outputs"
-    description: Run a build_runner build generator test.
-    packageFilters:
-      scope:
-        - '*odm_generator_integration*'
-
-  odm:example_build_runner:watch:
-    run: |
-      melos exec -c 5 -- \
-        "flutter pub run build_runner watch --delete-conflicting-outputs"
-    description: Run build_runner watch in the ODM example app.
-    packageFilters:
-      scope: '*odm_example*'
+      dirExists: 'android'
+    description: Transform the method toList() into a public one to be used in EventChannel
 
   # Additional cleanup lifecycle script, executed when `melos clean` is run.
   postclean: >

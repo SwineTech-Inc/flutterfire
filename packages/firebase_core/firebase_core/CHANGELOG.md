@@ -1,3 +1,100 @@
+## 2.29.0
+
+ - **FEAT**: bump Android SDK to version 32.8.0 ([#12584](https://github.com/firebase/flutterfire/issues/12584)). ([a81d9104](https://github.com/firebase/flutterfire/commit/a81d9104f72e88e917612ab7f11ba7ed6b1bdd76))
+
+## 2.28.0
+
+ - **FEAT**(android): Bump `compileSdk` version of Android plugins to latest stable (34) ([#12566](https://github.com/firebase/flutterfire/issues/12566)). ([e891fab2](https://github.com/firebase/flutterfire/commit/e891fab291e9beebc223000b133a6097e066a7fc))
+
+## 2.27.2
+
+ - **FIX**: bump Android SDK to version 32.7.4 ([#12499](https://github.com/firebase/flutterfire/issues/12499)). ([39cdd623](https://github.com/firebase/flutterfire/commit/39cdd6235ae8aed2537fd39031c50d2d36a44b43))
+
+## 2.27.1
+
+ - Update a dependency to the latest release.
+
+## 2.27.0
+
+ - **FEAT**: bump Android SDK to version 3.7.3 ([#12443](https://github.com/firebase/flutterfire/issues/12443)). ([2509d91a](https://github.com/firebase/flutterfire/commit/2509d91aa7d95af19407b5823815b65085902347))
+
+## 2.26.0
+
+ - **FIX**(core,android): fix a null issue when initializing `fromResource()` ([#12404](https://github.com/firebase/flutterfire/issues/12404)). ([635cd781](https://github.com/firebase/flutterfire/commit/635cd7819476d8768b4ccbae323e230e6063967b))
+ - **FEAT**: bump iOS SDK to version 10.22.0 ([#12430](https://github.com/firebase/flutterfire/issues/12430)). ([741c5519](https://github.com/firebase/flutterfire/commit/741c55196677d248603153b2ccca323c7591b2d6))
+
+## 2.25.5
+
+ - **FIX**(core,web): fix compatibility with TrustedTypes ([#12383](https://github.com/firebase/flutterfire/issues/12383)). ([6c1f73d0](https://github.com/firebase/flutterfire/commit/6c1f73d0c8357db83e1ee81e084a3a5b531e0e0c))
+
+## 2.25.4
+
+ - Update a dependency to the latest release.
+
+## 2.25.3
+
+ - Update a dependency to the latest release.
+
+## 2.25.2
+
+ - **FIX**(auth,web): fix null safety issue in typing JS Interop ([#12250](https://github.com/firebase/flutterfire/issues/12250)). ([d0d30405](https://github.com/firebase/flutterfire/commit/d0d30405a895ae221603ddd158b1cb1636312fb4))
+
+## 2.25.1
+
+ - Update a dependency to the latest release.
+
+## 2.25.0
+
+ - **FIX**(auth,ios): Initialise static dictionary for custom auth domains ([#12157](https://github.com/firebase/flutterfire/issues/12157)). ([1262f3c6](https://github.com/firebase/flutterfire/commit/1262f3c6c5fb659217ccd609a5c6dc9e37ab8815))
+ - **FEAT**: bump Android SDK to version `32.7.1` ([#12213](https://github.com/firebase/flutterfire/issues/12213)). ([3c75bb52](https://github.com/firebase/flutterfire/commit/3c75bb527acbd7bb7a0d9f712d85e6fbc281e5e9))
+ - **FEAT**: bump iOS SDK to version `10.20.0` ([#12214](https://github.com/firebase/flutterfire/issues/12214)). ([e34e072a](https://github.com/firebase/flutterfire/commit/e34e072a94f19ef83c45080c52228c57d99971c9))
+ - **FEAT**: bump firebase iOS SDK to `10.19.0` ([#12125](https://github.com/firebase/flutterfire/issues/12125)). ([c3861567](https://github.com/firebase/flutterfire/commit/c38615672d53d4a4775cd7897ccbef3902b7fee4))
+ - **FEAT**: bump firebase android SDK BOM to `32.7.0` ([#12124](https://github.com/firebase/flutterfire/issues/12124)). ([a691f3d1](https://github.com/firebase/flutterfire/commit/a691f3d1309b29d6603b15a8aecf21287979e428))
+ - **DOCS**: change old documentation links of packages in README files ([#12136](https://github.com/firebase/flutterfire/issues/12136)). ([24b9ac7e](https://github.com/firebase/flutterfire/commit/24b9ac7ec29fc9ca466c0941c2cff26d75b8568d))
+
+## 2.24.2
+
+ - **FIX**(core,windows): fix release build of Firebase Auth, Firestore and Storage on Windows ([#11997](https://github.com/firebase/flutterfire/issues/11997)). ([12b186a8](https://github.com/firebase/flutterfire/commit/12b186a82578f792d7f4c500f145f5bd4f398545))
+
+## 2.24.1
+
+ - Update a dependency to the latest release.
+
+## 2.24.0
+
+ - **FEAT**(auth): add support for custom domains on mobile ([#11925](https://github.com/firebase/flutterfire/issues/11925)). ([552119c7](https://github.com/firebase/flutterfire/commit/552119c78e2750a929c6226de22f9f6d8df948a4))
+
+## 2.23.0
+
+ - **FIX**(core,apple): remove usage of deprecated options `trackingID` and `androidClientID` ([#11893](https://github.com/firebase/flutterfire/issues/11893)). ([4dfbe5a4](https://github.com/firebase/flutterfire/commit/4dfbe5a485284ae7fa1356284e7971e96db15f27))
+ - **FEAT**: bump iOS SDK to version 10.18.0 ([#11916](https://github.com/firebase/flutterfire/issues/11916)). ([abbea170](https://github.com/firebase/flutterfire/commit/abbea170a6d87f6e313f0244395b60f5b2b3f64e))
+ - **FEAT**: bump firebase android SDK BOM to `32.6.0` ([#11910](https://github.com/firebase/flutterfire/issues/11910)). ([8467816c](https://github.com/firebase/flutterfire/commit/8467816c234f979b40fa1ad4f2737e27ccd33271))
+
+## 2.22.0
+
+ - **FEAT**: update iOS SDK to version 10.17.0 ([#11839](https://github.com/firebase/flutterfire/issues/11839)). ([f78838ae](https://github.com/firebase/flutterfire/commit/f78838ae480e28f0f83f1b7cf10bf424ac0593d6))
+ - **FEAT**(windows): add platform logging for core, auth, firestore and storage ([#11790](https://github.com/firebase/flutterfire/issues/11790)). ([e7d428d1](https://github.com/firebase/flutterfire/commit/e7d428d14be1535a2d579d4b2d376fbb81f06742))
+
+## 2.21.0
+
+ - **FEAT**: bump Firebase android SDK BoM `32.5.0` ([#11803](https://github.com/firebase/flutterfire/issues/11803)). ([adf98ea4](https://github.com/firebase/flutterfire/commit/adf98ea49bfb1c601f452f00c2d0dd74ada858f2))
+
+## 2.20.0
+
+ - **FIX**(core,windows): remove unused map of string that was causing a crash ([#11745](https://github.com/firebase/flutterfire/issues/11745)). ([895da052](https://github.com/firebase/flutterfire/commit/895da052207d832d30c9eeceafabac3051e1dabb))
+ - **FIX**(core,windows): allow user to override MSVC_RUNTIME_MODE ([#11150](https://github.com/firebase/flutterfire/issues/11150)). ([3be28676](https://github.com/firebase/flutterfire/commit/3be28676578c53ce4a26bc2f8f480630b579350c))
+ - **FEAT**: bump Firebase iOS SDK `10.16.0` ([#11698](https://github.com/firebase/flutterfire/issues/11698)). ([666f90ea](https://github.com/firebase/flutterfire/commit/666f90ea1eb090ee3f2397c9ffde8ddaf934f36c))
+ - **FEAT**(storage,windows): Add windows support ([#11617](https://github.com/firebase/flutterfire/issues/11617)). ([87ea02c8](https://github.com/firebase/flutterfire/commit/87ea02c8ae03eb351636cf202961ad0df6caebd8))
+
+## 2.19.0
+
+ - **FEAT**(firestore,windows): add Filters to windows ([#11726](https://github.com/firebase/flutterfire/issues/11726)). ([dde59d46](https://github.com/firebase/flutterfire/commit/dde59d466e1b6cc483ba29654a35f198d6e8c9ae))
+
+## 2.18.0
+
+ - **FEAT**: Full support of AGP 8 ([#11699](https://github.com/firebase/flutterfire/issues/11699)). ([bdb5b270](https://github.com/firebase/flutterfire/commit/bdb5b27084d225809883bdaa6aa5954650551927))
+ - **FEAT**(firestore,windows): add support to Windows ([#11516](https://github.com/firebase/flutterfire/issues/11516)). ([e51d2a2d](https://github.com/firebase/flutterfire/commit/e51d2a2d287f4162f5a67d8200f1bf57fc2afe14))
+
 ## 2.17.0
 
  - **FEAT**: bump Firebase android SDK `32.3.1` ([#11663](https://github.com/firebase/flutterfire/issues/11663)). ([639bc2ea](https://github.com/firebase/flutterfire/commit/639bc2eaabe320a533ec643d4f0c91d2ab3ea5d1))

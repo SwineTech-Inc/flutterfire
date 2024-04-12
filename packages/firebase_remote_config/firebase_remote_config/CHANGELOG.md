@@ -1,3 +1,93 @@
+## 4.4.1
+
+ - Update a dependency to the latest release.
+
+## 4.4.0
+
+ - **FIX**(remote_config): fixing an issue that could cause duplicate listeners on hot restart ([#12545](https://github.com/firebase/flutterfire/issues/12545)). ([4b789875](https://github.com/firebase/flutterfire/commit/4b7898751f658125279b9e904e0179ca6c33cb25))
+ - **FEAT**(android): Bump `compileSdk` version of Android plugins to latest stable (34) ([#12566](https://github.com/firebase/flutterfire/issues/12566)). ([e891fab2](https://github.com/firebase/flutterfire/commit/e891fab291e9beebc223000b133a6097e066a7fc))
+
+## 4.3.19
+
+ - Update a dependency to the latest release.
+
+## 4.3.18
+
+ - Update a dependency to the latest release.
+
+## 4.3.17
+
+ - Update a dependency to the latest release.
+
+## 4.3.16
+
+ - Update a dependency to the latest release.
+
+## 4.3.15
+
+ - Update a dependency to the latest release.
+
+## 4.3.14
+
+ - Update a dependency to the latest release.
+
+## 4.3.13
+
+ - Update a dependency to the latest release.
+
+## 4.3.12
+
+ - Update a dependency to the latest release.
+
+## 4.3.11
+
+ - Update a dependency to the latest release.
+
+## 4.3.10
+
+ - Update a dependency to the latest release.
+
+## 4.3.9
+
+ - Update a dependency to the latest release.
+
+## 4.3.8
+
+ - Update a dependency to the latest release.
+
+## 4.3.7
+
+ - Update a dependency to the latest release.
+
+## 4.3.6
+
+ - Update a dependency to the latest release.
+
+## 4.3.5
+
+ - **FIX**(remote_config,android): fix an issue that could cause a non responsive app when hot restarting an app ([#11895](https://github.com/firebase/flutterfire/issues/11895)). ([1cfdb063](https://github.com/firebase/flutterfire/commit/1cfdb063f01a0036bec02e69e96a0ca6bb8ca83a))
+
+## 4.3.4
+
+ - Update a dependency to the latest release.
+
+## 4.3.3
+
+ - Update a dependency to the latest release.
+
+## 4.3.2
+
+ - Update a dependency to the latest release.
+
+## 4.3.1
+
+ - Update a dependency to the latest release.
+
+## 4.3.0
+
+ - **FEAT**: Full support of AGP 8 ([#11699](https://github.com/firebase/flutterfire/issues/11699)). ([bdb5b270](https://github.com/firebase/flutterfire/commit/bdb5b27084d225809883bdaa6aa5954650551927))
+ - **FEAT**(firestore,windows): add support to Windows ([#11516](https://github.com/firebase/flutterfire/issues/11516)). ([e51d2a2d](https://github.com/firebase/flutterfire/commit/e51d2a2d287f4162f5a67d8200f1bf57fc2afe14))
+
 ## 4.2.7
 
  - Update a dependency to the latest release.

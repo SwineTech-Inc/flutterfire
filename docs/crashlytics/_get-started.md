@@ -16,25 +16,37 @@ first crash report to Firebase.
     [configure and initialize Firebase](/docs/flutter/setup) in your Flutter
     project.
 
-1.  **Recommended**: To get features like crash-free users, breadcrumb logs,
-    and velocity alerts, you need to enable {{firebase_analytics}} in your
-    Firebase project.
+1.  **Recommended**: To automatically get
+    [breadcrumb logs](/docs/crashlytics/customize-crash-reports#get-breadcrumb-logs)
+    to understand user actions leading up to a crash, non-fatal, or ANR event,
+    you need to enable {{firebase_analytics}} in your Firebase project.
 
-    All Android and Apple platforms supported by {{crashlytics}} (except
-    watchOS) can take advantage of these features from {{firebase_analytics}}.
+    * If your existing Firebase project doesn't have {{firebase_analytics}}
+      enabled, you can enable {{firebase_analytics}} from the
+      {{firebase_console_integrations_link}} of your
+      <nobr><span class="material-icons">settings</span> > _Project settings_</nobr>
+      in the {{name_appmanager}}.
 
-    Make sure that {{firebase_analytics}} is enabled in your Firebase project:
-    Go to <nobr><span class="material-icons">settings</span> > _Project settings_</nobr> > _Integrations_ tab,
-    then follow the on-screen instructions for {{firebase_analytics}}.
+    * If you're creating a new Firebase project, enable {{firebase_analytics}}
+      during the project creation workflow.
 
+    Note that breadcrumb logs are available for all Android and Apple platforms
+    supported by {{crashlytics}} (except watchOS).
 
 ## **Step 1**: Add {{crashlytics}} to your Flutter project {: #add-sdk}
 
 1.  From the root of your Flutter project, run the following command to install
-    the {{crashlytics}} Flutter plugin:
+    the Flutter plugin for {{crashlytics}}.
+
+    To take advantage of
+    [breadcrumb logs](/docs/crashlytics/customize-crash-reports#get-breadcrumb-logs),
+    also add the Flutter plugin for {{firebase_analytics}} to your app.
+    Make sure that
+    [Google Analytics is enabled](https://support.google.com/firebase/answer/9289399#linkga){: .external}
+    in your Firebase project.
 
     ```sh {: .devsite-terminal .devsite-click-to-copy data-terminal-prefix="your-flutter-proj$ " }
-    flutter pub add firebase_crashlytics
+    flutter pub add firebase_crashlytics && flutter pub add firebase_analytics
     ```
 
 1.  From the root directory of your Flutter project, run the following command:
@@ -52,6 +64,48 @@ first crash report to Firebase.
     ```sh {: .devsite-terminal .devsite-click-to-copy data-terminal-prefix="your-flutter-proj$ " }
     flutter run
     ```
+
+1.  _(Optional)_ If your Flutter project uses the `--split-debug-info` flag
+    (and, optionally, also the `--obfuscate` flag), additional steps are
+    required to show readable stack traces for your apps.
+
+    * **Apple platforms:** Make sure that your project is using the recommended
+      version configuration (Flutter 3.12.0+ and
+      {{crashlytics}} Flutter plugin 3.3.4+) so that your project can
+      automatically generate and upload Flutter symbols (dSYM files) to
+      {{crashlytics}}.
+
+    * **Android:** Use the [{{firebase_cli}}](/docs/cli) (v.11.9.0+) to upload
+      Flutter debug symbols. You need to upload the debug symbols _before_
+      reporting a crash from an obfuscated code build.
+
+      From the root directory of your Flutter project, run the following
+      command:
+
+      <pre class="devsite-terminal" data-terminal-prefix="your-flutter-proj$ ">firebase crashlytics:symbols:upload --app=<var class="readonly">FIREBASE_APP_ID</var> <var class="readonly">PATH/TO</var>/symbols</pre>
+
+      * <var>FIREBASE_APP_ID</var>: Your Firebase Android App ID (not your
+        package name)<br>
+        Example Firebase Android App ID: `1:567383003300:android:17104a2ced0c9b9b`
+
+          {{ '<section class="expandable">' }}
+          <p class="showalways">Need to find your Firebase App ID?</p>
+
+          > Here are two ways to find your Firebase App ID:
+          >
+          > * In your `google-services.json` file, your App ID is the
+          >   `mobilesdk_app_id` value; or
+          >
+          > * In the {{name_appmanager}}, go to your
+          >   [_Project settings_](https://console.firebase.google.com/project/_/settings/general/){: .external}.
+          >   Scroll down to the _Your apps_ card, then click on the desired Firebase
+          >   App to find its App ID.
+
+          {{ '</section>' }}
+
+      * <code><var>PATH/TO</var>/symbols</code>: The same directory that you
+        pass to the `--split-debug-info` flag when building the application
+
 
 ## **Step 2**: Configure crash handlers {: #configure-crash-handlers}
 

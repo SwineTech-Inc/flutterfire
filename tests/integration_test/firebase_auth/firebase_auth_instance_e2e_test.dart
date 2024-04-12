@@ -327,6 +327,7 @@ void main() {
       group('fetchSignInMethodsForEmail()', () {
         test('should return password provider for an email address', () async {
           var providers =
+          // ignore: deprecated_member_use
               await FirebaseAuth.instance.fetchSignInMethodsForEmail(testEmail);
           expect(providers, isList);
           expect(providers.contains('password'), isTrue);
@@ -334,6 +335,7 @@ void main() {
 
         test('should return empty array for a not found email', () async {
           var providers = await FirebaseAuth.instance
+          // ignore: deprecated_member_use
               .fetchSignInMethodsForEmail(generateRandomEmail());
 
           expect(providers, isList);
@@ -342,6 +344,7 @@ void main() {
 
         test('throws for a bad email address', () async {
           try {
+            // ignore: deprecated_member_use
             await FirebaseAuth.instance.fetchSignInMethodsForEmail('foobar');
             fail('Should have thrown');
           } on FirebaseAuthException catch (e) {
@@ -473,11 +476,14 @@ void main() {
         test(
           'should allow null value and set to null',
           () async {
+            // Isn't possible anymore to set the language code to null
+            // See API: https://firebase.google.com/docs/reference/js/auth.md?_gl=1*120kqub*_up*MQ..*_ga*NTg2MzgzNDU0LjE3MDc5MTYxMjI.*_ga_CW55HF8NVT*MTcwNzkxNjEyMi4xLjAuMTcwNzkxNjEyMi4wLjAuMA..#usedevicelanguage_2a61ea7
+            // Effectively will set the language code to the device language.
             await FirebaseAuth.instance.setLanguageCode(null);
-
+            // This will return the device language now. e.g. "en-GB"
             expect(FirebaseAuth.instance.languageCode, null);
           },
-          skip: !kIsWeb,
+          skip: true,
         );
       });
 

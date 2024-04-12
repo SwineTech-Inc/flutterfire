@@ -15,10 +15,11 @@ class MethodChannelMultiFactor extends MultiFactorPlatform {
 
   final _api = MultiFactorUserHostApi();
 
-  PigeonFirebaseApp get pigeonDefault {
-    return PigeonFirebaseApp(
+  AuthPigeonFirebaseApp get pigeonDefault {
+    return AuthPigeonFirebaseApp(
       appName: auth.app.name,
       tenantId: auth.tenantId,
+      customAuthDomain: auth.customAuthDomain,
     );
   }
 

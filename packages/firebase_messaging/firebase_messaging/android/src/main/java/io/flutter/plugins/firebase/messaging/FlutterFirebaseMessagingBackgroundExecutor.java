@@ -177,6 +177,7 @@ public class FlutterFirebaseMessagingBackgroundExecutor implements MethodCallHan
                       FlutterCallbackInformation.lookupCallbackInformation(callbackHandle);
                   DartExecutor executor = backgroundFlutterEngine.getDartExecutor();
                   initializeMethodChannel(executor);
+
                   DartCallback dartCallback =
                       new DartCallback(assets, appBundlePath, flutterCallback);
 

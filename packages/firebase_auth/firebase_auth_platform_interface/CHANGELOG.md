@@ -1,3 +1,100 @@
+## 7.2.2
+
+ - Update a dependency to the latest release.
+
+## 7.2.1
+
+ - Update a dependency to the latest release.
+
+## 7.2.0
+
+ - **FEAT**(firebase_auth): add custom auth domain setter to Firebase Auth ([#12218](https://github.com/firebase/flutterfire/issues/12218)). ([e1297800](https://github.com/firebase/flutterfire/commit/e12978009e0fd785f267db560972ab0bbe021fcb))
+
+## 7.1.9
+
+ - Update a dependency to the latest release.
+
+## 7.1.8
+
+ - Update a dependency to the latest release.
+
+## 7.1.7
+
+ - Update a dependency to the latest release.
+
+## 7.1.6
+
+ - Update a dependency to the latest release.
+
+## 7.1.5
+
+ - Update a dependency to the latest release.
+
+## 7.1.4
+
+ - Update a dependency to the latest release.
+
+## 7.1.3
+
+ - Update a dependency to the latest release.
+
+## 7.1.2
+
+ - Update a dependency to the latest release.
+
+## 7.1.1
+
+ - Update a dependency to the latest release.
+
+## 7.1.0
+
+ - **FIX**(firebase_auth): Fix `PlatformException` to `FirebaseAuthException` error message parsing ([#11533](https://github.com/firebase/flutterfire/issues/11533)). ([8fe8cfde](https://github.com/firebase/flutterfire/commit/8fe8cfdec3516b1739c8d1ba341d36d8b9729771))
+ - **FEAT**(auth,apple): Game Center sign-in support ([#12228](https://github.com/firebase/flutterfire/issues/12228)). ([ac625ec7](https://github.com/firebase/flutterfire/commit/ac625ec7a2ceb8c7ef78180f3bcaa8294cf06a2e))
+ - **FEAT**(auth,android): Play Games provider sign-in support ([#12201](https://github.com/firebase/flutterfire/issues/12201)). ([1fb9019d](https://github.com/firebase/flutterfire/commit/1fb9019de1fd832223aa56139d98c1194b2d5efa))
+
+## 7.0.9
+
+ - **FIX**(auth): return email address if one is returned by the auth exception ([#11978](https://github.com/firebase/flutterfire/issues/11978)). ([ceee304d](https://github.com/firebase/flutterfire/commit/ceee304dd87cd66e34a7f7fa67c9961b72c10e72))
+
+## 7.0.8
+
+ - Update a dependency to the latest release.
+
+## 7.0.7
+
+ - Update a dependency to the latest release.
+
+## 7.0.6
+
+ - Update a dependency to the latest release.
+
+## 7.0.5
+
+ - Update a dependency to the latest release.
+
+## 7.0.4
+
+ - Update a dependency to the latest release.
+
+## 7.0.3
+
+ - Update a dependency to the latest release.
+
+## 7.0.2
+
+ - Update a dependency to the latest release.
+
+## 7.0.1
+
+ - **FIX**(ios): fix clashing filenames between Auth and Firestore ([#11731](https://github.com/firebase/flutterfire/issues/11731)). ([8770cafc](https://github.com/firebase/flutterfire/commit/8770cafccccb11607b5530311e3150ac08cd172e))
+
+## 7.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(auth): ensure `PigeonAuthCredential` is passed back to Dart side within try/catch ([#11683](https://github.com/firebase/flutterfire/issues/11683)). ([d42c3396](https://github.com/firebase/flutterfire/commit/d42c33969b096a9825af21c624f8d93aebede8b2))
+ - **BREAKING** **FIX**: pin pigeon for `firebase_auth`, `cloud_firestore` & `firebase_core` ([#11715](https://github.com/firebase/flutterfire/issues/11715)). ([66c158c3](https://github.com/firebase/flutterfire/commit/66c158c3732d1ef50b9677b44c12a6afea9c2ec5))
+
 ## 6.19.1
 
  - Update a dependency to the latest release.

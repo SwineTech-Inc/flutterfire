@@ -59,9 +59,9 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
-@interface PigeonFirebaseApp ()
-+ (PigeonFirebaseApp *)fromList:(NSArray *)list;
-+ (nullable PigeonFirebaseApp *)nullableFromList:(NSArray *)list;
+@interface AuthPigeonFirebaseApp ()
++ (AuthPigeonFirebaseApp *)fromList:(NSArray *)list;
++ (nullable AuthPigeonFirebaseApp *)nullableFromList:(NSArray *)list;
 - (NSArray *)toList;
 @end
 
@@ -237,27 +237,32 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 }
 @end
 
-@implementation PigeonFirebaseApp
-+ (instancetype)makeWithAppName:(NSString *)appName tenantId:(nullable NSString *)tenantId {
-  PigeonFirebaseApp *pigeonResult = [[PigeonFirebaseApp alloc] init];
+@implementation AuthPigeonFirebaseApp
++ (instancetype)makeWithAppName:(NSString *)appName
+                       tenantId:(nullable NSString *)tenantId
+               customAuthDomain:(nullable NSString *)customAuthDomain {
+  AuthPigeonFirebaseApp *pigeonResult = [[AuthPigeonFirebaseApp alloc] init];
   pigeonResult.appName = appName;
   pigeonResult.tenantId = tenantId;
+  pigeonResult.customAuthDomain = customAuthDomain;
   return pigeonResult;
 }
-+ (PigeonFirebaseApp *)fromList:(NSArray *)list {
-  PigeonFirebaseApp *pigeonResult = [[PigeonFirebaseApp alloc] init];
++ (AuthPigeonFirebaseApp *)fromList:(NSArray *)list {
+  AuthPigeonFirebaseApp *pigeonResult = [[AuthPigeonFirebaseApp alloc] init];
   pigeonResult.appName = GetNullableObjectAtIndex(list, 0);
   NSAssert(pigeonResult.appName != nil, @"");
   pigeonResult.tenantId = GetNullableObjectAtIndex(list, 1);
+  pigeonResult.customAuthDomain = GetNullableObjectAtIndex(list, 2);
   return pigeonResult;
 }
-+ (nullable PigeonFirebaseApp *)nullableFromList:(NSArray *)list {
-  return (list) ? [PigeonFirebaseApp fromList:list] : nil;
++ (nullable AuthPigeonFirebaseApp *)nullableFromList:(NSArray *)list {
+  return (list) ? [AuthPigeonFirebaseApp fromList:list] : nil;
 }
 - (NSArray *)toList {
   return @[
     (self.appName ?: [NSNull null]),
     (self.tenantId ?: [NSNull null]),
+    (self.customAuthDomain ?: [NSNull null]),
   ];
 }
 @end
@@ -798,17 +803,17 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (nullable id)readValueOfType:(UInt8)type {
   switch (type) {
     case 128:
-      return [PigeonActionCodeInfo fromList:[self readValue]];
+      return [AuthPigeonFirebaseApp fromList:[self readValue]];
     case 129:
-      return [PigeonActionCodeInfoData fromList:[self readValue]];
+      return [PigeonActionCodeInfo fromList:[self readValue]];
     case 130:
-      return [PigeonActionCodeSettings fromList:[self readValue]];
+      return [PigeonActionCodeInfoData fromList:[self readValue]];
     case 131:
-      return [PigeonAdditionalUserInfo fromList:[self readValue]];
+      return [PigeonActionCodeSettings fromList:[self readValue]];
     case 132:
-      return [PigeonAuthCredential fromList:[self readValue]];
+      return [PigeonAdditionalUserInfo fromList:[self readValue]];
     case 133:
-      return [PigeonFirebaseApp fromList:[self readValue]];
+      return [PigeonAuthCredential fromList:[self readValue]];
     case 134:
       return [PigeonFirebaseAuthSettings fromList:[self readValue]];
     case 135:
@@ -843,22 +848,22 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 @end
 @implementation FirebaseAuthHostApiCodecWriter
 - (void)writeValue:(id)value {
-  if ([value isKindOfClass:[PigeonActionCodeInfo class]]) {
+  if ([value isKindOfClass:[AuthPigeonFirebaseApp class]]) {
     [self writeByte:128];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonActionCodeInfoData class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeInfo class]]) {
     [self writeByte:129];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonActionCodeSettings class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeInfoData class]]) {
     [self writeByte:130];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonAdditionalUserInfo class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeSettings class]]) {
     [self writeByte:131];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonAuthCredential class]]) {
+  } else if ([value isKindOfClass:[PigeonAdditionalUserInfo class]]) {
     [self writeByte:132];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonFirebaseApp class]]) {
+  } else if ([value isKindOfClass:[PigeonAuthCredential class]]) {
     [self writeByte:133];
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[PigeonFirebaseAuthSettings class]]) {
@@ -940,7 +945,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api registerIdTokenListenerApp:arg_app
                              completion:^(NSString *_Nullable output,
                                           FlutterError *_Nullable error) {
@@ -964,7 +969,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api registerAuthStateListenerApp:arg_app
                                completion:^(NSString *_Nullable output,
                                             FlutterError *_Nullable error) {
@@ -988,7 +993,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_host = GetNullableObjectAtIndex(args, 1);
         NSNumber *arg_port = GetNullableObjectAtIndex(args, 2);
         [api useEmulatorApp:arg_app
@@ -1015,7 +1020,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_code = GetNullableObjectAtIndex(args, 1);
         [api applyActionCodeApp:arg_app
                            code:arg_code
@@ -1040,7 +1045,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_code = GetNullableObjectAtIndex(args, 1);
         [api checkActionCodeApp:arg_app
                            code:arg_code
@@ -1067,7 +1072,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_code = GetNullableObjectAtIndex(args, 1);
         NSString *arg_newPassword = GetNullableObjectAtIndex(args, 2);
         [api confirmPasswordResetApp:arg_app
@@ -1095,7 +1100,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         NSString *arg_password = GetNullableObjectAtIndex(args, 2);
         [api createUserWithEmailAndPasswordApp:arg_app
@@ -1123,7 +1128,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api signInAnonymouslyApp:arg_app
                        completion:^(PigeonUserCredential *_Nullable output,
                                     FlutterError *_Nullable error) {
@@ -1147,7 +1152,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSDictionary<NSString *, id> *arg_input = GetNullableObjectAtIndex(args, 1);
         [api signInWithCredentialApp:arg_app
                                input:arg_input
@@ -1173,7 +1178,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_token = GetNullableObjectAtIndex(args, 1);
         [api signInWithCustomTokenApp:arg_app
                                 token:arg_token
@@ -1200,7 +1205,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         NSString *arg_password = GetNullableObjectAtIndex(args, 2);
         [api signInWithEmailAndPasswordApp:arg_app
@@ -1229,7 +1234,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         NSString *arg_emailLink = GetNullableObjectAtIndex(args, 2);
         [api signInWithEmailLinkApp:arg_app
@@ -1258,7 +1263,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonSignInProvider *arg_signInProvider = GetNullableObjectAtIndex(args, 1);
         [api signInWithProviderApp:arg_app
                     signInProvider:arg_signInProvider
@@ -1284,7 +1289,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
           api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api signOutApp:arg_app
              completion:^(FlutterError *_Nullable error) {
                callback(wrapResult(nil, error));
@@ -1307,7 +1312,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         [api fetchSignInMethodsForEmailApp:arg_app
                                      email:arg_email
@@ -1334,7 +1339,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         PigeonActionCodeSettings *arg_actionCodeSettings = GetNullableObjectAtIndex(args, 2);
         [api sendPasswordResetEmailApp:arg_app
@@ -1362,7 +1367,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_email = GetNullableObjectAtIndex(args, 1);
         PigeonActionCodeSettings *arg_actionCodeSettings = GetNullableObjectAtIndex(args, 2);
         [api sendSignInLinkToEmailApp:arg_app
@@ -1389,7 +1394,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_languageCode = GetNullableObjectAtIndex(args, 1);
         [api setLanguageCodeApp:arg_app
                    languageCode:arg_languageCode
@@ -1414,7 +1419,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonFirebaseAuthSettings *arg_settings = GetNullableObjectAtIndex(args, 1);
         [api setSettingsApp:arg_app
                    settings:arg_settings
@@ -1439,7 +1444,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_code = GetNullableObjectAtIndex(args, 1);
         [api verifyPasswordResetCodeApp:arg_app
                                    code:arg_code
@@ -1465,7 +1470,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonVerifyPhoneNumberRequest *arg_request = GetNullableObjectAtIndex(args, 1);
         [api verifyPhoneNumberApp:arg_app
                           request:arg_request
@@ -1491,7 +1496,7 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_authorizationCode = GetNullableObjectAtIndex(args, 1);
         [api revokeTokenWithAuthorizationCodeApp:arg_app
                                authorizationCode:arg_authorizationCode
@@ -1510,17 +1515,17 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
 - (nullable id)readValueOfType:(UInt8)type {
   switch (type) {
     case 128:
-      return [PigeonActionCodeInfo fromList:[self readValue]];
+      return [AuthPigeonFirebaseApp fromList:[self readValue]];
     case 129:
-      return [PigeonActionCodeInfoData fromList:[self readValue]];
+      return [PigeonActionCodeInfo fromList:[self readValue]];
     case 130:
-      return [PigeonActionCodeSettings fromList:[self readValue]];
+      return [PigeonActionCodeInfoData fromList:[self readValue]];
     case 131:
-      return [PigeonAdditionalUserInfo fromList:[self readValue]];
+      return [PigeonActionCodeSettings fromList:[self readValue]];
     case 132:
-      return [PigeonAuthCredential fromList:[self readValue]];
+      return [PigeonAdditionalUserInfo fromList:[self readValue]];
     case 133:
-      return [PigeonFirebaseApp fromList:[self readValue]];
+      return [PigeonAuthCredential fromList:[self readValue]];
     case 134:
       return [PigeonFirebaseAuthSettings fromList:[self readValue]];
     case 135:
@@ -1555,22 +1560,22 @@ void FirebaseAuthHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
 @end
 @implementation FirebaseAuthUserHostApiCodecWriter
 - (void)writeValue:(id)value {
-  if ([value isKindOfClass:[PigeonActionCodeInfo class]]) {
+  if ([value isKindOfClass:[AuthPigeonFirebaseApp class]]) {
     [self writeByte:128];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonActionCodeInfoData class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeInfo class]]) {
     [self writeByte:129];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonActionCodeSettings class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeInfoData class]]) {
     [self writeByte:130];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonAdditionalUserInfo class]]) {
+  } else if ([value isKindOfClass:[PigeonActionCodeSettings class]]) {
     [self writeByte:131];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonAuthCredential class]]) {
+  } else if ([value isKindOfClass:[PigeonAdditionalUserInfo class]]) {
     [self writeByte:132];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonFirebaseApp class]]) {
+  } else if ([value isKindOfClass:[PigeonAuthCredential class]]) {
     [self writeByte:133];
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[PigeonFirebaseAuthSettings class]]) {
@@ -1652,7 +1657,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
           api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api deleteApp:arg_app
             completion:^(FlutterError *_Nullable error) {
               callback(wrapResult(nil, error));
@@ -1675,7 +1680,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSNumber *arg_forceRefresh = GetNullableObjectAtIndex(args, 1);
         [api getIdTokenApp:arg_app
               forceRefresh:arg_forceRefresh
@@ -1700,7 +1705,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSDictionary<NSString *, id> *arg_input = GetNullableObjectAtIndex(args, 1);
         [api linkWithCredentialApp:arg_app
                              input:arg_input
@@ -1726,7 +1731,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonSignInProvider *arg_signInProvider = GetNullableObjectAtIndex(args, 1);
         [api linkWithProviderApp:arg_app
                   signInProvider:arg_signInProvider
@@ -1753,7 +1758,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSDictionary<NSString *, id> *arg_input = GetNullableObjectAtIndex(args, 1);
         [api reauthenticateWithCredentialApp:arg_app
                                        input:arg_input
@@ -1780,7 +1785,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonSignInProvider *arg_signInProvider = GetNullableObjectAtIndex(args, 1);
         [api reauthenticateWithProviderApp:arg_app
                             signInProvider:arg_signInProvider
@@ -1806,7 +1811,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
           api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api reloadApp:arg_app
             completion:^(PigeonUserDetails *_Nullable output, FlutterError *_Nullable error) {
               callback(wrapResult(output, error));
@@ -1830,7 +1835,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonActionCodeSettings *arg_actionCodeSettings = GetNullableObjectAtIndex(args, 1);
         [api sendEmailVerificationApp:arg_app
                    actionCodeSettings:arg_actionCodeSettings
@@ -1855,7 +1860,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_providerId = GetNullableObjectAtIndex(args, 1);
         [api unlinkApp:arg_app
             providerId:arg_providerId
@@ -1880,7 +1885,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_newEmail = GetNullableObjectAtIndex(args, 1);
         [api updateEmailApp:arg_app
                    newEmail:arg_newEmail
@@ -1905,7 +1910,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_newPassword = GetNullableObjectAtIndex(args, 1);
         [api updatePasswordApp:arg_app
                    newPassword:arg_newPassword
@@ -1931,7 +1936,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSDictionary<NSString *, id> *arg_input = GetNullableObjectAtIndex(args, 1);
         [api updatePhoneNumberApp:arg_app
                             input:arg_input
@@ -1957,7 +1962,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonUserProfile *arg_profile = GetNullableObjectAtIndex(args, 1);
         [api
             updateProfileApp:arg_app
@@ -1984,7 +1989,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_newEmail = GetNullableObjectAtIndex(args, 1);
         PigeonActionCodeSettings *arg_actionCodeSettings = GetNullableObjectAtIndex(args, 2);
         [api verifyBeforeUpdateEmailApp:arg_app
@@ -2005,7 +2010,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
 - (nullable id)readValueOfType:(UInt8)type {
   switch (type) {
     case 128:
-      return [PigeonFirebaseApp fromList:[self readValue]];
+      return [AuthPigeonFirebaseApp fromList:[self readValue]];
     case 129:
       return [PigeonMultiFactorInfo fromList:[self readValue]];
     case 130:
@@ -2022,7 +2027,7 @@ void FirebaseAuthUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
 @end
 @implementation MultiFactorUserHostApiCodecWriter
 - (void)writeValue:(id)value {
-  if ([value isKindOfClass:[PigeonFirebaseApp class]]) {
+  if ([value isKindOfClass:[AuthPigeonFirebaseApp class]]) {
     [self writeByte:128];
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[PigeonMultiFactorInfo class]]) {
@@ -2078,7 +2083,7 @@ void MultiFactorUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         PigeonPhoneMultiFactorAssertion *arg_assertion = GetNullableObjectAtIndex(args, 1);
         NSString *arg_displayName = GetNullableObjectAtIndex(args, 2);
         [api enrollPhoneApp:arg_app
@@ -2106,7 +2111,7 @@ void MultiFactorUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_assertionId = GetNullableObjectAtIndex(args, 1);
         NSString *arg_displayName = GetNullableObjectAtIndex(args, 2);
         [api enrollTotpApp:arg_app
@@ -2133,7 +2138,7 @@ void MultiFactorUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api getSessionApp:arg_app
                 completion:^(PigeonMultiFactorSession *_Nullable output,
                              FlutterError *_Nullable error) {
@@ -2157,7 +2162,7 @@ void MultiFactorUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         NSString *arg_factorUid = GetNullableObjectAtIndex(args, 1);
         [api unenrollApp:arg_app
                factorUid:arg_factorUid
@@ -2182,7 +2187,7 @@ void MultiFactorUserHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                 api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        PigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        AuthPigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
         [api getEnrolledFactorsApp:arg_app
                         completion:^(NSArray<PigeonMultiFactorInfo *> *_Nullable output,
                                      FlutterError *_Nullable error) {

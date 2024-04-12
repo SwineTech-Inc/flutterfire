@@ -593,6 +593,8 @@ class User {
   ///  - Thrown if the user's last sign-in time does not meet the security
   ///    threshold. Use [User.reauthenticateWithCredential] to resolve. This
   ///    does not apply if the user is anonymous.
+  @Deprecated(
+      'updateEmail() has been deprecated. Please use verifyBeforeUpdateEmail() instead.')
   Future<void> updateEmail(String newEmail) async {
     await _delegate.updateEmail(newEmail);
   }
@@ -663,6 +665,11 @@ class User {
   }
 
   MultiFactor get multiFactor {
+    if (!kIsWeb && (Platform.isMacOS || Platform.isWindows)) {
+      throw UnimplementedError(
+        'MultiFactor Authentication is only supported on web, Android and iOS.',
+      );
+    }
     return _multiFactor ??= MultiFactor._(_delegate.multiFactor);
   }
 

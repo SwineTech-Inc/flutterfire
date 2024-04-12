@@ -1,3 +1,107 @@
+## 6.1.13
+
+ - Update a dependency to the latest release.
+
+## 6.1.12
+
+ - **FIX**(firestore): fix documentation since `persistenceEnabled` has been enabled on Web ([#12565](https://github.com/firebase/flutterfire/issues/12565)). ([9431b78f](https://github.com/firebase/flutterfire/commit/9431b78f967c85825d14e02db6eab9962216733d))
+
+## 6.1.11
+
+ - Update a dependency to the latest release.
+
+## 6.1.10
+
+ - Update a dependency to the latest release.
+
+## 6.1.9
+
+ - **FIX**(firestore): fix an issue that would cause FieldValue.increment to be interpreted as double ([#12444](https://github.com/firebase/flutterfire/issues/12444)). ([e9823a41](https://github.com/firebase/flutterfire/commit/e9823a415bec0a46209608fdaf856c2413d46fbf))
+
+## 6.1.8
+
+ - **FIX**(firestore): fix an issue that would cause FieldValue.increment to not work for big int ([#12426](https://github.com/firebase/flutterfire/issues/12426)). ([a776dec5](https://github.com/firebase/flutterfire/commit/a776dec5e181b2656bfc659a23514d21930b5556))
+
+## 6.1.7
+
+ - Update a dependency to the latest release.
+
+## 6.1.6
+
+ - **FIX**(firestore): aggregate query `average()` is `null` when collection is empty or collection doesn't exist or the property doesn't exist on docs ([#12304](https://github.com/firebase/flutterfire/issues/12304)). ([4d3b578d](https://github.com/firebase/flutterfire/commit/4d3b578dbb88da441e308179f3656822c5612ef1))
+
+## 6.1.5
+
+ - Update a dependency to the latest release.
+
+## 6.1.4
+
+ - Update a dependency to the latest release.
+
+## 6.1.3
+
+ - Update a dependency to the latest release.
+
+## 6.1.2
+
+ - Update a dependency to the latest release.
+
+## 6.1.1
+
+ - Update a dependency to the latest release.
+
+## 6.1.0
+
+ - **FIX**(firestore): `transaction.get()` should throw `FirebaseException` on exception. ([#12064](https://github.com/firebase/flutterfire/issues/12064)). ([3cfc5019](https://github.com/firebase/flutterfire/commit/3cfc5019d4f9a5f3c610a44ef370541bf22cd028))
+ - **FEAT**(firestore): add support for `sum` and `average` aggregated queries ([#11757](https://github.com/firebase/flutterfire/issues/11757)). ([82af6c2f](https://github.com/firebase/flutterfire/commit/82af6c2f40160a9e2f74e2d48652003fa48bb161))
+
+## 6.0.10
+
+ - **FIX**(firestore): output non-existent field in error message. ([#12011](https://github.com/firebase/flutterfire/issues/12011)). ([d1bc584f](https://github.com/firebase/flutterfire/commit/d1bc584ffa0abda33445e74ab162c2345e125ade))
+
+## 6.0.9
+
+ - Update a dependency to the latest release.
+
+## 6.0.8
+
+ - Update a dependency to the latest release.
+
+## 6.0.7
+
+ - Update a dependency to the latest release.
+
+## 6.0.6
+
+ - Update a dependency to the latest release.
+
+## 6.0.5
+
+ - **FIX**(firestore): ensure `collectionGroup().count()` aggregate query works ([#11850](https://github.com/firebase/flutterfire/issues/11850)). ([85e71293](https://github.com/firebase/flutterfire/commit/85e712937cd609977a9681712b3afaf8f3018903))
+
+## 6.0.4
+
+ - Update a dependency to the latest release.
+
+## 6.0.3
+
+ - Update a dependency to the latest release.
+
+## 6.0.2
+
+ - Update a dependency to the latest release.
+
+## 6.0.1
+
+ - **FIX**(ios): fix clashing filenames between Auth and Firestore ([#11731](https://github.com/firebase/flutterfire/issues/11731)). ([8770cafc](https://github.com/firebase/flutterfire/commit/8770cafccccb11607b5530311e3150ac08cd172e))
+
+## 6.0.0
+
+> Note: This release has breaking changes.
+
+ - **FEAT**(firestore,windows): add support to Windows ([#11516](https://github.com/firebase/flutterfire/issues/11516)). ([e51d2a2d](https://github.com/firebase/flutterfire/commit/e51d2a2d287f4162f5a67d8200f1bf57fc2afe14))
+ - **BREAKING** **FIX**: pin pigeon for `firebase_auth`, `cloud_firestore` & `firebase_core` ([#11715](https://github.com/firebase/flutterfire/issues/11715)). ([66c158c3](https://github.com/firebase/flutterfire/commit/66c158c3732d1ef50b9677b44c12a6afea9c2ec5))
+
 ## 5.16.2
 
  - Update a dependency to the latest release.

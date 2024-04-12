@@ -4,9 +4,7 @@ homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_auth/firebase_auth_platform_interface
 # NOTE: We strongly prefer non-breaking changes, even at the expense of a
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
-version: 6.19.1-a
-
-publish_to: none
+version: 7.2.2-a
 
 environment:
   sdk: '>=2.18.0 <4.0.0'
@@ -14,20 +12,20 @@ environment:
 
 dependencies:
   _flutterfire_internals:
-#    path: ../../_flutterfire_internals
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/_flutterfire_internals
-      ref: SwineTech/v4.9.3-b
+    path: ../../_flutterfire_internals
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/_flutterfire_internals
+#      ref: SwineTech/v4.16.1-a
 
   collection: ^1.16.0
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter
@@ -36,16 +34,16 @@ dependencies:
 
 dev_dependencies:
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter_test:
     sdk: flutter
   mockito: ^5.4.0
-  pigeon: ^11.0.1
+  pigeon: 11.0.1
 
   # NOTE: This is a temporary workaround for Flutter 3.13
   watcher: ^1.1.0

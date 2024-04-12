@@ -1,3 +1,100 @@
+## 14.8.1
+
+ - Update a dependency to the latest release.
+
+## 14.8.0
+
+ - **FEAT**(android): Bump `compileSdk` version of Android plugins to latest stable (34) ([#12566](https://github.com/firebase/flutterfire/issues/12566)). ([e891fab2](https://github.com/firebase/flutterfire/commit/e891fab291e9beebc223000b133a6097e066a7fc))
+
+## 14.7.21
+
+ - Update a dependency to the latest release.
+
+## 14.7.20
+
+ - Update a dependency to the latest release.
+
+## 14.7.19
+
+ - Update a dependency to the latest release.
+
+## 14.7.18
+
+ - Update a dependency to the latest release.
+
+## 14.7.17
+
+ - **FIX**(messaging,android): revert changes made to potential fix as it was causing ANR reports for users ([#12396](https://github.com/firebase/flutterfire/issues/12396)). ([07ef4879](https://github.com/firebase/flutterfire/commit/07ef487971edb23a670d2b1dd315c02542b1c848))
+
+## 14.7.16
+
+ - Update a dependency to the latest release.
+
+## 14.7.15
+
+ - Update a dependency to the latest release.
+
+## 14.7.14
+
+ - Update a dependency to the latest release.
+
+## 14.7.13
+
+ - Update a dependency to the latest release.
+
+## 14.7.12
+
+ - Update a dependency to the latest release.
+
+## 14.7.11
+
+ - **DOCS**: change old documentation links of packages in README files ([#12136](https://github.com/firebase/flutterfire/issues/12136)). ([24b9ac7e](https://github.com/firebase/flutterfire/commit/24b9ac7ec29fc9ca466c0941c2cff26d75b8568d))
+
+## 14.7.10
+
+ - **FIX**(messaging,android): increase notification storage limit to `100` ([#12060](https://github.com/firebase/flutterfire/issues/12060)). ([2718db66](https://github.com/firebase/flutterfire/commit/2718db663e61ecb2fd4333553a17ebb217e77330))
+ - **FIX**(messaging,android): possible fix to a crash occurring on android background executor ([#12057](https://github.com/firebase/flutterfire/issues/12057)). ([3eaae47f](https://github.com/firebase/flutterfire/commit/3eaae47faccf38fc5f3ec52a753858780a0e5efc))
+
+## 14.7.9
+
+ - **FIX**(messaging): expose the missing WebNotification object ([#11991](https://github.com/firebase/flutterfire/issues/11991)). ([9f4529e3](https://github.com/firebase/flutterfire/commit/9f4529e39cc707f321c6f765835f038165ff785f))
+
+## 14.7.8
+
+ - Update a dependency to the latest release.
+
+## 14.7.7
+
+ - Update a dependency to the latest release.
+
+## 14.7.6
+
+ - Update a dependency to the latest release.
+
+## 14.7.5
+
+ - Update a dependency to the latest release.
+
+## 14.7.4
+
+ - Update a dependency to the latest release.
+
+## 14.7.3
+
+ - Update a dependency to the latest release.
+
+## 14.7.2
+
+ - Update a dependency to the latest release.
+
+## 14.7.1
+
+ - Update a dependency to the latest release.
+
+## 14.7.0
+
+ - **FEAT**: Full support of AGP 8 ([#11699](https://github.com/firebase/flutterfire/issues/11699)). ([bdb5b270](https://github.com/firebase/flutterfire/commit/bdb5b27084d225809883bdaa6aa5954650551927))
+
 ## 14.6.9
 
  - **REFACTOR**(messaging,android): removed unsafe & deprecated API. E.g. `LocalBroadcastManager` replaced by `LiveData` ([#11659](https://github.com/firebase/flutterfire/issues/11659)). ([690160f8](https://github.com/firebase/flutterfire/commit/690160f8ac6c9ec582d0882a22618e3126d705ad))

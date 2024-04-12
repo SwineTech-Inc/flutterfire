@@ -2,7 +2,8 @@ name: firebase_crashlytics
 description:
   Flutter plugin for Firebase Crashlytics. It reports uncaught errors to the
   Firebase console.
-version: 3.3.7-a
+version: 3.5.1-a
+
 homepage: https://firebase.google.com/docs/crashlytics
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_crashlytics/firebase_crashlytics
 
@@ -17,25 +18,25 @@ environment:
 
 dependencies:
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   firebase_crashlytics_platform_interface:
-#    path: ../firebase_crashlytics_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_crashlytics/firebase_crashlytics_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../firebase_crashlytics_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_crashlytics/firebase_crashlytics_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter

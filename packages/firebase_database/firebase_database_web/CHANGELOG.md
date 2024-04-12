@@ -1,3 +1,91 @@
+## 0.2.5+1
+
+ - Update a dependency to the latest release.
+
+## 0.2.5
+
+ - **FEAT**(web): remove the dependency on `package:js` in favor of `dart:js_interop` ([#12534](https://github.com/firebase/flutterfire/issues/12534)). ([d83f6327](https://github.com/firebase/flutterfire/commit/d83f632753707c974fef2ac8a7f9bf6cb8ba8758))
+
+## 0.2.4
+
+ - **FEAT**(database,web): migrate web to `js_interop` to be compatible with WASM ([#12530](https://github.com/firebase/flutterfire/issues/12530)). ([07b594f7](https://github.com/firebase/flutterfire/commit/07b594f776bbb7e93de42cb466235b7198150186))
+
+## 0.2.3+26
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+25
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+24
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+23
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+22
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+21
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+20
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+19
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+18
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+17
+
+ - **DOCS**: change old documentation links of packages in README files ([#12136](https://github.com/firebase/flutterfire/issues/12136)). ([24b9ac7e](https://github.com/firebase/flutterfire/commit/24b9ac7ec29fc9ca466c0941c2cff26d75b8568d))
+
+## 0.2.3+16
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+15
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+14
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+13
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+12
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+11
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+10
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+9
+
+ - Update a dependency to the latest release.
+
+## 0.2.3+8
+
+ - Update a dependency to the latest release.
+
 ## 0.2.3+7
 
  - Update a dependency to the latest release.

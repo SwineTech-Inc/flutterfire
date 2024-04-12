@@ -4,9 +4,7 @@ description:
   live synchronization and offline support on Android and iOS.
 homepage: https://firebase.google.com/docs/firestore
 repository: https://github.com/firebase/flutterfire/tree/master/packages/cloud_firestore/cloud_firestore
-version: 4.9.3-b
-
-publish_to: none
+version: 4.16.1-a
 
 false_secrets:
   - example/**
@@ -18,34 +16,34 @@ environment:
 
 dependencies:
   cloud_firestore_platform_interface:
-#    path: ../cloud_firestore_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/cloud_firestore/cloud_firestore_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../cloud_firestore_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/cloud_firestore/cloud_firestore_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   cloud_firestore_web:
-#    path: ../cloud_firestore_web
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/cloud_firestore/cloud_firestore_web
-      ref: SwineTech/v4.9.3-b
+    path: ../cloud_firestore_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/cloud_firestore/cloud_firestore_web
+#      ref: SwineTech/v4.16.1-a
 
   collection: ^1.0.0
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core_platform_interface:
-#    path: ../../firebase_core/firebase_core_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.9.3-b
+    path: ../../firebase_core/firebase_core_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter
@@ -68,3 +66,6 @@ flutter:
         pluginClass: FLTFirebaseFirestorePlugin
       web:
         default_package: cloud_firestore_web
+      windows:
+        pluginClass: CloudFirestorePluginCApi
+

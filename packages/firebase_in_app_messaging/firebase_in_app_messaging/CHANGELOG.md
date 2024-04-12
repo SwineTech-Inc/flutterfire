@@ -1,3 +1,91 @@
+## 0.7.5+1
+
+ - Update a dependency to the latest release.
+
+## 0.7.5
+
+ - **FEAT**(android): Bump `compileSdk` version of Android plugins to latest stable (34) ([#12566](https://github.com/firebase/flutterfire/issues/12566)). ([e891fab2](https://github.com/firebase/flutterfire/commit/e891fab291e9beebc223000b133a6097e066a7fc))
+
+## 0.7.4+19
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+18
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+17
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+16
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+15
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+14
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+13
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+12
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+11
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+10
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+9
+
+ - **DOCS**: change old documentation links of packages in README files ([#12136](https://github.com/firebase/flutterfire/issues/12136)). ([24b9ac7e](https://github.com/firebase/flutterfire/commit/24b9ac7ec29fc9ca466c0941c2cff26d75b8568d))
+
+## 0.7.4+8
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+7
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+6
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+5
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+4
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+3
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+2
+
+ - Update a dependency to the latest release.
+
+## 0.7.4+1
+
+ - Update a dependency to the latest release.
+
+## 0.7.4
+
+ - **FEAT**: Full support of AGP 8 ([#11699](https://github.com/firebase/flutterfire/issues/11699)). ([bdb5b270](https://github.com/firebase/flutterfire/commit/bdb5b27084d225809883bdaa6aa5954650551927))
+
 ## 0.7.3+7
 
  - Update a dependency to the latest release.
