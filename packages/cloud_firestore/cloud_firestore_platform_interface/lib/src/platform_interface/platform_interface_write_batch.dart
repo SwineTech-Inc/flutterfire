@@ -70,7 +70,7 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   }
 
   // Used for debugging/crashlytics purposes
-  List<Map<String, dynamic>> getBatchData() {
+  List<PigeonTransactionCommand> getBatchData() {
     throw UnimplementedError('getBatchData() is not implemented');
   }
 }

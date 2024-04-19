@@ -4,6 +4,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:collection/collection.dart';
 
 import 'method_channel_document_change.dart';
 
@@ -12,17 +13,22 @@ import 'method_channel_document_change.dart';
 class MethodChannelQuerySnapshotChanges extends QuerySnapshotChangesPlatform {
   /// Creates a [MethodChannelQuerySnapshotChanges] from the given [data]
   MethodChannelQuerySnapshotChanges(
-      FirebaseFirestorePlatform firestore, Map<dynamic, dynamic> data)
+      FirebaseFirestorePlatform firestore, PigeonQuerySnapshotChanges data)
       : super(
-            List<DocumentChangePlatform>.generate(
-                data['documentChanges'].length, (int index) {
-              return MethodChannelDocumentChange(
-                firestore,
-                Map<String, dynamic>.from(data['documentChanges'][index]),
-              );
-            }),
+            data.documentChanges
+                .map((documentChange) {
+                  if (documentChange == null) {
+                    return null;
+                  }
+                  return MethodChannelDocumentChange(
+                    firestore,
+                    documentChange,
+                  );
+                })
+                .whereNotNull()
+                .toList(),
             SnapshotMetadataPlatform(
-              data['metadata']['hasPendingWrites'],
-              data['metadata']['isFromCache'],
+              data.metadata.hasPendingWrites,
+              data.metadata.isFromCache,
             ));
 }

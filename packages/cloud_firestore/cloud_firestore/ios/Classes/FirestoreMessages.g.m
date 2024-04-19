@@ -156,6 +156,12 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
+@interface PigeonQuerySnapshotChanges ()
++ (PigeonQuerySnapshotChanges *)fromList:(NSArray *)list;
++ (nullable PigeonQuerySnapshotChanges *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
 @interface PigeonGetOptions ()
 + (PigeonGetOptions *)fromList:(NSArray *)list;
 + (nullable PigeonGetOptions *)nullableFromList:(NSArray *)list;
@@ -392,6 +398,34 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList {
   return @[
     (self.documents ?: [NSNull null]),
+    (self.documentChanges ?: [NSNull null]),
+    (self.metadata ? [self.metadata toList] : [NSNull null]),
+  ];
+}
+@end
+
+@implementation PigeonQuerySnapshotChanges
++ (instancetype)makeWithDocumentChanges:(NSArray<PigeonDocumentChange *> *)documentChanges
+                               metadata:(PigeonSnapshotMetadata *)metadata {
+  PigeonQuerySnapshotChanges *pigeonResult = [[PigeonQuerySnapshotChanges alloc] init];
+  pigeonResult.documentChanges = documentChanges;
+  pigeonResult.metadata = metadata;
+  return pigeonResult;
+}
++ (PigeonQuerySnapshotChanges *)fromList:(NSArray *)list {
+  PigeonQuerySnapshotChanges *pigeonResult = [[PigeonQuerySnapshotChanges alloc] init];
+  pigeonResult.documentChanges = GetNullableObjectAtIndex(list, 0);
+  NSAssert(pigeonResult.documentChanges != nil, @"");
+  pigeonResult.metadata =
+      [PigeonSnapshotMetadata nullableFromList:(GetNullableObjectAtIndex(list, 1))];
+  NSAssert(pigeonResult.metadata != nil, @"");
+  return pigeonResult;
+}
++ (nullable PigeonQuerySnapshotChanges *)nullableFromList:(NSArray *)list {
+  return (list) ? [PigeonQuerySnapshotChanges fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
     (self.documentChanges ?: [NSNull null]),
     (self.metadata ? [self.metadata toList] : [NSNull null]),
   ];
@@ -665,8 +699,10 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     case 138:
       return [PigeonQuerySnapshot fromList:[self readValue]];
     case 139:
-      return [PigeonSnapshotMetadata fromList:[self readValue]];
+      return [PigeonQuerySnapshotChanges fromList:[self readValue]];
     case 140:
+      return [PigeonSnapshotMetadata fromList:[self readValue]];
+    case 141:
       return [PigeonTransactionCommand fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -711,11 +747,14 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   } else if ([value isKindOfClass:[PigeonQuerySnapshot class]]) {
     [self writeByte:138];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonSnapshotMetadata class]]) {
+  } else if ([value isKindOfClass:[PigeonQuerySnapshotChanges class]]) {
     [self writeByte:139];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PigeonTransactionCommand class]]) {
+  } else if ([value isKindOfClass:[PigeonSnapshotMetadata class]]) {
     [self writeByte:140];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[PigeonTransactionCommand class]]) {
+    [self writeByte:141];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -795,6 +834,35 @@ void FirebaseFirestoreHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                                 FlutterError *_Nullable error) {
                      callback(wrapResult(output, error));
                    }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
+           initWithName:@"dev.flutter.pigeon.cloud_firestore_platform_interface."
+                        @"FirebaseFirestoreHostApi.namedQueryGetChanges"
+        binaryMessenger:binaryMessenger
+                  codec:FirebaseFirestoreHostApiGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(namedQueryGetChangesApp:
+                                                                     name:options:completion:)],
+                @"FirebaseFirestoreHostApi api (%@) doesn't respond to "
+                @"@selector(namedQueryGetChangesApp:name:options:completion:)",
+                api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        FirestorePigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_name = GetNullableObjectAtIndex(args, 1);
+        PigeonGetOptions *arg_options = GetNullableObjectAtIndex(args, 2);
+        [api namedQueryGetChangesApp:arg_app
+                                name:arg_name
+                             options:arg_options
+                          completion:^(PigeonQuerySnapshotChanges *_Nullable output,
+                                       FlutterError *_Nullable error) {
+                            callback(wrapResult(output, error));
+                          }];
       }];
     } else {
       [channel setMessageHandler:nil];
@@ -1209,6 +1277,40 @@ void FirebaseFirestoreHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
   {
     FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
            initWithName:@"dev.flutter.pigeon.cloud_firestore_platform_interface."
+                        @"FirebaseFirestoreHostApi.queryGetChanges"
+        binaryMessenger:binaryMessenger
+                  codec:FirebaseFirestoreHostApiGetCodec()];
+    if (api) {
+      NSCAssert(
+          [api respondsToSelector:@selector
+               (queryGetChangesApp:path:isCollectionGroup:parameters:options:completion:)],
+          @"FirebaseFirestoreHostApi api (%@) doesn't respond to "
+          @"@selector(queryGetChangesApp:path:isCollectionGroup:parameters:options:completion:)",
+          api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        FirestorePigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_path = GetNullableObjectAtIndex(args, 1);
+        NSNumber *arg_isCollectionGroup = GetNullableObjectAtIndex(args, 2);
+        PigeonQueryParameters *arg_parameters = GetNullableObjectAtIndex(args, 3);
+        PigeonGetOptions *arg_options = GetNullableObjectAtIndex(args, 4);
+        [api queryGetChangesApp:arg_app
+                           path:arg_path
+              isCollectionGroup:arg_isCollectionGroup
+                     parameters:arg_parameters
+                        options:arg_options
+                     completion:^(PigeonQuerySnapshotChanges *_Nullable output,
+                                  FlutterError *_Nullable error) {
+                       callback(wrapResult(output, error));
+                     }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
+           initWithName:@"dev.flutter.pigeon.cloud_firestore_platform_interface."
                         @"FirebaseFirestoreHostApi.aggregateQuery"
         binaryMessenger:binaryMessenger
                   codec:FirebaseFirestoreHostApiGetCodec()];
@@ -1302,6 +1404,45 @@ void FirebaseFirestoreHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger,
                         completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
                           callback(wrapResult(output, error));
                         }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
+           initWithName:@"dev.flutter.pigeon.cloud_firestore_platform_interface."
+                        @"FirebaseFirestoreHostApi.querySnapshotChanges"
+        binaryMessenger:binaryMessenger
+                  codec:FirebaseFirestoreHostApiGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector
+                     (querySnapshotChangesApp:
+                                         path:isCollectionGroup:parameters:options
+                                             :includeMetadataChanges:source:completion:)],
+                @"FirebaseFirestoreHostApi api (%@) doesn't respond to "
+                @"@selector(querySnapshotChangesApp:path:isCollectionGroup:parameters:options:"
+                @"includeMetadataChanges:source:completion:)",
+                api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        FirestorePigeonFirebaseApp *arg_app = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_path = GetNullableObjectAtIndex(args, 1);
+        NSNumber *arg_isCollectionGroup = GetNullableObjectAtIndex(args, 2);
+        PigeonQueryParameters *arg_parameters = GetNullableObjectAtIndex(args, 3);
+        PigeonGetOptions *arg_options = GetNullableObjectAtIndex(args, 4);
+        NSNumber *arg_includeMetadataChanges = GetNullableObjectAtIndex(args, 5);
+        ListenSource arg_source = [GetNullableObjectAtIndex(args, 6) integerValue];
+        [api querySnapshotChangesApp:arg_app
+                                path:arg_path
+                   isCollectionGroup:arg_isCollectionGroup
+                          parameters:arg_parameters
+                             options:arg_options
+              includeMetadataChanges:arg_includeMetadataChanges
+                              source:arg_source
+                          completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+                            callback(wrapResult(output, error));
+                          }];
       }];
     } else {
       [channel setMessageHandler:nil];

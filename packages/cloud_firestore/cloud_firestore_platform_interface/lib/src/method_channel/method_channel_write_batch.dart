@@ -99,13 +99,12 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
   @override
   void removeFromBatch(String documentPath) {
     _assertNotCommitted();
-    _writes
-        .removeWhere((element) => element['path'].compareTo(documentPath) == 0);
+    _writes.removeWhere((element) => element.path.compareTo(documentPath) == 0);
   }
 
   // Used for debugging/crashlytics purposes
   @override
-  List<Map<String, dynamic>> getBatchData() {
+  List<PigeonTransactionCommand> getBatchData() {
     return _writes;
   }
 }

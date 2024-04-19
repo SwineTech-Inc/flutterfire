@@ -841,6 +841,82 @@ public class GeneratedAndroidFirebaseFirestore {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class PigeonQuerySnapshotChanges {
+    private @NonNull List<PigeonDocumentChange> documentChanges;
+
+    public @NonNull List<PigeonDocumentChange> getDocumentChanges() {
+      return documentChanges;
+    }
+
+    public void setDocumentChanges(@NonNull List<PigeonDocumentChange> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"documentChanges\" is null.");
+      }
+      this.documentChanges = setterArg;
+    }
+
+    private @NonNull PigeonSnapshotMetadata metadata;
+
+    public @NonNull PigeonSnapshotMetadata getMetadata() {
+      return metadata;
+    }
+
+    public void setMetadata(@NonNull PigeonSnapshotMetadata setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"metadata\" is null.");
+      }
+      this.metadata = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    PigeonQuerySnapshotChanges() {}
+
+    public static final class Builder {
+
+      private @Nullable List<PigeonDocumentChange> documentChanges;
+
+      public @NonNull Builder setDocumentChanges(@NonNull List<PigeonDocumentChange> setterArg) {
+        this.documentChanges = setterArg;
+        return this;
+      }
+
+      private @Nullable PigeonSnapshotMetadata metadata;
+
+      public @NonNull Builder setMetadata(@NonNull PigeonSnapshotMetadata setterArg) {
+        this.metadata = setterArg;
+        return this;
+      }
+
+      public @NonNull PigeonQuerySnapshotChanges build() {
+        PigeonQuerySnapshotChanges pigeonReturn = new PigeonQuerySnapshotChanges();
+        pigeonReturn.setDocumentChanges(documentChanges);
+        pigeonReturn.setMetadata(metadata);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    public ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      toListResult.add(documentChanges);
+      toListResult.add((metadata == null) ? null : metadata.toList());
+      return toListResult;
+    }
+
+    static @NonNull PigeonQuerySnapshotChanges fromList(@NonNull ArrayList<Object> list) {
+      PigeonQuerySnapshotChanges pigeonResult = new PigeonQuerySnapshotChanges();
+      Object documentChanges = list.get(0);
+      pigeonResult.setDocumentChanges((List<PigeonDocumentChange>) documentChanges);
+      Object metadata = list.get(1);
+      pigeonResult.setMetadata(
+          (metadata == null)
+              ? null
+              : PigeonSnapshotMetadata.fromList((ArrayList<Object>) metadata));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
   public static final class PigeonGetOptions {
     private @NonNull Source source;
 
@@ -1648,8 +1724,10 @@ public class GeneratedAndroidFirebaseFirestore {
         case (byte) 138:
           return PigeonQuerySnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 139:
-          return PigeonSnapshotMetadata.fromList((ArrayList<Object>) readValue(buffer));
+          return PigeonQuerySnapshotChanges.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 140:
+          return PigeonSnapshotMetadata.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 141:
           return PigeonTransactionCommand.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -1691,11 +1769,14 @@ public class GeneratedAndroidFirebaseFirestore {
       } else if (value instanceof PigeonQuerySnapshot) {
         stream.write(138);
         writeValue(stream, ((PigeonQuerySnapshot) value).toList());
-      } else if (value instanceof PigeonSnapshotMetadata) {
+      } else if (value instanceof PigeonQuerySnapshotChanges) {
         stream.write(139);
+        writeValue(stream, ((PigeonQuerySnapshotChanges) value).toList());
+      } else if (value instanceof PigeonSnapshotMetadata) {
+        stream.write(140);
         writeValue(stream, ((PigeonSnapshotMetadata) value).toList());
       } else if (value instanceof PigeonTransactionCommand) {
-        stream.write(140);
+        stream.write(141);
         writeValue(stream, ((PigeonTransactionCommand) value).toList());
       } else {
         super.writeValue(stream, value);
@@ -1716,6 +1797,12 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull String name,
         @NonNull PigeonGetOptions options,
         @NonNull Result<PigeonQuerySnapshot> result);
+
+    void namedQueryGetChanges(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String name,
+        @NonNull PigeonGetOptions options,
+        @NonNull Result<PigeonQuerySnapshotChanges> result);
 
     void clearPersistence(@NonNull FirestorePigeonFirebaseApp app, @NonNull Result<Void> result);
 
@@ -1784,6 +1871,14 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull PigeonGetOptions options,
         @NonNull Result<PigeonQuerySnapshot> result);
 
+    void queryGetChanges(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String path,
+        @NonNull Boolean isCollectionGroup,
+        @NonNull PigeonQueryParameters parameters,
+        @NonNull PigeonGetOptions options,
+        @NonNull Result<PigeonQuerySnapshotChanges> result);
+
     void aggregateQuery(
         @NonNull FirestorePigeonFirebaseApp app,
         @NonNull String path,
@@ -1799,6 +1894,16 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull Result<Void> result);
 
     void querySnapshot(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String path,
+        @NonNull Boolean isCollectionGroup,
+        @NonNull PigeonQueryParameters parameters,
+        @NonNull PigeonGetOptions options,
+        @NonNull Boolean includeMetadataChanges,
+        @NonNull ListenSource source,
+        @NonNull Result<String> result);
+
+    void querySnapshotChanges(
         @NonNull FirestorePigeonFirebaseApp app,
         @NonNull String path,
         @NonNull Boolean isCollectionGroup,
@@ -1885,6 +1990,39 @@ public class GeneratedAndroidFirebaseFirestore {
                     };
 
                 api.namedQueryGet(appArg, nameArg, optionsArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.namedQueryGetChanges",
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String nameArg = (String) args.get(1);
+                PigeonGetOptions optionsArg = (PigeonGetOptions) args.get(2);
+                Result<PigeonQuerySnapshotChanges> resultCallback =
+                    new Result<PigeonQuerySnapshotChanges>() {
+                      public void success(PigeonQuerySnapshotChanges result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.namedQueryGetChanges(appArg, nameArg, optionsArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -2418,6 +2556,47 @@ public class GeneratedAndroidFirebaseFirestore {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
                 binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.queryGetChanges",
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String pathArg = (String) args.get(1);
+                Boolean isCollectionGroupArg = (Boolean) args.get(2);
+                PigeonQueryParameters parametersArg = (PigeonQueryParameters) args.get(3);
+                PigeonGetOptions optionsArg = (PigeonGetOptions) args.get(4);
+                Result<PigeonQuerySnapshotChanges> resultCallback =
+                    new Result<PigeonQuerySnapshotChanges>() {
+                      public void success(PigeonQuerySnapshotChanges result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.queryGetChanges(
+                    appArg,
+                    pathArg,
+                    isCollectionGroupArg,
+                    parametersArg,
+                    optionsArg,
+                    resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
                 "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.aggregateQuery",
                 getCodec());
         if (api != null) {
@@ -2522,6 +2701,51 @@ public class GeneratedAndroidFirebaseFirestore {
                     };
 
                 api.querySnapshot(
+                    appArg,
+                    pathArg,
+                    isCollectionGroupArg,
+                    parametersArg,
+                    optionsArg,
+                    includeMetadataChangesArg,
+                    sourceArg,
+                    resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshotChanges",
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String pathArg = (String) args.get(1);
+                Boolean isCollectionGroupArg = (Boolean) args.get(2);
+                PigeonQueryParameters parametersArg = (PigeonQueryParameters) args.get(3);
+                PigeonGetOptions optionsArg = (PigeonGetOptions) args.get(4);
+                Boolean includeMetadataChangesArg = (Boolean) args.get(5);
+                ListenSource sourceArg = ListenSource.values()[(int) args.get(6)];
+                Result<String> resultCallback =
+                    new Result<String>() {
+                      public void success(String result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.querySnapshotChanges(
                     appArg,
                     pathArg,
                     isCollectionGroupArg,

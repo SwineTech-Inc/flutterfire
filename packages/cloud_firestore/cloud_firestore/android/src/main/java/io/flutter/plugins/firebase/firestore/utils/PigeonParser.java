@@ -69,6 +69,19 @@ public class PigeonParser {
     return pigeonQuerySnapshot.build();
   }
 
+  public static GeneratedAndroidFirebaseFirestore.PigeonQuerySnapshotChanges
+      toPigeonQuerySnapshotChanges(
+          com.google.firebase.firestore.QuerySnapshot querySnapshot,
+          DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior) {
+    GeneratedAndroidFirebaseFirestore.PigeonQuerySnapshotChanges.Builder
+        pigeonQuerySnapshotChanges =
+            new GeneratedAndroidFirebaseFirestore.PigeonQuerySnapshotChanges.Builder();
+    pigeonQuerySnapshotChanges.setMetadata(toPigeonSnapshotMetadata(querySnapshot.getMetadata()));
+    pigeonQuerySnapshotChanges.setDocumentChanges(
+        toPigeonDocumentChanges(querySnapshot.getDocumentChanges(), serverTimestampBehavior));
+    return pigeonQuerySnapshotChanges.build();
+  }
+
   public static GeneratedAndroidFirebaseFirestore.PigeonSnapshotMetadata toPigeonSnapshotMetadata(
       com.google.firebase.firestore.SnapshotMetadata snapshotMetadata) {
     GeneratedAndroidFirebaseFirestore.PigeonSnapshotMetadata.Builder pigeonSnapshotMetadata =

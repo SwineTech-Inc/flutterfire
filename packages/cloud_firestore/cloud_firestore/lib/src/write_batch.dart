@@ -83,7 +83,7 @@ class WriteBatch {
   }
 
   // Used for debugging/crashlytics purposes
-  List<Map<String, dynamic>> getBatchData() {
+  List<PigeonTransactionCommand> getBatchData() {
     return _delegate.getBatchData();
   }
 }

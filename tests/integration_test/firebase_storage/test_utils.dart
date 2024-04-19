@@ -33,7 +33,7 @@ const int testEmulatorPort = 9199;
 
 // Creates a test file with a specified name to
 // a locally directory
-Future<File> createFile(String name, { String? largeString }) async {
+Future<File> createFile(String name, {String? largeString}) async {
   final Directory systemTempDir = Directory.systemTemp;
   final File file = await File('${systemTempDir.path}/$name').create();
   await file.writeAsString(largeString ?? kTestString);

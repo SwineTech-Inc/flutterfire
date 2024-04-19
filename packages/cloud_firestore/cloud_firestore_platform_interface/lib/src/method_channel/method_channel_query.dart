@@ -219,6 +219,7 @@ class MethodChannelQuery extends QueryPlatform {
     bool includeMetadataChanges = false,
     ServerTimestampBehavior serverTimestampBehavior =
         ServerTimestampBehavior.none,
+    ListenSource source = ListenSource.defaultSource,
   }) {
     // It's fine to let the StreamController be garbage collected once all the
     // subscribers have cancelled; this analyzer warning is safe to ignore.
@@ -229,24 +230,41 @@ class MethodChannelQuery extends QueryPlatform {
 
     controller = StreamController<QuerySnapshotChangesPlatform>.broadcast(
       onListen: () async {
-        final observerId = await MethodChannelFirebaseFirestore.channel
-            .invokeMethod<String>('Query#snapshotChanges');
+
+        final observerId = await MethodChannelFirebaseFirestore.pigeonChannel
+            .querySnapshotChanges(
+          pigeonApp,
+          _pointer.path,
+          isCollectionGroupQuery,
+          _pigeonParameters,
+          PigeonGetOptions(
+            source: Source.serverAndCache,
+            serverTimestampBehavior: serverTimestampBehavior,
+          ),
+          includeMetadataChanges,
+          source,
+        );
 
         snapshotChangesStreamSubscription =
-            MethodChannelFirebaseFirestore.querySnapshotChannel(observerId!)
+            MethodChannelFirebaseFirestore.querySnapshotChangesChannel(
+                    observerId)
                 .receiveGuardedBroadcastStream(
-          arguments: <String, dynamic>{
-            'query': this,
-            'includeMetadataChanges': includeMetadataChanges,
-            'serverTimestampBehavior': getServerTimestampBehaviorString(
-              serverTimestampBehavior,
-            ),
-          },
           onError: convertPlatformException,
-        ).listen(
-          (snapshotChanges) {
-            controller.add(
-                MethodChannelQuerySnapshotChanges(firestore, snapshotChanges));
+        )
+                .listen(
+          (snapshot) {
+            final snapshotList = snapshot as List<Object?>;
+
+            final List<PigeonDocumentChange> changes =
+                (snapshotList[0]! as List)
+                    .map((e) => PigeonDocumentChange.decode(e))
+                    .toList()
+                    .cast<PigeonDocumentChange>();
+            final PigeonQuerySnapshotChanges result =
+                PigeonQuerySnapshotChanges.decode([changes, snapshotList[1]]);
+
+            controller
+                .add(MethodChannelQuerySnapshotChanges(firestore, result));
           },
           onError: controller.addError,
         );

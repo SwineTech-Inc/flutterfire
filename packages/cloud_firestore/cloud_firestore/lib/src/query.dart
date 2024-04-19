@@ -92,6 +92,7 @@ abstract class Query<T extends Object?> {
   /// Notifies of query change results at this location.
   Stream<QuerySnapshotChanges<T>> snapshotChanges({
     bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
   });
 
   /// Creates and returns a new [Query] that's additionally sorted by the specified
@@ -480,9 +481,20 @@ class _JsonQuery implements Query<Map<String, dynamic>> {
   @override
   Stream<QuerySnapshotChanges<Map<String, dynamic>>> snapshotChanges({
     bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
   }) {
+    if (source == ListenSource.cache &&
+        defaultTargetPlatform == TargetPlatform.windows) {
+      throw UnimplementedError(
+        'Listening from cache is not supported on Windows',
+      );
+    }
+
     return _delegate
-        .snapshotChanges(includeMetadataChanges: includeMetadataChanges)
+        .snapshotChanges(
+          includeMetadataChanges: includeMetadataChanges,
+          source: source,
+        )
         .map((item) => _JsonQuerySnapshotChanges(firestore, item));
   }
 
@@ -975,9 +987,13 @@ class _WithConverterQuery<T extends Object?> implements Query<T> {
   @override
   Stream<QuerySnapshotChanges<T>> snapshotChanges({
     bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
   }) {
     return _originalQuery
-        .snapshotChanges(includeMetadataChanges: includeMetadataChanges)
+        .snapshotChanges(
+          includeMetadataChanges: includeMetadataChanges,
+          source: source,
+        )
         .map(
           (snapshot) => _WithConverterQuerySnapshotChanges<T>(
             snapshot,
