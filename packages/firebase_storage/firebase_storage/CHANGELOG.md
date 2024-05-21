@@ -1,7 +1,3 @@
-## 11.2.8
-
- - Update a dependency to the latest release.
-
 ## 11.2.7
 
  - Update a dependency to the latest release.

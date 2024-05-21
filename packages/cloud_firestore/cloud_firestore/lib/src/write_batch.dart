@@ -76,14 +76,4 @@ class WriteBatch {
       _CodecUtility.replaceValueWithDelegatesInMap(data)!,
     );
   }
-
-  /// Remove fields in the batch referred to by [document].
-  void removeFromBatch(String documentPath) {
-    _delegate.removeFromBatch(documentPath);
-  }
-
-  // Used for debugging/crashlytics purposes
-  List<Map<String, dynamic>> getBatchData() {
-    return _delegate.getBatchData();
-  }
 }
