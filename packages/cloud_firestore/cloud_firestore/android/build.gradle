@@ -5,6 +5,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()
     }
 
     dependencies {
@@ -16,7 +17,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-    }
+        mavenLocal()
+      }
 }
 
 apply plugin: 'com.android.library'
@@ -54,7 +56,9 @@ android {
     dependencies {
         api firebaseCoreProject
         implementation platform("com.google.firebase:firebase-bom:${getRootProjectExtOrCoreProperty("FirebaseSDKVersion", firebaseCoreProject)}")
-        implementation 'com.google.firebase:firebase-firestore'
+        implementation 'com.google.firebase:firebase-firestore:24.9.0-a'
+        implementation 'com.google.firebase:firebase-common:20.3.3'
+        implementation 'com.google.android.gms:play-services-tasks:18.0.2'
     }
 }
 

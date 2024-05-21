@@ -49,6 +49,8 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
         'writes': _writes,
       });
     } catch (e, stack) {
+      // set _committed to false so that we can try again if desired.
+      _committed = false;
       convertPlatformException(e, stack);
     }
   }
@@ -96,5 +98,18 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
       throw StateError(
           'This batch has already been committed and can no longer be changed.');
     }
+  }
+
+  @override
+  void removeFromBatch(String documentPath) {
+    _assertNotCommitted();
+    _writes
+        .removeWhere((element) => element['path'].compareTo(documentPath) == 0);
+  }
+
+  // Used for debugging/crashlytics purposes
+  @override
+  List<Map<String, dynamic>> getBatchData() {
+    return _writes;
   }
 }
