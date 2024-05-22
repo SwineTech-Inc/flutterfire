@@ -9,32 +9,32 @@ environment:
 
 dependencies:
   _flutterfire_internals:
-#    path: ../../_flutterfire_internals
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/_flutterfire_internals
-      ref: SwineTech/v4.16.1-a
+    path: ../../_flutterfire_internals
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/_flutterfire_internals
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core:
-#    path: ../../firebase_core/firebase_core
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.16.1-a
+    path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/v4.16.1-a
 
   firebase_core_web:
-#    path: ../../firebase_core/firebase_core_web
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v4.16.1-a
+    path: ../../firebase_core/firebase_core_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_web
+#      ref: SwineTech/v4.16.1-a
 
   firebase_performance_platform_interface:
-#    path: ../firebase_performance_platform_interface
-    git:
-      url: https://github.com/SwineTech-Inc/flutterfire.git
-      path: packages/firebase_performance/firebase_performance_platform_interface
-      ref: SwineTech/v4.16.1-a
+    path: ../firebase_performance_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_performance/firebase_performance_platform_interface
+#      ref: SwineTech/v4.16.1-a
 
   flutter:
     sdk: flutter
