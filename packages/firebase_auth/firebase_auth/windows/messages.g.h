@@ -503,10 +503,9 @@ class PigeonUserInfo {
   void set_last_sign_in_timestamp(const int64_t* value_arg);
   void set_last_sign_in_timestamp(int64_t value_arg);
 
-  flutter::EncodableList ToEncodableList() const;
-
  private:
   static PigeonUserInfo FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
   friend class PigeonUserDetails;
   friend class FirebaseAuthHostApi;
   friend class FirebaseAuthHostApiCodecSerializer;
@@ -554,11 +553,10 @@ class PigeonUserDetails {
   const flutter::EncodableList& provider_data() const;
   void set_provider_data(const flutter::EncodableList& value_arg);
 
+ private:
   static PigeonUserDetails FromEncodableList(
       const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
-
- private:
   friend class PigeonUserCredential;
   friend class FirebaseAuthHostApi;
   friend class FirebaseAuthHostApiCodecSerializer;

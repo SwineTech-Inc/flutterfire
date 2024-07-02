@@ -5,11 +5,7 @@
 // See also: https://pub.dev/packages/pigeon
 
 #import "messages.g.h"
-#if TARGET_OS_OSX
-#import <FlutterMacOS/FlutterMacOS.h>
-#else
 #import <Flutter/Flutter.h>
-#endif
 
 #if !__has_feature(objc_arc)
 #error File requires ARC to be enabled.

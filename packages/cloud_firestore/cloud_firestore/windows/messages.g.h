@@ -15,8 +15,6 @@
 #include <optional>
 #include <string>
 
-#include "firestore_codec.h"
-
 namespace cloud_firestore_windows {
 
 // Generated class from Pigeon.
@@ -627,7 +625,7 @@ class AggregateQueryResponse {
 };
 
 class FirebaseFirestoreHostApiCodecSerializer
-    : public cloud_firestore_windows::FirestoreCodec {
+    : public flutter::StandardCodecSerializer {
  public:
   FirebaseFirestoreHostApiCodecSerializer();
   inline static FirebaseFirestoreHostApiCodecSerializer& GetInstance() {

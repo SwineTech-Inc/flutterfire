@@ -334,7 +334,7 @@ public class GeneratedAndroidFirebaseCore {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(14);
       toListResult.add(apiKey);
       toListResult.add(appId);
@@ -482,7 +482,7 @@ public class GeneratedAndroidFirebaseCore {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(4);
       toListResult.add(name);
       toListResult.add((options == null) ? null : options.toList());

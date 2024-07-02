@@ -150,7 +150,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(3);
       toListResult.add(appName);
       toListResult.add(tenantId);
@@ -247,7 +247,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(3);
       toListResult.add(bucket);
       toListResult.add(fullPath);
@@ -296,7 +296,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(1);
       toListResult.add(metadata);
       return toListResult;
@@ -373,7 +373,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(2);
       toListResult.add(maxResults);
       toListResult.add(pageToken);
@@ -538,7 +538,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(6);
       toListResult.add(cacheControl);
       toListResult.add(contentDisposition);
@@ -641,7 +641,7 @@ public class GeneratedAndroidFirebaseStorage {
     }
 
     @NonNull
-    public ArrayList<Object> toList() {
+    ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(3);
       toListResult.add(items);
       toListResult.add(pageToken);

@@ -230,7 +230,6 @@ class MethodChannelQuery extends QueryPlatform {
 
     controller = StreamController<QuerySnapshotChangesPlatform>.broadcast(
       onListen: () async {
-
         final observerId = await MethodChannelFirebaseFirestore.pigeonChannel
             .querySnapshotChanges(
           pigeonApp,
