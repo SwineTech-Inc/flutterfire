@@ -1,7 +1,8 @@
 name: firebase_performance_web
 description: Web implementation of Firebase Performance monitoring.
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_performance/firebase_performance_web
-version: 0.1.6+1-a
+
+version: 0.1.6+10-a
 
 environment:
   sdk: '>=2.18.0 <4.0.0'
@@ -13,28 +14,28 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_core:
 #    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_core_web:
 #    path: ../../firebase_core/firebase_core_web
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_performance_platform_interface:
 #    path: ../firebase_performance_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_performance/firebase_performance_platform_interface
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   flutter:
     sdk: flutter

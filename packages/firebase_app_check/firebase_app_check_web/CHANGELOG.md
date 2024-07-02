@@ -1,3 +1,39 @@
+## 0.1.2+10
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+9
+
+ - **FIX**(app-check,web): fixed broken `onTokenChanged` and ensured it is properly cleaned up. Streams are also cleaned up on "hot restart" ([#12933](https://github.com/firebase/flutterfire/issues/12933)). ([093b5fef](https://github.com/firebase/flutterfire/commit/093b5fef8c3b8314835dc954ce02daacd1e077f4))
+
+## 0.1.2+8
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+7
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+6
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+5
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+4
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+3
+
+ - Update a dependency to the latest release.
+
+## 0.1.2+2
+
+ - Update a dependency to the latest release.
+
 ## 0.1.2+1
 
  - **FIX**(web): remove remaining references to `dart:html` ([#12601](https://github.com/firebase/flutterfire/issues/12601)). ([fbffedb6](https://github.com/firebase/flutterfire/commit/fbffedb65c180d29a07436af90b36ca56e97bfe7))

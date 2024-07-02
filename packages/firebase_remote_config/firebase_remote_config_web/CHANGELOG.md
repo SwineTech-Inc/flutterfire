@@ -1,3 +1,39 @@
+## 1.6.10
+
+ - Update a dependency to the latest release.
+
+## 1.6.9
+
+ - Update a dependency to the latest release.
+
+## 1.6.8
+
+ - **FIX**(web): fix some casting issue on Web JS Interop ([#12852](https://github.com/firebase/flutterfire/issues/12852)). ([4b56df1c](https://github.com/firebase/flutterfire/commit/4b56df1cc187d77ef22a82688a37f1c7aba4ed40))
+
+## 1.6.7
+
+ - Update a dependency to the latest release.
+
+## 1.6.6
+
+ - Update a dependency to the latest release.
+
+## 1.6.5
+
+ - Update a dependency to the latest release.
+
+## 1.6.4
+
+ - Update a dependency to the latest release.
+
+## 1.6.3
+
+ - Update a dependency to the latest release.
+
+## 1.6.2
+
+ - Update a dependency to the latest release.
+
 ## 1.6.1
 
  - **FIX**(remote-config,web): `getAll()` API throwing runtime exception with incorrect cast to `List<String>` ([#12602](https://github.com/firebase/flutterfire/issues/12602)). ([70e257e9](https://github.com/firebase/flutterfire/commit/70e257e9a3bf930b6873161562c728ebd84031a2))

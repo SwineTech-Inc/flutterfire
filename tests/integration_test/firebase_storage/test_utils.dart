@@ -53,7 +53,10 @@ Future<FirebaseApp> testInitializeSecondaryApp({
       withDefaultBucket ? 'testapp' : 'testapp-no-bucket';
 
   FirebaseOptions testAppOptions;
-  if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.windows)) {
     testAppOptions = FirebaseOptions(
       appId: DefaultFirebaseOptions.currentPlatform.appId,
       apiKey: DefaultFirebaseOptions.currentPlatform.apiKey,

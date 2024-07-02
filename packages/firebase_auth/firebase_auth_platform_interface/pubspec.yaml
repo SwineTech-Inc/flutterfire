@@ -4,11 +4,12 @@ homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_auth/firebase_auth_platform_interface
 # NOTE: We strongly prefer non-breaking changes, even at the expense of a
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
-version: 7.2.2-a
+
+version: 7.4.1-a
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
-  flutter: '>=3.3.0'
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
 
 dependencies:
   _flutterfire_internals:
@@ -16,7 +17,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   collection: ^1.16.0
 
@@ -25,7 +26,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   flutter:
     sdk: flutter
@@ -38,12 +39,12 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   flutter_test:
     sdk: flutter
   mockito: ^5.4.0
-  pigeon: 11.0.1
+  pigeon: 19.0.0
 
   # NOTE: This is a temporary workaround for Flutter 3.13
   watcher: ^1.1.0

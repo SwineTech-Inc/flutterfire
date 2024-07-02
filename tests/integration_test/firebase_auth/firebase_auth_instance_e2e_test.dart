@@ -149,7 +149,6 @@ void main() {
             subscription = stream.listen(
               expectAsync1(
                 (User? user) {},
-                count: 1,
                 reason: 'Stream should only call once',
               ),
             );
@@ -196,6 +195,43 @@ void main() {
         },
         skip: !kIsWeb && Platform.isWindows,
       );
+
+      group('test all stream listeners', () {
+        Matcher containsExactlyThreeUsers() => predicate<List>(
+              (list) => list.whereType<User>().length == 3,
+              'a list containing exactly 3 User instances',
+            );
+        test('create, cancel and reopen all user event stream handlers',
+            () async {
+          final auth = FirebaseAuth.instance;
+          final events = [];
+          final streamHandler = events.add;
+
+          StreamSubscription<User?> userChanges =
+              auth.userChanges().listen(streamHandler);
+
+          StreamSubscription<User?> authStateChanges =
+              auth.authStateChanges().listen(streamHandler);
+
+          StreamSubscription<User?> idTokenChanges =
+              auth.idTokenChanges().listen(streamHandler);
+
+          await userChanges.cancel();
+          await authStateChanges.cancel();
+          await idTokenChanges.cancel();
+
+          userChanges = auth.userChanges().listen(streamHandler);
+          authStateChanges = auth.authStateChanges().listen(streamHandler);
+          idTokenChanges = auth.idTokenChanges().listen(streamHandler);
+
+          await auth.signInWithEmailAndPassword(
+            email: testEmail,
+            password: testPassword,
+          );
+
+          expect(events, containsExactlyThreeUsers());
+        });
+      });
 
       group('currentUser', () {
         test('should return currentUser', () async {
@@ -346,10 +382,9 @@ void main() {
         () {
           test('should return password provider for an email address',
               () async {
-            var providers =
+            var providers = await FirebaseAuth.instance
                 // ignore: deprecated_member_use
-                await FirebaseAuth.instance
-                    .fetchSignInMethodsForEmail(testEmail);
+                .fetchSignInMethodsForEmail(testEmail);
             expect(providers, isList);
             expect(providers.contains('password'), isTrue);
           });
@@ -655,6 +690,42 @@ void main() {
           } catch (e) {
             fail(e.toString());
           }
+        });
+
+        test(
+            'throw Exception when using incorrect auth details with GoogleAuthProvider',
+            () async {
+          final credential = GoogleAuthProvider.credential(
+            idToken: 'incorrect idToken',
+          );
+
+          await expectLater(
+            FirebaseAuth.instance.signInWithCredential(credential),
+            throwsA(
+              isA<FirebaseAuthException>().having(
+                (e) => e.code,
+                'code',
+                contains('invalid-credential'),
+              ),
+            ),
+          );
+
+          final credential2 = GoogleAuthProvider.credential(
+            accessToken: 'incorrect accessToken',
+          );
+
+          await expectLater(
+            FirebaseAuth.instance.signInWithCredential(credential2),
+            throwsA(
+              isA<FirebaseAuthException>(),
+              // Live project has this error code, emulator throws "internal-error"
+              // .having(
+              //   (e) => e.code,
+              //   'code',
+              //   contains('invalid-credential'),
+              // ),
+            ),
+          );
         });
       });
 

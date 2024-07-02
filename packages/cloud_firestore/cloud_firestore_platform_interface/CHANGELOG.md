@@ -1,3 +1,40 @@
+## 6.2.8
+
+ - Update a dependency to the latest release.
+
+## 6.2.7
+
+ - Update a dependency to the latest release.
+
+## 6.2.6
+
+ - **DOCS**(firestore): update documentation for `clearPersistence` ([#12843](https://github.com/firebase/flutterfire/issues/12843)). ([35b78f04](https://github.com/firebase/flutterfire/commit/35b78f04edd12f2319d3d6cce06c66bfdbd13d8c))
+
+## 6.2.5
+
+ - Update a dependency to the latest release.
+
+## 6.2.4
+
+ - Update a dependency to the latest release.
+
+## 6.2.3
+
+ - Update a dependency to the latest release.
+
+## 6.2.2
+
+ - Update a dependency to the latest release.
+
+## 6.2.1
+
+ - Update a dependency to the latest release.
+
+## 6.2.0
+
+ - **FIX**(firestore): deprecate `databaseURL` in favor of `databaseId` ([#12593](https://github.com/firebase/flutterfire/issues/12593)). ([8966f483](https://github.com/firebase/flutterfire/commit/8966f4837afe7e32a3847b7b677d787b1398b682))
+ - **FEAT**(firestore): add support for listening snapshot from cache ([#12585](https://github.com/firebase/flutterfire/issues/12585)). ([f2cef8c1](https://github.com/firebase/flutterfire/commit/f2cef8c13f590cdeda0cadbe3d85d6e246d5ad7f))
+
 ## 6.1.13
 
  - Update a dependency to the latest release.

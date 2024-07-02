@@ -1,3 +1,47 @@
+## 5.0.2
+
+ - Update a dependency to the latest release.
+
+## 5.0.1
+
+ - **FIX**(firestore,macos): add Nonull decorator to PigeonParser to remove warnings when building ([#12930](https://github.com/firebase/flutterfire/issues/12930)). ([264b7643](https://github.com/firebase/flutterfire/commit/264b764346e0f35cc11e0a2b1f8070a6036c6631))
+ - **FIX**(firestore,web): ensure streams are removed on "hot restart" ([#12913](https://github.com/firebase/flutterfire/issues/12913)). ([c1a67e54](https://github.com/firebase/flutterfire/commit/c1a67e54894cbfb316b3445505b5803e2d041ed5))
+
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **DOCS**(firestore): update documentation for `clearPersistence` ([#12843](https://github.com/firebase/flutterfire/issues/12843)). ([35b78f04](https://github.com/firebase/flutterfire/commit/35b78f04edd12f2319d3d6cce06c66bfdbd13d8c))
+ - **BREAKING** **REFACTOR**: android plugins require `minSdk 21`, auth requires `minSdk 23` ahead of android BOM `>=33.0.0` ([#12873](https://github.com/firebase/flutterfire/issues/12873)). ([52accfc6](https://github.com/firebase/flutterfire/commit/52accfc6c39d6360d9c0f36efe369ede990b7362))
+ - **BREAKING** **REFACTOR**: bump all iOS deployment targets to iOS 13 ahead of Firebase iOS SDK `v11` breaking change ([#12872](https://github.com/firebase/flutterfire/issues/12872)). ([de0cea2c](https://github.com/firebase/flutterfire/commit/de0cea2c3c36694a76361be784255986fac84a43))
+
+## 4.17.5
+
+ - Update a dependency to the latest release.
+
+## 4.17.4
+
+ - **FIX**(firestore,ios): fix document stream handler options. ([#12764](https://github.com/firebase/flutterfire/issues/12764)). ([786e73ca](https://github.com/firebase/flutterfire/commit/786e73ca17527493a47914c7ead1a12a4f0adde5))
+
+## 4.17.3
+
+ - **FIX**(firestore,ios): fix query stream handler options. ([#12739](https://github.com/firebase/flutterfire/issues/12739)). ([953bf929](https://github.com/firebase/flutterfire/commit/953bf929bf19e7bbb3564c69901f5a4fca5fc981))
+ - **FIX**(web): fix test for Web on WASM ([#12697](https://github.com/firebase/flutterfire/issues/12697)). ([e343df58](https://github.com/firebase/flutterfire/commit/e343df585280e0ff088eb21a7a7accb727b150ed))
+
+## 4.17.2
+
+ - Update a dependency to the latest release.
+
+## 4.17.1
+
+ - Update a dependency to the latest release.
+
+## 4.17.0
+
+ - **FIX**(firestore): remove `nanopb` version constraints from podspec ([#12632](https://github.com/firebase/flutterfire/issues/12632)). ([c899a7bc](https://github.com/firebase/flutterfire/commit/c899a7bc9cdd7b552d3c10058f4899106a4c1994))
+ - **FIX**(firestore): deprecate `databaseURL` in favor of `databaseId` ([#12593](https://github.com/firebase/flutterfire/issues/12593)). ([8966f483](https://github.com/firebase/flutterfire/commit/8966f4837afe7e32a3847b7b677d787b1398b682))
+ - **FEAT**(firestore): add support for listening snapshot from cache ([#12585](https://github.com/firebase/flutterfire/issues/12585)). ([f2cef8c1](https://github.com/firebase/flutterfire/commit/f2cef8c13f590cdeda0cadbe3d85d6e246d5ad7f))
+
 ## 4.16.1
 
  - **FIX**(firestore,android): lint warnings and deprecated API ([#12577](https://github.com/firebase/flutterfire/issues/12577)). ([1b6ef739](https://github.com/firebase/flutterfire/commit/1b6ef73935062a4fa2c43bb4ef9b6d080a3ca5b4))

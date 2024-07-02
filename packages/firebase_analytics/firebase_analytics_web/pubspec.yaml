@@ -2,7 +2,8 @@ name: firebase_analytics_web
 description: The web implementation of firebase_analytics
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_analytics/firebase_analytics_web
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_analytics/firebase_analytics_web
-version: 0.5.7+1-a
+
+version: 0.5.8-a
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -14,28 +15,28 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_analytics_platform_interface:
 #    path: ../firebase_analytics_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_analytics/firebase_analytics_platform_interface
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_core:
 #    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   firebase_core_web:
 #    path: ../../firebase_core/firebase_core_web
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v4.16.1-a
+      ref: SwineTech/v5.02-a
 
   flutter:
     sdk: flutter
