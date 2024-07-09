@@ -5,7 +5,7 @@ repository: https://github.com/firebase/flutterfire/tree/master/packages/firebas
 # NOTE: We strongly prefer non-breaking changes, even at the expense of a
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
 
-version: 7.4.1-a
+version: 7.4.2-a
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -17,7 +17,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   collection: ^1.16.0
 
@@ -26,7 +26,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter
@@ -39,7 +39,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter_test:
     sdk: flutter

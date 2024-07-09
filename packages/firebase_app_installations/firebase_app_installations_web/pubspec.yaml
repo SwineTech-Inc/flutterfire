@@ -1,7 +1,7 @@
 name: firebase_app_installations_web
 description: The web implementation of firebase_app_installations.
 
-version: 0.1.5+10-a
+version: 0.1.5+11-a
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_app_installations/firebase_app_installations_web
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_app_installations/firebase_app_installations_web
 
@@ -17,28 +17,28 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_app_installations_platform_interface:
 #    path: ../firebase_app_installations_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_app_installations/firebase_app_installations_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_core:
 #    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_core_web:
 #    path: ../../firebase_core/firebase_core_web
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter
@@ -51,7 +51,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter_test:
     sdk: flutter

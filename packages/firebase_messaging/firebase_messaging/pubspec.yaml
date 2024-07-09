@@ -4,7 +4,7 @@ description: Flutter plugin for Firebase Cloud Messaging, a cross-platform
 homepage: https://firebase.google.com/docs/cloud-messaging
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_messaging/firebase_messaging
 
-version: 15.0.2-a
+version: 15.0.3-a
 topics:
   - firebase
   - messaging
@@ -14,7 +14,7 @@ false_secrets:
   - example/**
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
@@ -23,28 +23,28 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_core_platform_interface:
 #    path: ../../firebase_core/firebase_core_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_messaging_platform_interface:
 #    path: ../firebase_messaging_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_messaging/firebase_messaging_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_messaging_web:
 #    path: ../firebase_messaging_web
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_messaging/firebase_messaging_web
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter

@@ -1,13 +1,12 @@
 name: firebase_performance_platform_interface
 description: A common platform interface for the firebase_performance plugin.
-
-version: 0.1.4+38-a
+version: 0.1.4+39-a
 homepage: https://firebase.flutter.dev/docs/performance/overview
 
 publish_to: none
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
@@ -16,14 +15,14 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_core:
 #    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter
@@ -35,7 +34,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter_test:
     sdk: flutter

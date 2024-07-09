@@ -1,14 +1,14 @@
 name: firebase_crashlytics_platform_interface
 description: A common platform interface for the firebase_crashlytics plugin.
 
-version: 3.6.38-a
+version: 3.6.39-a
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/firebase_crashlytics/firebase_crashlytics_platform_interface
 repository: https://github.com/firebase/flutterfire/tree/master/packages/firebase_crashlytics/firebase_crashlytics_platform_interface
 
 publish_to: none
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
@@ -17,7 +17,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   collection: ^1.15.0
 
@@ -26,7 +26,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter
@@ -39,7 +39,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter_test:
     sdk: flutter

@@ -3,7 +3,7 @@ description: The web implementation of cloud_firestore
 homepage: https://github.com/firebase/flutterfire/tree/master/packages/cloud_firestore/cloud_firestore_web
 repository: https://github.com/firebase/flutterfire/tree/master/packages/cloud_firestore/cloud_firestore_web
 
-version: 4.0.2-a
+version: 4.0.3-a
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -17,14 +17,14 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   cloud_firestore_platform_interface:
 #    path: ../cloud_firestore_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/cloud_firestore/cloud_firestore_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   collection: ^1.0.0
 
@@ -33,14 +33,14 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   firebase_core_web:
 #    path: ../../firebase_core/firebase_core_web
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_web
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter:
     sdk: flutter
@@ -53,7 +53,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/v5.02-a
+      ref: SwineTech/v5.1.0-a
 
   flutter_test:
     sdk: flutter
