@@ -1,4 +1,4 @@
-name: e2e
+name: e2e_ben
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
