@@ -12,20 +12,29 @@
   },
   "emulators": {
     "firestore": {
+      "host": "10.1.20.225",
       "port": "8080"
     },
     "auth": {
+      "host": "10.1.20.225",
       "port": "9099"
     },
     "storage": {
+      "host": "10.1.20.225",
       "port": "9199"
     },
     "database": {
+      "host": "10.1.20.225",
       "port": "9000"
     },
     "ui": {
+      "host": "10.1.20.225",
       "enabled": true,
       "port": 4000
+    },
+    "functions": {
+      "host": "10.1.20.225",
+      "port": "5001"
     }
   },
   "storage": {
