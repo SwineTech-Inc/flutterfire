@@ -319,10 +319,10 @@ abstract class FirebaseFirestoreHostApi {
 
   @async
   PigeonQuerySnapshotChanges namedQueryGetChanges(
-      FirestorePigeonFirebaseApp app,
-      String name,
-      PigeonGetOptions options,
-      );
+    FirestorePigeonFirebaseApp app,
+    String name,
+    PigeonGetOptions options,
+  );
 
   @async
   void clearPersistence(
@@ -421,12 +421,12 @@ abstract class FirebaseFirestoreHostApi {
 
   @async
   PigeonQuerySnapshotChanges queryGetChanges(
-      FirestorePigeonFirebaseApp app,
-      String path,
-      bool isCollectionGroup,
-      PigeonQueryParameters parameters,
-      PigeonGetOptions options,
-      );
+    FirestorePigeonFirebaseApp app,
+    String path,
+    bool isCollectionGroup,
+    PigeonQueryParameters parameters,
+    PigeonGetOptions options,
+  );
 
   @async
   List<AggregateQueryResponse?> aggregateQuery(
@@ -457,14 +457,14 @@ abstract class FirebaseFirestoreHostApi {
 
   @async
   String querySnapshotChanges(
-      FirestorePigeonFirebaseApp app,
-      String path,
-      bool isCollectionGroup,
-      PigeonQueryParameters parameters,
-      PigeonGetOptions options,
-      bool includeMetadataChanges,
-      ListenSource source,
-      );
+    FirestorePigeonFirebaseApp app,
+    String path,
+    bool isCollectionGroup,
+    PigeonQueryParameters parameters,
+    PigeonGetOptions options,
+    bool includeMetadataChanges,
+    ListenSource source,
+  );
 
   @async
   String documentReferenceSnapshot(

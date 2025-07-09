@@ -34,13 +34,13 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   ListenSource source;
 
   public QuerySnapshotChangesStreamHandler(
-    Query query,
-    Boolean includeMetadataChanges,
-    DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior,
-    ListenSource source) {
+      Query query,
+      Boolean includeMetadataChanges,
+      DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior,
+      ListenSource source) {
     this.query = query;
     this.metadataChanges =
-      includeMetadataChanges ? MetadataChanges.INCLUDE : MetadataChanges.EXCLUDE;
+        includeMetadataChanges ? MetadataChanges.INCLUDE : MetadataChanges.EXCLUDE;
     this.serverTimestampBehavior = serverTimestampBehavior;
     this.source = source;
   }
@@ -52,39 +52,39 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     optionsBuilder.setSource(source);
 
     listenerRegistration =
-      query.addSnapshotListener(
-        optionsBuilder.build(),
-        (querySnapshotChanges, exception) -> {
-          if (exception != null) {
-            Map<String, String> exceptionDetails = ExceptionConverter.createDetails(exception);
-            events.error(DEFAULT_ERROR_CODE, exception.getMessage(), exceptionDetails);
-            events.endOfStream();
+        query.addSnapshotListener(
+            optionsBuilder.build(),
+            (querySnapshotChanges, exception) -> {
+              if (exception != null) {
+                Map<String, String> exceptionDetails = ExceptionConverter.createDetails(exception);
+                events.error(DEFAULT_ERROR_CODE, exception.getMessage(), exceptionDetails);
+                events.endOfStream();
 
-            Log.e(
-              "QuerySnapshotChangesStreamHandler",
-              "OnListen exception: " + exception.getMessage());
+                Log.e(
+                    "QuerySnapshotChangesStreamHandler",
+                    "OnListen exception: " + exception.getMessage());
 
-            onCancel(null);
-          } else {
-            ArrayList<Object> toListResult = new ArrayList<Object>(2);
+                onCancel(null);
+              } else {
+                ArrayList<Object> toListResult = new ArrayList<Object>(2);
 
-            ArrayList<Object> documentChanges =
-              new ArrayList<Object>(querySnapshotChanges.getDocumentChanges().size());
+                ArrayList<Object> documentChanges =
+                    new ArrayList<Object>(querySnapshotChanges.getDocumentChanges().size());
 
-            for (DocumentChange documentChange : querySnapshotChanges.getDocumentChanges()) {
-              documentChanges.add(
-                PigeonParser.toPigeonDocumentChange(documentChange, serverTimestampBehavior)
-                  .toList());
-            }
+                for (DocumentChange documentChange : querySnapshotChanges.getDocumentChanges()) {
+                  documentChanges.add(
+                      PigeonParser.toPigeonDocumentChange(documentChange, serverTimestampBehavior)
+                          .toList());
+                }
 
-            toListResult.add(documentChanges);
-            toListResult.add(
-              PigeonParser.toPigeonSnapshotMetadata(querySnapshotChanges.getMetadata())
-                .toList());
+                toListResult.add(documentChanges);
+                toListResult.add(
+                    PigeonParser.toPigeonSnapshotMetadata(querySnapshotChanges.getMetadata())
+                        .toList());
 
-            events.success(toListResult);
-          }
-        });
+                events.success(toListResult);
+              }
+            });
   }
 
   @Override

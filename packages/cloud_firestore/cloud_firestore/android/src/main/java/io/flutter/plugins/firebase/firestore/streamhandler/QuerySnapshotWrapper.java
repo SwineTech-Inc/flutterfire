@@ -129,8 +129,8 @@ public class QuerySnapshotWrapper {
    */
   @NonNull
   public <T> List<T> toObjects(
-    @NonNull Class<T> clazz,
-    @NonNull DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior) {
+      @NonNull Class<T> clazz,
+      @NonNull DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior) {
 
     return querySnapshot.toObjects(clazz, serverTimestampBehavior);
   }
