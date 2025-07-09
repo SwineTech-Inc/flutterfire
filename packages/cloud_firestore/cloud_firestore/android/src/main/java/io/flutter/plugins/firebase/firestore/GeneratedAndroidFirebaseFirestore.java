@@ -35,7 +35,7 @@ public class GeneratedAndroidFirebaseFirestore {
     /** The error details. Must be a datatype supported by the api codec. */
     public final Object details;
 
-    public FlutterError(@NonNull String code, @Nullable String message, @Nullable Object details)
+    public FlutterError(@NonNull String code, @Nullable String message, @Nullable Object details) 
     {
       super(message);
       this.code = code;
@@ -1667,7 +1667,7 @@ public class GeneratedAndroidFirebaseFirestore {
     void error(@NonNull Throwable error);
   }
 
-  private static class FirebaseFirestoreHostApiCodec extends StandardMessageCodec {
+  private static class FirebaseFirestoreHostApiCodec extends FlutterFirebaseFirestoreMessageCodec {
     public static final FirebaseFirestoreHostApiCodec INSTANCE = new FirebaseFirestoreHostApiCodec();
 
     private FirebaseFirestoreHostApiCodec() {}

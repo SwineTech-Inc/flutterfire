@@ -14,6 +14,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include "firestore_codec.h"
 
 namespace cloud_firestore_windows {
 
@@ -672,7 +673,7 @@ class AggregateQueryResponse {
 
 };
 
-class FirebaseFirestoreHostApiCodecSerializer : public flutter::StandardCodecSerializer {
+class FirebaseFirestoreHostApiCodecSerializer : public cloud_firestore_windows::FirestoreCodec {
  public:
   FirebaseFirestoreHostApiCodecSerializer();
   inline static FirebaseFirestoreHostApiCodecSerializer& GetInstance() {
