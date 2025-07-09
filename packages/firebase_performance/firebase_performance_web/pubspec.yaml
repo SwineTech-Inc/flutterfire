@@ -33,7 +33,7 @@ dependencies:
 #    path: ../firebase_performance_platform_interface
       git:
         url: https://github.com/SwineTech-Inc/flutterfire.git
-        path: packages/firebase_messaging/firebase_performance_platform_interface
+        path: packages/firebase_performance/firebase_performance_platform_interface
         ref: SwineTech/bom_3.13.1
   flutter:
     sdk: flutter
