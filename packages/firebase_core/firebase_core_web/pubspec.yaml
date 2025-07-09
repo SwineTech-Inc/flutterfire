@@ -10,11 +10,11 @@ environment:
 
 dependencies:
   firebase_core_platform_interface:
-        path: ../firebase_core_platform_interface
-#    git:
-#      url: https://github.com/SwineTech-Inc/flutterfire.git
-#      path: packages/firebase_core/firebase_core_platform_interface
-#      ref: SwineTech/bom_3.13.1
+#        path: ../firebase_core_platform_interface
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_core/firebase_core_platform_interface
+      ref: SwineTech/bom_3.13.1
   flutter:
     sdk: flutter
   flutter_web_plugins:

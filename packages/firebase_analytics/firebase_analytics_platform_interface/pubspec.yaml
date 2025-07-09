@@ -10,17 +10,17 @@ environment:
 
 dependencies:
   _flutterfire_internals:
-        path: ../../_flutterfire_internals
-#    git:
-#      url: https://github.com/SwineTech-Inc/flutterfire.git
-#      path: packages/_flutterfire_internals
-#      ref: SwineTech/bom_3.13.1
+#        path: ../../_flutterfire_internals
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/_flutterfire_internals
+      ref: SwineTech/bom_3.13.1
   firebase_core:
-        path: ../../firebase_core/firebase_core
-#    git:
-#      url: https://github.com/SwineTech-Inc/flutterfire.git
-#      path: packages/firebase_core/firebase_core
-#      ref: SwineTech/bom_3.13.1
+#        path: ../../firebase_core/firebase_core
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_core/firebase_core
+      ref: SwineTech/bom_3.13.1
   flutter:
     sdk: flutter
   meta: ^1.8.0
@@ -28,11 +28,11 @@ dependencies:
 
 dev_dependencies:
   firebase_core_platform_interface:
-    path: ../../firebase_core/firebase_core_platform_interface
-  #    git:
-  #      url: https://github.com/SwineTech-Inc/flutterfire.git
-  #      path: packages/firebase_core/firebase_core_platform_interface
-  #      ref: SwineTech/bom_3.13.1
+#    path: ../../firebase_core/firebase_core_platform_interface
+      git:
+        url: https://github.com/SwineTech-Inc/flutterfire.git
+        path: packages/firebase_core/firebase_core_platform_interface
+        ref: SwineTech/bom_3.13.1
   flutter_test:
     sdk: flutter
   pigeon: 25.3.2
