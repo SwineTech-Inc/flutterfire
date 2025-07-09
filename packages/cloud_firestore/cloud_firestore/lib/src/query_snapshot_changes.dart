@@ -48,13 +48,13 @@ class _JsonQuerySnapshotChanges
 class _WithConverterQuerySnapshotChanges<T extends Object?>
     implements QuerySnapshotChanges<T> {
   _WithConverterQuerySnapshotChanges(
-      this._originalQuerySnapshotChanges,
-      this._fromFirestore,
-      this._toFirestore,
-      );
+    this._originalQuerySnapshotChanges,
+    this._fromFirestore,
+    this._toFirestore,
+  );
 
   final QuerySnapshotChanges<Map<String, dynamic>>
-  _originalQuerySnapshotChanges;
+      _originalQuerySnapshotChanges;
   final FromFirestore<T> _fromFirestore;
   final ToFirestore<T> _toFirestore;
 

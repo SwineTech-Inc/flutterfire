@@ -492,9 +492,9 @@ class _JsonQuery implements Query<Map<String, dynamic>> {
 
     return _delegate
         .snapshotChanges(
-      includeMetadataChanges: includeMetadataChanges,
-      listenSource: source,
-    )
+          includeMetadataChanges: includeMetadataChanges,
+          listenSource: source,
+        )
         .map((item) => _JsonQuerySnapshotChanges(firestore, item));
   }
 
@@ -990,16 +990,16 @@ class _WithConverterQuery<T extends Object?> implements Query<T> {
   }) {
     return _originalQuery
         .snapshotChanges(
-      includeMetadataChanges: includeMetadataChanges,
-      source: source,
-    )
+          includeMetadataChanges: includeMetadataChanges,
+          source: source,
+        )
         .map(
           (snapshot) => _WithConverterQuerySnapshotChanges<T>(
-        snapshot,
-        _fromFirestore,
-        _toFirestore,
-      ),
-    );
+            snapshot,
+            _fromFirestore,
+            _toFirestore,
+          ),
+        );
   }
 
   @override
