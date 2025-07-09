@@ -9,9 +9,26 @@ environment:
   flutter: '>=3.22.0'
 
 dependencies:
-  firebase_auth_platform_interface: ^7.7.2
-  firebase_core: ^3.15.1
-  firebase_core_web: ^2.24.1
+  firebase_auth_platform_interface:
+        path: ../firebase_auth_platform_interface
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_auth/firebase_auth_platform_interface
+#      ref: SwineTech/bom_3.13.1
+
+  firebase_core:
+        path: ../../firebase_core/firebase_core
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core
+#      ref: SwineTech/bom_3.13.1
+
+  firebase_core_web:
+        path: ../../firebase_core/firebase_core_web
+#    git:
+#      url: https://github.com/SwineTech-Inc/flutterfire.git
+#      path: packages/firebase_core/firebase_core_web
+#      ref: SwineTech/bom_3.13.1
   flutter:
     sdk: flutter
   flutter_web_plugins:

@@ -41,6 +41,14 @@ class MethodChannelFirebaseFirestore extends FirebaseFirestorePlatform {
     );
   }
 
+  /// The [EventChannel] used for query snapshot changes
+  static EventChannel querySnapshotChangesChannel(String id) {
+    return EventChannel(
+      'plugins.flutter.io/firebase_firestore/queryChanges/$id',
+      const StandardMethodCodec(FirestoreMessageCodec()),
+    );
+  }
+
   /// The [EventChannel] used for document snapshots
   static EventChannel documentSnapshotChannel(String id) {
     return EventChannel(
