@@ -328,6 +328,33 @@ class PigeonGetOptions {
   }
 }
 
+class PigeonQuerySnapshotChanges {
+  PigeonQuerySnapshotChanges({
+    required this.documentChanges,
+    required this.metadata,
+  });
+
+  List<PigeonDocumentChange?> documentChanges;
+
+  PigeonSnapshotMetadata metadata;
+
+  Object encode() {
+    return <Object?>[
+      documentChanges,
+      metadata.encode(),
+    ];
+  }
+
+  static PigeonQuerySnapshotChanges decode(Object result) {
+    result as List<Object?>;
+    return PigeonQuerySnapshotChanges(
+      documentChanges:
+      (result[0] as List<Object?>?)!.cast<PigeonDocumentChange?>(),
+      metadata: PigeonSnapshotMetadata.decode(result[1]! as List<Object?>),
+    );
+  }
+}
+
 class PigeonDocumentOption {
   PigeonDocumentOption({
     this.merge,
@@ -592,11 +619,14 @@ class _FirebaseFirestoreHostApiCodec extends FirestoreMessageCodec {
     } else if (value is PigeonQuerySnapshot) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    } else if (value is PigeonSnapshotMetadata) {
+    } else if (value is PigeonQuerySnapshotChanges) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    } else if (value is PigeonTransactionCommand) {
+    } else if (value is PigeonSnapshotMetadata) {
       buffer.putUint8(140);
+      writeValue(buffer, value.encode());
+    } else if (value is PigeonTransactionCommand) {
+      buffer.putUint8(141);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -629,8 +659,10 @@ class _FirebaseFirestoreHostApiCodec extends FirestoreMessageCodec {
       case 138:
         return PigeonQuerySnapshot.decode(readValue(buffer)!);
       case 139:
-        return PigeonSnapshotMetadata.decode(readValue(buffer)!);
+        return PigeonQuerySnapshotChanges.decode(readValue(buffer)!);
       case 140:
+        return PigeonSnapshotMetadata.decode(readValue(buffer)!);
+      case 141:
         return PigeonTransactionCommand.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -710,6 +742,39 @@ class FirebaseFirestoreHostApi {
       );
     } else {
       return (replyList[0] as PigeonQuerySnapshot?)!;
+    }
+  }
+
+  Future<PigeonQuerySnapshotChanges> namedQueryGetChanges(
+      FirestorePigeonFirebaseApp arg_app,
+      String arg_name,
+      PigeonGetOptions arg_options,
+      ) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+      'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.namedQueryGetChanges',
+      codec,
+      binaryMessenger: _binaryMessenger,
+    );
+    final List<Object?>? replyList = await channel
+        .send(<Object?>[arg_app, arg_name, arg_options]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as PigeonQuerySnapshotChanges?)!;
     }
   }
 
@@ -1165,6 +1230,46 @@ class FirebaseFirestoreHostApi {
     }
   }
 
+  Future<PigeonQuerySnapshotChanges> queryGetChanges(
+      FirestorePigeonFirebaseApp arg_app,
+      String arg_path,
+      bool arg_isCollectionGroup,
+      PigeonQueryParameters arg_parameters,
+      PigeonGetOptions arg_options,
+      ) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+      'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.queryGetChanges',
+      codec,
+      binaryMessenger: _binaryMessenger,
+    );
+    final List<Object?>? replyList = await channel.send(<Object?>[
+      arg_app,
+      arg_path,
+      arg_isCollectionGroup,
+      arg_parameters,
+      arg_options,
+    ]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as PigeonQuerySnapshotChanges?)!;
+    }
+  }
+
   Future<List<AggregateQueryResponse?>> aggregateQuery(
     FirestorePigeonFirebaseApp arg_app,
     String arg_path,
@@ -1245,6 +1350,50 @@ class FirebaseFirestoreHostApi {
   ) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshot',
+      codec,
+      binaryMessenger: _binaryMessenger,
+    );
+    final List<Object?>? replyList = await channel.send(<Object?>[
+      arg_app,
+      arg_path,
+      arg_isCollectionGroup,
+      arg_parameters,
+      arg_options,
+      arg_includeMetadataChanges,
+      arg_source.index,
+    ]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as String?)!;
+    }
+  }
+
+  Future<String> querySnapshotChanges(
+      FirestorePigeonFirebaseApp arg_app,
+      String arg_path,
+      bool arg_isCollectionGroup,
+      PigeonQueryParameters arg_parameters,
+      PigeonGetOptions arg_options,
+      bool arg_includeMetadataChanges,
+      ListenSource arg_source,
+      ) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+      'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshotChanges',
       codec,
       binaryMessenger: _binaryMessenger,
     );

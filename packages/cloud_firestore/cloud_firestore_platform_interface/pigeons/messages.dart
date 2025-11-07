@@ -118,6 +118,16 @@ class PigeonQuerySnapshot {
   final PigeonSnapshotMetadata metadata;
 }
 
+class PigeonQuerySnapshotChanges {
+  const PigeonQuerySnapshotChanges({
+    required this.documentChanges,
+    required this.metadata,
+  });
+
+  final List<PigeonDocumentChange?> documentChanges;
+  final PigeonSnapshotMetadata metadata;
+}
+
 /// An enumeration of firestore source types.
 enum Source {
   /// Causes Firestore to try to retrieve an up-to-date (server-retrieved) snapshot, but fall back to
@@ -308,6 +318,13 @@ abstract class FirebaseFirestoreHostApi {
   );
 
   @async
+  PigeonQuerySnapshotChanges namedQueryGetChanges(
+      FirestorePigeonFirebaseApp app,
+      String name,
+      PigeonGetOptions options,
+      );
+
+  @async
   void clearPersistence(
     FirestorePigeonFirebaseApp app,
   );
@@ -403,6 +420,15 @@ abstract class FirebaseFirestoreHostApi {
   );
 
   @async
+  PigeonQuerySnapshotChanges queryGetChanges(
+      FirestorePigeonFirebaseApp app,
+      String path,
+      bool isCollectionGroup,
+      PigeonQueryParameters parameters,
+      PigeonGetOptions options,
+      );
+
+  @async
   List<AggregateQueryResponse?> aggregateQuery(
     FirestorePigeonFirebaseApp app,
     String path,
@@ -428,6 +454,17 @@ abstract class FirebaseFirestoreHostApi {
     bool includeMetadataChanges,
     ListenSource source,
   );
+
+  @async
+  String querySnapshotChanges(
+      FirestorePigeonFirebaseApp app,
+      String path,
+      bool isCollectionGroup,
+      PigeonQueryParameters parameters,
+      PigeonGetOptions options,
+      bool includeMetadataChanges,
+      ListenSource source,
+      );
 
   @async
   String documentReferenceSnapshot(
