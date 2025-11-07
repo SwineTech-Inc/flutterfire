@@ -20,25 +20,25 @@ environment:
 
 dependencies:
   firebase_core:
-    #        path: ../../firebase_core/firebase_core
+#    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
       ref: SwineTech/bom_4.5.0
 
-    firebase_core_platform_interface:
-      #        path: ../../firebase_core/firebase_core_platform_interface
-      git:
-        url: https://github.com/SwineTech-Inc/flutterfire.git
-        path: packages/firebase_core/firebase_core_platform_interface
-        ref: SwineTech/bom_4.5.0
+  firebase_core_platform_interface:
+#    path: ../../firebase_core/firebase_core_platform_interface
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_core/firebase_core_platform_interface
+      ref: SwineTech/bom_4.5.0
 
-    firebase_crashlytics_platform_interface:
-      #        path: ../firebase_crashlytics_platform_interface
-      git:
-        url: https://github.com/SwineTech-Inc/flutterfire.git
-        path: packages/firebase_crashlytics/firebase_crashlytics_platform_interface
-        ref: SwineTech/bom_4.5.0
+  firebase_crashlytics_platform_interface:
+#    path: ../firebase_crashlytics_platform_interface
+    git:
+      url: https://github.com/SwineTech-Inc/flutterfire.git
+      path: packages/firebase_crashlytics/firebase_crashlytics_platform_interface
+      ref: SwineTech/bom_4.5.0
   flutter:
     sdk: flutter
   stack_trace: ^1.10.0

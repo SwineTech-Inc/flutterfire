@@ -301,6 +301,33 @@ class PigeonQuerySnapshot {
   }
 }
 
+class PigeonQuerySnapshotChanges {
+  PigeonQuerySnapshotChanges({
+    required this.documentChanges,
+    required this.metadata,
+  });
+
+  List<PigeonDocumentChange?> documentChanges;
+
+  PigeonSnapshotMetadata metadata;
+
+  Object encode() {
+    return <Object?>[
+      documentChanges,
+      metadata.encode(),
+    ];
+  }
+
+  static PigeonQuerySnapshotChanges decode(Object result) {
+    result as List<Object?>;
+    return PigeonQuerySnapshotChanges(
+      documentChanges:
+          (result[0] as List<Object?>?)!.cast<PigeonDocumentChange?>(),
+      metadata: PigeonSnapshotMetadata.decode(result[1]! as List<Object?>),
+    );
+  }
+}
+
 class PigeonGetOptions {
   PigeonGetOptions({
     required this.source,
@@ -324,33 +351,6 @@ class PigeonGetOptions {
       source: Source.values[result[0]! as int],
       serverTimestampBehavior:
           ServerTimestampBehavior.values[result[1]! as int],
-    );
-  }
-}
-
-class PigeonQuerySnapshotChanges {
-  PigeonQuerySnapshotChanges({
-    required this.documentChanges,
-    required this.metadata,
-  });
-
-  List<PigeonDocumentChange?> documentChanges;
-
-  PigeonSnapshotMetadata metadata;
-
-  Object encode() {
-    return <Object?>[
-      documentChanges,
-      metadata.encode(),
-    ];
-  }
-
-  static PigeonQuerySnapshotChanges decode(Object result) {
-    result as List<Object?>;
-    return PigeonQuerySnapshotChanges(
-      documentChanges:
-      (result[0] as List<Object?>?)!.cast<PigeonDocumentChange?>(),
-      metadata: PigeonSnapshotMetadata.decode(result[1]! as List<Object?>),
     );
   }
 }
@@ -746,10 +746,10 @@ class FirebaseFirestoreHostApi {
   }
 
   Future<PigeonQuerySnapshotChanges> namedQueryGetChanges(
-      FirestorePigeonFirebaseApp arg_app,
-      String arg_name,
-      PigeonGetOptions arg_options,
-      ) async {
+    FirestorePigeonFirebaseApp arg_app,
+    String arg_name,
+    PigeonGetOptions arg_options,
+  ) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.namedQueryGetChanges',
       codec,
@@ -1231,12 +1231,12 @@ class FirebaseFirestoreHostApi {
   }
 
   Future<PigeonQuerySnapshotChanges> queryGetChanges(
-      FirestorePigeonFirebaseApp arg_app,
-      String arg_path,
-      bool arg_isCollectionGroup,
-      PigeonQueryParameters arg_parameters,
-      PigeonGetOptions arg_options,
-      ) async {
+    FirestorePigeonFirebaseApp arg_app,
+    String arg_path,
+    bool arg_isCollectionGroup,
+    PigeonQueryParameters arg_parameters,
+    PigeonGetOptions arg_options,
+  ) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.queryGetChanges',
       codec,
@@ -1384,14 +1384,14 @@ class FirebaseFirestoreHostApi {
   }
 
   Future<String> querySnapshotChanges(
-      FirestorePigeonFirebaseApp arg_app,
-      String arg_path,
-      bool arg_isCollectionGroup,
-      PigeonQueryParameters arg_parameters,
-      PigeonGetOptions arg_options,
-      bool arg_includeMetadataChanges,
-      ListenSource arg_source,
-      ) async {
+    FirestorePigeonFirebaseApp arg_app,
+    String arg_path,
+    bool arg_isCollectionGroup,
+    PigeonQueryParameters arg_parameters,
+    PigeonGetOptions arg_options,
+    bool arg_includeMetadataChanges,
+    ListenSource arg_source,
+  ) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshotChanges',
       codec,

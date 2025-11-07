@@ -14,9 +14,9 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class QuerySnapshotChangesPlatform extends PlatformInterface {
   /// Create a [QuerySnapshotChangesPlatform]
   QuerySnapshotChangesPlatform(
-      this.docChanges,
-      this.metadata,
-      ) : super(token: _token);
+    this.docChanges,
+    this.metadata,
+  ) : super(token: _token);
 
   static final Object _token = Object();
 

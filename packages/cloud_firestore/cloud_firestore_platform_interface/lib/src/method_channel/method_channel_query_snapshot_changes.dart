@@ -14,20 +14,20 @@ class MethodChannelQuerySnapshotChanges extends QuerySnapshotChangesPlatform {
   MethodChannelQuerySnapshotChanges(
       FirebaseFirestorePlatform firestore, PigeonQuerySnapshotChanges data)
       : super(
-      data.documentChanges
-          .map((documentChange) {
-        if (documentChange == null) {
-          return null;
-        }
-        return MethodChannelDocumentChange(
-          firestore,
-          documentChange,
-        );
-      })
-          .nonNulls
-          .toList(),
-      SnapshotMetadataPlatform(
-        data.metadata.hasPendingWrites,
-        data.metadata.isFromCache,
-      ));
+            data.documentChanges
+                .map((documentChange) {
+                  if (documentChange == null) {
+                    return null;
+                  }
+                  return MethodChannelDocumentChange(
+                    firestore,
+                    documentChange,
+                  );
+                })
+                .nonNulls
+                .toList(),
+            SnapshotMetadataPlatform(
+              data.metadata.hasPendingWrites,
+              data.metadata.isFromCache,
+            ));
 }

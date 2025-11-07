@@ -12,14 +12,14 @@ environment:
 
 dependencies:
   _flutterfire_internals:
-    #    path: ../../_flutterfire_internals
+#    path: ../../_flutterfire_internals
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
       ref: SwineTech/bom_4.5.0
   collection: ^1.16.0
   firebase_core:
-    #    path: ../../firebase_core/firebase_core
+#    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
@@ -32,7 +32,7 @@ dependencies:
 
 dev_dependencies:
   firebase_core_platform_interface:
-    #    path: ../../firebase_core/firebase_core_platform_interface
+#    path: ../../firebase_core/firebase_core_platform_interface
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
