@@ -13,13 +13,13 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/bom_4.5.0
+      ref: SwineTech/bom_4.5.0-a
   firebase_core:
 #    path: ../../firebase_core/firebase_core
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/bom_4.5.0
+      ref: SwineTech/bom_4.5.0-a
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.1.3
@@ -30,7 +30,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/bom_4.5.0
+      ref: SwineTech/bom_4.5.0-a
   flutter_test:
     sdk: flutter
   pigeon: 25.3.2
