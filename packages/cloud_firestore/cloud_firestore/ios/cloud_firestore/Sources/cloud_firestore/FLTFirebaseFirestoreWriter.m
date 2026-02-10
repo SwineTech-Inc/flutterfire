@@ -7,6 +7,7 @@
 
 #import "include/cloud_firestore/Private/FLTFirebaseFirestoreWriter.h"
 #import "include/cloud_firestore/Private/FLTFirebaseFirestoreUtils.h"
+#import "include/cloud_firestore/Private/QuerySnapshotWrapper.h"
 #import "include/cloud_firestore/Public/FLTFirebaseFirestorePlugin.h"
 
 @implementation FLTFirebaseFirestoreWriter : FlutterStandardWriter
@@ -56,6 +57,8 @@
     [super writeValue:[self FIRLoadBundleTaskProgress:value]];
   } else if ([value isKindOfClass:[FIRQuerySnapshot class]]) {
     [super writeValue:[self FIRQuerySnapshot:value]];
+  } else if ([value isKindOfClass:[QuerySnapshotWrapper class]]) {
+    [super writeValue:[self QuerySnapshotWrapper:value]];
   } else if ([value isKindOfClass:[FIRDocumentChange class]]) {
     [super writeValue:[self FIRDocumentChange:value]];
   } else if ([value isKindOfClass:[FIRSnapshotMetadata class]]) {
@@ -236,6 +239,28 @@
     @"documents" : documents,
     @"metadatas" : metadatas,
     @"metadata" : querySnapshot.metadata,
+  };
+}
+
+- (NSDictionary *)QuerySnapshotWrapper:(QuerySnapshotWrapper *)querySnapshotChanges {
+  if (querySnapshotChanges == nil) {
+    NSLog(@"Error: querySnapshotChanges is nil");
+    return nil;
+  }
+
+  NSNumber *querySnapshotChangesHash = @([querySnapshotChanges hash]);
+
+  NSString *timestampBehaviorString =
+      [FLTFirebaseFirestorePlugin.serverTimestampMap objectForKey:querySnapshotChangesHash];
+
+  FIRServerTimestampBehavior serverTimestampBehavior =
+      [self toServerTimestampBehavior:timestampBehaviorString];
+
+  [FLTFirebaseFirestorePlugin.serverTimestampMap removeObjectForKey:querySnapshotChangesHash];
+
+  return @{
+    @"documentChanges" : querySnapshotChanges.documentChanges,
+    @"metadata" : querySnapshotChanges.metadata,
   };
 }
 @end

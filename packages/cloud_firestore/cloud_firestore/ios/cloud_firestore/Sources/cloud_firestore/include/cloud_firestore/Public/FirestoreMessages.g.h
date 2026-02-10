@@ -165,6 +165,7 @@ typedef NS_ENUM(NSUInteger, AggregateType) {
 @class PigeonDocumentSnapshot;
 @class PigeonDocumentChange;
 @class PigeonQuerySnapshot;
+@class PigeonQuerySnapshotChanges;
 @class PigeonGetOptions;
 @class PigeonDocumentOption;
 @class PigeonTransactionCommand;
@@ -239,6 +240,15 @@ typedef NS_ENUM(NSUInteger, AggregateType) {
                   documentChanges:(NSArray<PigeonDocumentChange *> *)documentChanges
                          metadata:(PigeonSnapshotMetadata *)metadata;
 @property(nonatomic, strong) NSArray<PigeonDocumentSnapshot *> *documents;
+@property(nonatomic, strong) NSArray<PigeonDocumentChange *> *documentChanges;
+@property(nonatomic, strong) PigeonSnapshotMetadata *metadata;
+@end
+
+@interface PigeonQuerySnapshotChanges : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithDocumentChanges:(NSArray<PigeonDocumentChange *> *)documentChanges
+                               metadata:(PigeonSnapshotMetadata *)metadata;
 @property(nonatomic, strong) NSArray<PigeonDocumentChange *> *documentChanges;
 @property(nonatomic, strong) PigeonSnapshotMetadata *metadata;
 @end
@@ -339,6 +349,11 @@ NSObject<FlutterMessageCodec> *FirebaseFirestoreHostApiGetCodec(void);
                  options:(PigeonGetOptions *)options
               completion:
                   (void (^)(PigeonQuerySnapshot *_Nullable, FlutterError *_Nullable))completion;
+- (void)namedQueryGetChangesApp:(FirestorePigeonFirebaseApp *)app
+                           name:(NSString *)name
+                        options:(PigeonGetOptions *)options
+                     completion:(void (^)(PigeonQuerySnapshotChanges *_Nullable,
+                                          FlutterError *_Nullable))completion;
 - (void)clearPersistenceApp:(FirestorePigeonFirebaseApp *)app
                  completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)disableNetworkApp:(FirestorePigeonFirebaseApp *)app
@@ -388,6 +403,13 @@ NSObject<FlutterMessageCodec> *FirebaseFirestoreHostApiGetCodec(void);
            parameters:(PigeonQueryParameters *)parameters
               options:(PigeonGetOptions *)options
            completion:(void (^)(PigeonQuerySnapshot *_Nullable, FlutterError *_Nullable))completion;
+- (void)queryGetChangesApp:(FirestorePigeonFirebaseApp *)app
+                      path:(NSString *)path
+         isCollectionGroup:(NSNumber *)isCollectionGroup
+                parameters:(PigeonQueryParameters *)parameters
+                   options:(PigeonGetOptions *)options
+                completion:(void (^)(PigeonQuerySnapshotChanges *_Nullable,
+                                     FlutterError *_Nullable))completion;
 - (void)aggregateQueryApp:(FirestorePigeonFirebaseApp *)app
                      path:(NSString *)path
                parameters:(PigeonQueryParameters *)parameters
@@ -407,6 +429,14 @@ NSObject<FlutterMessageCodec> *FirebaseFirestoreHostApiGetCodec(void);
     includeMetadataChanges:(NSNumber *)includeMetadataChanges
                     source:(ListenSource)source
                 completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)querySnapshotChangesApp:(FirestorePigeonFirebaseApp *)app
+                           path:(NSString *)path
+              isCollectionGroup:(NSNumber *)isCollectionGroup
+                     parameters:(PigeonQueryParameters *)parameters
+                        options:(PigeonGetOptions *)options
+         includeMetadataChanges:(NSNumber *)includeMetadataChanges
+                         source:(ListenSource)source
+                     completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 - (void)documentReferenceSnapshotApp:(FirestorePigeonFirebaseApp *)app
                           parameters:(DocumentReferenceRequest *)parameters
               includeMetadataChanges:(NSNumber *)includeMetadataChanges

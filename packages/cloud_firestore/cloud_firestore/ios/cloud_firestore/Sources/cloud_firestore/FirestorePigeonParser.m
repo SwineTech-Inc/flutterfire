@@ -293,20 +293,31 @@
   return pigeonDocumentChanges;
 }
 
-+ (PigeonQuerySnapshot *_Nonnull)toPigeonQuerySnapshot:(FIRQuerySnapshot *_Nonnull)querySnaphot
++ (PigeonQuerySnapshot *_Nonnull)toPigeonQuerySnapshot:(FIRQuerySnapshot *_Nonnull)querySnapshot
                                serverTimestampBehavior:
                                    (FIRServerTimestampBehavior)serverTimestampBehavior {
   NSMutableArray *documentSnapshots = [NSMutableArray array];
-  for (FIRDocumentSnapshot *documentSnapshot in querySnaphot.documents) {
+  for (FIRDocumentSnapshot *documentSnapshot in querySnapshot.documents) {
     [documentSnapshots
         addObject:[FirestorePigeonParser toPigeonDocumentSnapshot:documentSnapshot
                                           serverTimestampBehavior:serverTimestampBehavior]];
   }
   return [PigeonQuerySnapshot
       makeWithDocuments:documentSnapshots
-        documentChanges:[FirestorePigeonParser toPigeonDocumentChanges:querySnaphot.documentChanges
+        documentChanges:[FirestorePigeonParser toPigeonDocumentChanges:querySnapshot.documentChanges
                                                serverTimestampBehavior:serverTimestampBehavior]
-               metadata:[FirestorePigeonParser toPigeonSnapshotMetadata:querySnaphot.metadata]];
+               metadata:[FirestorePigeonParser toPigeonSnapshotMetadata:querySnapshot.metadata]];
+}
+
++ (PigeonQuerySnapshotChanges *_Nonnull)
+    toPigeonQuerySnapshotChanges:(FIRQuerySnapshot *_Nonnull)querySnapshotChanges
+         serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+  return [PigeonQuerySnapshotChanges
+      makeWithDocumentChanges:[FirestorePigeonParser
+                                  toPigeonDocumentChanges:querySnapshotChanges.documentChanges
+                                  serverTimestampBehavior:serverTimestampBehavior]
+                     metadata:[FirestorePigeonParser
+                                  toPigeonSnapshotMetadata:querySnapshotChanges.metadata]];
 }
 
 @end

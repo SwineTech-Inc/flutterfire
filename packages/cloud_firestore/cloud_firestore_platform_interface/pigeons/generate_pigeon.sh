@@ -9,13 +9,13 @@ echo "Formatting complete."
 
 # # Fix Java files
 FILE_NAME="../../cloud_firestore/android/src/main/java/io/flutter/plugins/firebase/firestore/GeneratedAndroidFirebaseFirestore.java"
-sed -i '' 's/ArrayList<Object> toList() {/public ArrayList<Object> toList() {/' "$FILE_NAME"
+sed -i '' 's/    ArrayList<Object> toList() {/    public ArrayList<Object> toList() {/' "$FILE_NAME"
 sed -i '' 's/private static class FirebaseFirestoreHostApiCodec extends StandardMessageCodec {/private static class FirebaseFirestoreHostApiCodec extends FlutterFirebaseFirestoreMessageCodec {/' "$FILE_NAME"
 
 echo "Android modification complete."
 
 # Fix iOS files
-FILE_NAME="../../cloud_firestore/ios/Classes/FirestoreMessages.g.m"
+FILE_NAME="../../cloud_firestore/ios/cloud_firestore/Sources/cloud_firestore/FirestoreMessages.g.m"
 sed -i '' '/#import "FirestoreMessages.g.h"/a\
 #import "FLTFirebaseFirestoreReader.h"\
 #import "FLTFirebaseFirestoreWriter.h"
@@ -26,7 +26,8 @@ sed -i '' 's/(self\.newIndex \?: \[NSNull null\]),/(self.index ?: [NSNull null])
 sed -i '' 's/@interface FirebaseFirestoreHostApiCodecReader : FlutterStandardReader/@interface FirebaseFirestoreHostApiCodecReader : FLTFirebaseFirestoreReader/' $FILE_NAME
 sed -i '' 's/@interface FirebaseFirestoreHostApiCodecWriter : FlutterStandardWriter/@interface FirebaseFirestoreHostApiCodecWriter : FLTFirebaseFirestoreWriter/' $FILE_NAME
 
-FILE_NAME="../../cloud_firestore/ios/Classes/Public/FirestoreMessages.g.h"
+FILE_NAME="../../cloud_firestore/ios/cloud_firestore/Sources/cloud_firestore/include/cloud_firestore/Public/FirestoreMessages.g.h"
+sed -i '' 's/@property(nonatomic, strong) NSNumber \* newIndex;/@property(nonatomic, strong) NSNumber \* index;/' $FILE_NAME
 sed -i '' 's/@property(nonatomic, strong) NSNumber \*newIndex;/@property(nonatomic, strong) NSNumber \*index;/' $FILE_NAME
 
 echo "iOS modification complete."
@@ -54,7 +55,7 @@ sed -i '' '/import '\''package:flutter\/foundation\.dart'\'' show ReadBuffer, Wr
 import '\''package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart'\'';
 ' $FILE_NAME
 sed -i '' 's/class _FirebaseFirestoreHostApiCodec extends StandardMessageCodec {/class _FirebaseFirestoreHostApiCodec extends FirestoreMessageCodec {/' $FILE_NAME
-(cd .. && dart fix --apply > /dev/null) 
+(cd .. && dart fix --apply > /dev/null)
 
 FILE_NAME="../test/pigeon/test_api.dart"
 sed -i '' -E 's/import '\''dart:typed_data'\'' show Float64List, Int32List, Int64List, Uint8List;/import '\''dart:typed_data'\'' show Uint8List;/' $FILE_NAME

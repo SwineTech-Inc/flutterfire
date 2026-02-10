@@ -93,4 +93,16 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
           'This batch has already been committed and can no longer be changed.');
     }
   }
+
+  @override
+  void removeFromBatch(String documentPath) {
+    _assertNotCommitted();
+    _writes.removeWhere((element) => element.path.compareTo(documentPath) == 0);
+  }
+
+  // Used for debugging/crashlytics purposes
+  @override
+  List<PigeonTransactionCommand> getBatchData() {
+    return _writes;
+  }
 }
