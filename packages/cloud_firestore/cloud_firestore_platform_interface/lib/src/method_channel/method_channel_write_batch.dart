@@ -45,6 +45,9 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
       await MethodChannelFirebaseFirestore.pigeonChannel
           .writeBatchCommit(pigeonApp, _writes);
     } catch (e, stack) {
+      // set _committed to false so that we can try again if desired.
+      _committed = false;
+
       convertPlatformException(e, stack);
     }
   }
