@@ -16,7 +16,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/_flutterfire_internals
-      ref: SwineTech/bom_4.8.0
+      ref: SwineTech/bom_4.8.0-a
 
   collection: ^1.16.0
   firebase_core:
@@ -24,7 +24,7 @@ dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core
-      ref: SwineTech/bom_4.8.0
+      ref: SwineTech/bom_4.8.0-a
 
   flutter:
     sdk: flutter
@@ -38,7 +38,7 @@ dev_dependencies:
     git:
       url: https://github.com/SwineTech-Inc/flutterfire.git
       path: packages/firebase_core/firebase_core_platform_interface
-      ref: SwineTech/bom_4.8.0
+      ref: SwineTech/bom_4.8.0-a
 
   flutter_test:
     sdk: flutter
