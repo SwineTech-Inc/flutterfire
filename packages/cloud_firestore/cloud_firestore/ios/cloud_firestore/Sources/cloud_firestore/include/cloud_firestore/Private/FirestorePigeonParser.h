@@ -55,4 +55,8 @@
                                  serverTimestampBehavior:
                                      (FIRServerTimestampBehavior)serverTimestampBehavior;
 
++ (InternalQuerySnapshotChanges *_Nonnull)
+    toPigeonQuerySnapshotChanges:(FIRQuerySnapshot *_Nonnull)querySnaphot
+         serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
+
 @end

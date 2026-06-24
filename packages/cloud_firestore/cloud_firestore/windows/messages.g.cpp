@@ -827,6 +827,83 @@ size_t PigeonInternalDeepHash(const InternalQuerySnapshot& v) {
   return v.Hash();
 }
 
+// InternalQuerySnapshotChanges
+
+InternalQuerySnapshotChanges::InternalQuerySnapshotChanges(
+    const EncodableList& document_changes,
+    const InternalSnapshotMetadata& metadata)
+    : document_changes_(document_changes),
+      metadata_(std::make_unique<InternalSnapshotMetadata>(metadata)) {}
+
+InternalQuerySnapshotChanges::InternalQuerySnapshotChanges(
+    const InternalQuerySnapshotChanges& other)
+    : document_changes_(other.document_changes_),
+      metadata_(std::make_unique<InternalSnapshotMetadata>(*other.metadata_)) {}
+
+InternalQuerySnapshotChanges& InternalQuerySnapshotChanges::operator=(
+    const InternalQuerySnapshotChanges& other) {
+  document_changes_ = other.document_changes_;
+  metadata_ = std::make_unique<InternalSnapshotMetadata>(*other.metadata_);
+  return *this;
+}
+
+const EncodableList& InternalQuerySnapshotChanges::document_changes() const {
+  return document_changes_;
+}
+
+void InternalQuerySnapshotChanges::set_document_changes(
+    const EncodableList& value_arg) {
+  document_changes_ = value_arg;
+}
+
+const InternalSnapshotMetadata& InternalQuerySnapshotChanges::metadata() const {
+  return *metadata_;
+}
+
+void InternalQuerySnapshotChanges::set_metadata(
+    const InternalSnapshotMetadata& value_arg) {
+  metadata_ = std::make_unique<InternalSnapshotMetadata>(value_arg);
+}
+
+EncodableList InternalQuerySnapshotChanges::ToEncodableList() const {
+  EncodableList list;
+  list.reserve(2);
+  list.push_back(EncodableValue(document_changes_));
+  list.push_back(CustomEncodableValue(*metadata_));
+  return list;
+}
+
+InternalQuerySnapshotChanges InternalQuerySnapshotChanges::FromEncodableList(
+    const EncodableList& list) {
+  InternalQuerySnapshotChanges decoded(
+      std::get<EncodableList>(list[0]),
+      std::any_cast<const InternalSnapshotMetadata&>(
+          std::get<CustomEncodableValue>(list[1])));
+  return decoded;
+}
+
+bool InternalQuerySnapshotChanges::operator==(
+    const InternalQuerySnapshotChanges& other) const {
+  return PigeonInternalDeepEquals(document_changes_, other.document_changes_) &&
+         PigeonInternalDeepEquals(metadata_, other.metadata_);
+}
+
+bool InternalQuerySnapshotChanges::operator!=(
+    const InternalQuerySnapshotChanges& other) const {
+  return !(*this == other);
+}
+
+size_t InternalQuerySnapshotChanges::Hash() const {
+  size_t result = 1;
+  result = result * 31 + PigeonInternalDeepHash(document_changes_);
+  result = result * 31 + PigeonInternalDeepHash(metadata_);
+  return result;
+}
+
+size_t PigeonInternalDeepHash(const InternalQuerySnapshotChanges& v) {
+  return v.Hash();
+}
+
 // InternalPipelineResult
 
 InternalPipelineResult::InternalPipelineResult() {}
@@ -1956,38 +2033,43 @@ EncodableValue FirebaseFirestoreHostApiCodecSerializer::ReadValueOfType(
           std::get<EncodableList>(ReadValue(stream))));
     }
     case 144: {
+      return CustomEncodableValue(
+          InternalQuerySnapshotChanges::FromEncodableList(
+              std::get<EncodableList>(ReadValue(stream))));
+    }
+    case 145: {
       return CustomEncodableValue(InternalPipelineResult::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 145: {
+    case 146: {
       return CustomEncodableValue(InternalPipelineSnapshot::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 146: {
+    case 147: {
       return CustomEncodableValue(InternalGetOptions::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 147: {
+    case 148: {
       return CustomEncodableValue(InternalDocumentOption::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 148: {
+    case 149: {
       return CustomEncodableValue(InternalTransactionCommand::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 149: {
+    case 150: {
       return CustomEncodableValue(DocumentReferenceRequest::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 150: {
+    case 151: {
       return CustomEncodableValue(InternalQueryParameters::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 151: {
+    case 152: {
       return CustomEncodableValue(AggregateQuery::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
-    case 152: {
+    case 153: {
       return CustomEncodableValue(AggregateQueryResponse::FromEncodableList(
           std::get<EncodableList>(ReadValue(stream))));
     }
@@ -2114,8 +2196,16 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
           stream);
       return;
     }
-    if (custom_value->type() == typeid(InternalPipelineResult)) {
+    if (custom_value->type() == typeid(InternalQuerySnapshotChanges)) {
       stream->WriteByte(144);
+      WriteValue(EncodableValue(
+                     std::any_cast<InternalQuerySnapshotChanges>(*custom_value)
+                         .ToEncodableList()),
+                 stream);
+      return;
+    }
+    if (custom_value->type() == typeid(InternalPipelineResult)) {
+      stream->WriteByte(145);
       WriteValue(
           EncodableValue(std::any_cast<InternalPipelineResult>(*custom_value)
                              .ToEncodableList()),
@@ -2123,7 +2213,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(InternalPipelineSnapshot)) {
-      stream->WriteByte(145);
+      stream->WriteByte(146);
       WriteValue(
           EncodableValue(std::any_cast<InternalPipelineSnapshot>(*custom_value)
                              .ToEncodableList()),
@@ -2131,14 +2221,14 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(InternalGetOptions)) {
-      stream->WriteByte(146);
+      stream->WriteByte(147);
       WriteValue(EncodableValue(std::any_cast<InternalGetOptions>(*custom_value)
                                     .ToEncodableList()),
                  stream);
       return;
     }
     if (custom_value->type() == typeid(InternalDocumentOption)) {
-      stream->WriteByte(147);
+      stream->WriteByte(148);
       WriteValue(
           EncodableValue(std::any_cast<InternalDocumentOption>(*custom_value)
                              .ToEncodableList()),
@@ -2146,7 +2236,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(InternalTransactionCommand)) {
-      stream->WriteByte(148);
+      stream->WriteByte(149);
       WriteValue(EncodableValue(
                      std::any_cast<InternalTransactionCommand>(*custom_value)
                          .ToEncodableList()),
@@ -2154,7 +2244,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(DocumentReferenceRequest)) {
-      stream->WriteByte(149);
+      stream->WriteByte(150);
       WriteValue(
           EncodableValue(std::any_cast<DocumentReferenceRequest>(*custom_value)
                              .ToEncodableList()),
@@ -2162,7 +2252,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(InternalQueryParameters)) {
-      stream->WriteByte(150);
+      stream->WriteByte(151);
       WriteValue(
           EncodableValue(std::any_cast<InternalQueryParameters>(*custom_value)
                              .ToEncodableList()),
@@ -2170,7 +2260,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(AggregateQuery)) {
-      stream->WriteByte(151);
+      stream->WriteByte(152);
       WriteValue(
           EncodableValue(
               std::any_cast<AggregateQuery>(*custom_value).ToEncodableList()),
@@ -2178,7 +2268,7 @@ void FirebaseFirestoreHostApiCodecSerializer::WriteValue(
       return;
     }
     if (custom_value->type() == typeid(AggregateQueryResponse)) {
-      stream->WriteByte(152);
+      stream->WriteByte(153);
       WriteValue(
           EncodableValue(std::any_cast<AggregateQueryResponse>(*custom_value)
                              .ToEncodableList()),
@@ -2295,6 +2385,61 @@ void FirebaseFirestoreHostApi::SetUp(
               api->NamedQueryGet(
                   app_arg, name_arg, options_arg,
                   [reply](ErrorOr<InternalQuerySnapshot>&& output) {
+                    if (output.has_error()) {
+                      reply(WrapError(output.error()));
+                      return;
+                    }
+                    EncodableList wrapped;
+                    wrapped.push_back(
+                        CustomEncodableValue(std::move(output).TakeValue()));
+                    reply(EncodableValue(std::move(wrapped)));
+                  });
+            } catch (const std::exception& exception) {
+              reply(WrapError(exception.what()));
+            }
+          });
+    } else {
+      channel.SetMessageHandler(nullptr);
+    }
+  }
+  {
+    BasicMessageChannel<> channel(
+        binary_messenger,
+        "dev.flutter.pigeon.cloud_firestore_platform_interface."
+        "FirebaseFirestoreHostApi.namedQueryGetChanges" +
+            prepended_suffix,
+        &GetCodec());
+    if (api != nullptr) {
+      channel.SetMessageHandler(
+          [api](const EncodableValue& message,
+                const ::flutter::MessageReply<EncodableValue>& reply) {
+            try {
+              const auto& args = std::get<EncodableList>(message);
+              const auto& encodable_app_arg = args.at(0);
+              if (encodable_app_arg.IsNull()) {
+                reply(WrapError("app_arg unexpectedly null."));
+                return;
+              }
+              const auto& app_arg =
+                  std::any_cast<const FirestorePigeonFirebaseApp&>(
+                      std::get<CustomEncodableValue>(encodable_app_arg));
+              const auto& encodable_name_arg = args.at(1);
+              if (encodable_name_arg.IsNull()) {
+                reply(WrapError("name_arg unexpectedly null."));
+                return;
+              }
+              const auto& name_arg = std::get<std::string>(encodable_name_arg);
+              const auto& encodable_options_arg = args.at(2);
+              if (encodable_options_arg.IsNull()) {
+                reply(WrapError("options_arg unexpectedly null."));
+                return;
+              }
+              const auto& options_arg =
+                  std::any_cast<const InternalGetOptions&>(
+                      std::get<CustomEncodableValue>(encodable_options_arg));
+              api->NamedQueryGetChanges(
+                  app_arg, name_arg, options_arg,
+                  [reply](ErrorOr<InternalQuerySnapshotChanges>&& output) {
                     if (output.has_error()) {
                       reply(WrapError(output.error()));
                       return;
@@ -3059,6 +3204,77 @@ void FirebaseFirestoreHostApi::SetUp(
     BasicMessageChannel<> channel(
         binary_messenger,
         "dev.flutter.pigeon.cloud_firestore_platform_interface."
+        "FirebaseFirestoreHostApi.queryGetChanges" +
+            prepended_suffix,
+        &GetCodec());
+    if (api != nullptr) {
+      channel.SetMessageHandler(
+          [api](const EncodableValue& message,
+                const ::flutter::MessageReply<EncodableValue>& reply) {
+            try {
+              const auto& args = std::get<EncodableList>(message);
+              const auto& encodable_app_arg = args.at(0);
+              if (encodable_app_arg.IsNull()) {
+                reply(WrapError("app_arg unexpectedly null."));
+                return;
+              }
+              const auto& app_arg =
+                  std::any_cast<const FirestorePigeonFirebaseApp&>(
+                      std::get<CustomEncodableValue>(encodable_app_arg));
+              const auto& encodable_path_arg = args.at(1);
+              if (encodable_path_arg.IsNull()) {
+                reply(WrapError("path_arg unexpectedly null."));
+                return;
+              }
+              const auto& path_arg = std::get<std::string>(encodable_path_arg);
+              const auto& encodable_is_collection_group_arg = args.at(2);
+              if (encodable_is_collection_group_arg.IsNull()) {
+                reply(WrapError("is_collection_group_arg unexpectedly null."));
+                return;
+              }
+              const auto& is_collection_group_arg =
+                  std::get<bool>(encodable_is_collection_group_arg);
+              const auto& encodable_parameters_arg = args.at(3);
+              if (encodable_parameters_arg.IsNull()) {
+                reply(WrapError("parameters_arg unexpectedly null."));
+                return;
+              }
+              const auto& parameters_arg =
+                  std::any_cast<const InternalQueryParameters&>(
+                      std::get<CustomEncodableValue>(encodable_parameters_arg));
+              const auto& encodable_options_arg = args.at(4);
+              if (encodable_options_arg.IsNull()) {
+                reply(WrapError("options_arg unexpectedly null."));
+                return;
+              }
+              const auto& options_arg =
+                  std::any_cast<const InternalGetOptions&>(
+                      std::get<CustomEncodableValue>(encodable_options_arg));
+              api->QueryGetChanges(
+                  app_arg, path_arg, is_collection_group_arg, parameters_arg,
+                  options_arg,
+                  [reply](ErrorOr<InternalQuerySnapshotChanges>&& output) {
+                    if (output.has_error()) {
+                      reply(WrapError(output.error()));
+                      return;
+                    }
+                    EncodableList wrapped;
+                    wrapped.push_back(
+                        CustomEncodableValue(std::move(output).TakeValue()));
+                    reply(EncodableValue(std::move(wrapped)));
+                  });
+            } catch (const std::exception& exception) {
+              reply(WrapError(exception.what()));
+            }
+          });
+    } else {
+      channel.SetMessageHandler(nullptr);
+    }
+  }
+  {
+    BasicMessageChannel<> channel(
+        binary_messenger,
+        "dev.flutter.pigeon.cloud_firestore_platform_interface."
         "FirebaseFirestoreHostApi.aggregateQuery" +
             prepended_suffix,
         &GetCodec());
@@ -3244,6 +3460,92 @@ void FirebaseFirestoreHostApi::SetUp(
               const auto& source_arg = std::any_cast<const ListenSource&>(
                   std::get<CustomEncodableValue>(encodable_source_arg));
               api->QuerySnapshot(
+                  app_arg, path_arg, is_collection_group_arg, parameters_arg,
+                  options_arg, include_metadata_changes_arg, source_arg,
+                  [reply](ErrorOr<std::string>&& output) {
+                    if (output.has_error()) {
+                      reply(WrapError(output.error()));
+                      return;
+                    }
+                    EncodableList wrapped;
+                    wrapped.push_back(
+                        EncodableValue(std::move(output).TakeValue()));
+                    reply(EncodableValue(std::move(wrapped)));
+                  });
+            } catch (const std::exception& exception) {
+              reply(WrapError(exception.what()));
+            }
+          });
+    } else {
+      channel.SetMessageHandler(nullptr);
+    }
+  }
+  {
+    BasicMessageChannel<> channel(
+        binary_messenger,
+        "dev.flutter.pigeon.cloud_firestore_platform_interface."
+        "FirebaseFirestoreHostApi.querySnapshotChanges" +
+            prepended_suffix,
+        &GetCodec());
+    if (api != nullptr) {
+      channel.SetMessageHandler(
+          [api](const EncodableValue& message,
+                const ::flutter::MessageReply<EncodableValue>& reply) {
+            try {
+              const auto& args = std::get<EncodableList>(message);
+              const auto& encodable_app_arg = args.at(0);
+              if (encodable_app_arg.IsNull()) {
+                reply(WrapError("app_arg unexpectedly null."));
+                return;
+              }
+              const auto& app_arg =
+                  std::any_cast<const FirestorePigeonFirebaseApp&>(
+                      std::get<CustomEncodableValue>(encodable_app_arg));
+              const auto& encodable_path_arg = args.at(1);
+              if (encodable_path_arg.IsNull()) {
+                reply(WrapError("path_arg unexpectedly null."));
+                return;
+              }
+              const auto& path_arg = std::get<std::string>(encodable_path_arg);
+              const auto& encodable_is_collection_group_arg = args.at(2);
+              if (encodable_is_collection_group_arg.IsNull()) {
+                reply(WrapError("is_collection_group_arg unexpectedly null."));
+                return;
+              }
+              const auto& is_collection_group_arg =
+                  std::get<bool>(encodable_is_collection_group_arg);
+              const auto& encodable_parameters_arg = args.at(3);
+              if (encodable_parameters_arg.IsNull()) {
+                reply(WrapError("parameters_arg unexpectedly null."));
+                return;
+              }
+              const auto& parameters_arg =
+                  std::any_cast<const InternalQueryParameters&>(
+                      std::get<CustomEncodableValue>(encodable_parameters_arg));
+              const auto& encodable_options_arg = args.at(4);
+              if (encodable_options_arg.IsNull()) {
+                reply(WrapError("options_arg unexpectedly null."));
+                return;
+              }
+              const auto& options_arg =
+                  std::any_cast<const InternalGetOptions&>(
+                      std::get<CustomEncodableValue>(encodable_options_arg));
+              const auto& encodable_include_metadata_changes_arg = args.at(5);
+              if (encodable_include_metadata_changes_arg.IsNull()) {
+                reply(WrapError(
+                    "include_metadata_changes_arg unexpectedly null."));
+                return;
+              }
+              const auto& include_metadata_changes_arg =
+                  std::get<bool>(encodable_include_metadata_changes_arg);
+              const auto& encodable_source_arg = args.at(6);
+              if (encodable_source_arg.IsNull()) {
+                reply(WrapError("source_arg unexpectedly null."));
+                return;
+              }
+              const auto& source_arg = std::any_cast<const ListenSource&>(
+                  std::get<CustomEncodableValue>(encodable_source_arg));
+              api->QuerySnapshotChanges(
                   app_arg, path_arg, is_collection_group_arg, parameters_arg,
                   options_arg, include_metadata_changes_arg, source_arg,
                   [reply](ErrorOr<std::string>&& output) {

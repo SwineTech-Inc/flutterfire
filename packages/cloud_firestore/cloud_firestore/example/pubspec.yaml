@@ -1,6 +1,5 @@
 name: cloud_firestore_example
 description: Demonstrates how to use the firestore plugin.
-resolution: workspace
 
 environment:
   sdk: '^3.6.0'

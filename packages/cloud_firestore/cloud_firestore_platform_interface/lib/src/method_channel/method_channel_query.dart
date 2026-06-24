@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'method_channel_aggregate_query.dart';
 import 'method_channel_firestore.dart';
 import 'method_channel_query_snapshot.dart';
+import 'method_channel_query_snapshot_changes.dart';
 import 'utils/exception.dart';
 
 /// An implementation of [QueryPlatform] that uses [MethodChannel] to
@@ -196,6 +197,62 @@ class MethodChannelQuery extends QueryPlatform {
       },
       onCancel: () {
         snapshotStreamSubscription?.cancel();
+      },
+    );
+
+    return controller.stream;
+  }
+
+  @override
+  Stream<QuerySnapshotChangesPlatform> snapshotChanges({
+    bool includeMetadataChanges = false,
+    ServerTimestampBehavior serverTimestampBehavior =
+        ServerTimestampBehavior.none,
+    required ListenSource listenSource,
+  }) {
+    // It's fine to let the StreamController be garbage collected once all the
+    // subscribers have cancelled; this analyzer warning is safe to ignore.
+    late StreamController<QuerySnapshotChangesPlatform>
+        controller; // ignore: close_sinks
+
+    StreamSubscription<dynamic>? snapshotChangesStreamSubscription;
+
+    controller = StreamController<QuerySnapshotChangesPlatform>.broadcast(
+      onListen: () async {
+        final observerId = await MethodChannelFirebaseFirestore.pigeonChannel
+            .querySnapshotChanges(
+          pigeonApp,
+          _pointer.path,
+          isCollectionGroupQuery,
+          _pigeonParameters,
+          InternalGetOptions(
+            source: Source.serverAndCache,
+            serverTimestampBehavior: serverTimestampBehavior,
+          ),
+          includeMetadataChanges,
+          listenSource,
+        );
+
+        snapshotChangesStreamSubscription =
+            MethodChannelFirebaseFirestore.querySnapshotChangesChannel(
+                    observerId)
+                .receiveGuardedBroadcastStream(
+          onError: convertPlatformException,
+        )
+                .listen(
+          (snapshot) {
+            // With Pigeon 26, the native side emits the generated Pigeon class
+            // directly through the Pigeon-aware codec, so we receive a fully
+            // decoded `InternalQuerySnapshotChanges` here (no manual decode).
+            final result = snapshot as InternalQuerySnapshotChanges;
+            controller
+                .add(MethodChannelQuerySnapshotChanges(firestore, result));
+          },
+          onError: controller.addError,
+        );
+      },
+      onCancel: () {
+        snapshotChangesStreamSubscription?.cancel();
       },
     );
 

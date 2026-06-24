@@ -1,6 +1,5 @@
 name: firebase_analytics_example
 description: Demonstrates how to use the firebase_analytics plugin.
-resolution: workspace
 
 environment:
   sdk: '^3.6.0'

@@ -194,13 +194,7 @@ class InternalFirebaseSettings {
  private:
   static InternalFirebaseSettings FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirestorePigeonFirebaseApp;
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
@@ -244,13 +238,7 @@ class FirestorePigeonFirebaseApp {
  private:
   static FirestorePigeonFirebaseApp FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   std::string app_name_;
@@ -279,16 +267,12 @@ class InternalSnapshotMetadata {
 
   static InternalSnapshotMetadata FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
 
  private:
- private:
- private:
   friend class InternalDocumentSnapshot;
   friend class InternalQuerySnapshot;
+  friend class InternalQuerySnapshotChanges;
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   bool has_pending_writes_;
@@ -331,13 +315,8 @@ class InternalDocumentSnapshot {
 
   static InternalDocumentSnapshot FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
 
- private:
- private:
  private:
   friend class InternalDocumentChange;
   friend class FirebaseFirestoreHostApi;
@@ -381,13 +360,8 @@ class InternalDocumentChange {
 
   static InternalDocumentChange FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
 
- private:
- private:
  private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
@@ -430,16 +404,47 @@ class InternalQuerySnapshot {
  private:
   static InternalQuerySnapshot FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   ::flutter::EncodableList documents_;
+  ::flutter::EncodableList document_changes_;
+  std::unique_ptr<InternalSnapshotMetadata> metadata_;
+};
+
+// Generated class from Pigeon that represents data sent in messages.
+class InternalQuerySnapshotChanges {
+ public:
+  // Constructs an object setting all fields.
+  explicit InternalQuerySnapshotChanges(
+      const ::flutter::EncodableList& document_changes,
+      const InternalSnapshotMetadata& metadata);
+
+  ~InternalQuerySnapshotChanges() = default;
+  InternalQuerySnapshotChanges(const InternalQuerySnapshotChanges& other);
+  InternalQuerySnapshotChanges& operator=(
+      const InternalQuerySnapshotChanges& other);
+  InternalQuerySnapshotChanges(InternalQuerySnapshotChanges&& other) = default;
+  InternalQuerySnapshotChanges& operator=(
+      InternalQuerySnapshotChanges&& other) noexcept = default;
+  const ::flutter::EncodableList& document_changes() const;
+  void set_document_changes(const ::flutter::EncodableList& value_arg);
+
+  const InternalSnapshotMetadata& metadata() const;
+  void set_metadata(const InternalSnapshotMetadata& value_arg);
+
+  bool operator==(const InternalQuerySnapshotChanges& other) const;
+  bool operator!=(const InternalQuerySnapshotChanges& other) const;
+  /// Returns a hash code value for the object. This method is supported for the
+  /// benefit of hash tables.
+  size_t Hash() const;
+
+ private:
+  static InternalQuerySnapshotChanges FromEncodableList(
+      const ::flutter::EncodableList& list);
+  ::flutter::EncodableList ToEncodableList() const;
+  friend class FirebaseFirestoreHostApi;
+  friend class FirebaseFirestoreHostApiCodecSerializer;
   ::flutter::EncodableList document_changes_;
   std::unique_ptr<InternalSnapshotMetadata> metadata_;
 };
@@ -482,13 +487,7 @@ class InternalPipelineResult {
  private:
   static InternalPipelineResult FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   std::optional<std::string> document_path_;
@@ -519,13 +518,7 @@ class InternalPipelineSnapshot {
  private:
   static InternalPipelineSnapshot FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   ::flutter::EncodableList results_;
@@ -555,13 +548,7 @@ class InternalGetOptions {
  private:
   static InternalGetOptions FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   Source source_;
@@ -595,13 +582,7 @@ class InternalDocumentOption {
  private:
   static InternalDocumentOption FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class InternalTransactionCommand;
   friend class DocumentReferenceRequest;
   friend class FirebaseFirestoreHostApi;
@@ -653,13 +634,7 @@ class InternalTransactionCommand {
  private:
   static InternalTransactionCommand FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   InternalTransactionType type_;
@@ -714,13 +689,7 @@ class DocumentReferenceRequest {
  private:
   static DocumentReferenceRequest FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   std::string path_;
@@ -792,13 +761,7 @@ class InternalQueryParameters {
  private:
   static InternalQueryParameters FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   std::optional<::flutter::EncodableList> where_;
@@ -836,13 +799,7 @@ class AggregateQuery {
 
  private:
   static AggregateQuery FromEncodableList(const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   AggregateType type_;
@@ -880,13 +837,7 @@ class AggregateQueryResponse {
  private:
   static AggregateQueryResponse FromEncodableList(
       const ::flutter::EncodableList& list);
-
- public:
- public:
   ::flutter::EncodableList ToEncodableList() const;
-
- private:
- private:
   friend class FirebaseFirestoreHostApi;
   friend class FirebaseFirestoreHostApiCodecSerializer;
   AggregateType type_;
@@ -925,6 +876,11 @@ class FirebaseFirestoreHostApi {
       const FirestorePigeonFirebaseApp& app, const std::string& name,
       const InternalGetOptions& options,
       std::function<void(ErrorOr<InternalQuerySnapshot> reply)> result) = 0;
+  virtual void NamedQueryGetChanges(
+      const FirestorePigeonFirebaseApp& app, const std::string& name,
+      const InternalGetOptions& options,
+      std::function<void(ErrorOr<InternalQuerySnapshotChanges> reply)>
+          result) = 0;
   virtual void ClearPersistence(
       const FirestorePigeonFirebaseApp& app,
       std::function<void(std::optional<FlutterError> reply)> result) = 0;
@@ -984,6 +940,12 @@ class FirebaseFirestoreHostApi {
       bool is_collection_group, const InternalQueryParameters& parameters,
       const InternalGetOptions& options,
       std::function<void(ErrorOr<InternalQuerySnapshot> reply)> result) = 0;
+  virtual void QueryGetChanges(
+      const FirestorePigeonFirebaseApp& app, const std::string& path,
+      bool is_collection_group, const InternalQueryParameters& parameters,
+      const InternalGetOptions& options,
+      std::function<void(ErrorOr<InternalQuerySnapshotChanges> reply)>
+          result) = 0;
   virtual void AggregateQuery(
       const FirestorePigeonFirebaseApp& app, const std::string& path,
       const InternalQueryParameters& parameters, const AggregateSource& source,
@@ -994,6 +956,12 @@ class FirebaseFirestoreHostApi {
       const ::flutter::EncodableList& writes,
       std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual void QuerySnapshot(
+      const FirestorePigeonFirebaseApp& app, const std::string& path,
+      bool is_collection_group, const InternalQueryParameters& parameters,
+      const InternalGetOptions& options, bool include_metadata_changes,
+      const ListenSource& source,
+      std::function<void(ErrorOr<std::string> reply)> result) = 0;
+  virtual void QuerySnapshotChanges(
       const FirestorePigeonFirebaseApp& app, const std::string& path,
       bool is_collection_group, const InternalQueryParameters& parameters,
       const InternalGetOptions& options, bool include_metadata_changes,
