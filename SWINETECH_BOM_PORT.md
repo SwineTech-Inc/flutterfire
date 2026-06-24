@@ -120,8 +120,9 @@ swap‑in point for a locally‑built custom Firestore AAR (the separate "custom
 the BOM's resolved Firestore version + `-a`: for 4.16.1, firebase‑bom `34.15.0` → Firestore `26.4.0` → build the
 fork AAR as `26.4.0-a` (its transitive deps `firebase-common 22.0.1` + `play-services-tasks 18.4.0`). Derive the
 versions from `firebase_core/android/gradle.properties` (`FirebaseSDKVersion`) → the firebase‑bom POM →
-the firestore POM, all under `dl.google.com/dl/android/maven2`. Still skipped/tangential: the
-`setLoggingEnabled(false)` codec tweak.
+the firestore POM, all under `dl.google.com/dl/android/maven2`. Also restore `setLoggingEnabled(false)` ("can enable for debugging") — but in 4.16.1 it goes in
+`FlutterFirebaseFirestorePlugin.getFirestoreFromPigeon` (right after `setFirestoreSettings`), NOT the codec,
+since the instance/settings path moved codec→plugin in the Pigeon‑26 era.
 
 ### Step 2c — Verify every `*Changes` artifact matches its CURRENT non‑`*Changes` source (ALL file types)
 This is the diligence the Confluence doc demands. Every `*Changes` function/type is derived from a non‑`*Changes`
