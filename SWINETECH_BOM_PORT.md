@@ -115,8 +115,13 @@ to **emit the Pigeon object directly** through the Pigeon‑aware codec. Mirror 
 Consequence: the codec `writeQuerySnapshotWrapper` dispatch and the iOS writer wrapper serialization are
 **unnecessary and skipped**; the copied `QuerySnapshotWrapper.*` files **and** the `utils/method_channel_query_snapshot_changes.dart` duplicate
 are unused in this approach — **delete them** (done in 4.16.1, so the new-file set is effectively 6, not 10).
-Out of scope / tangential and skipped in 4.16.1: `android/build.gradle` mavenLocal lines (that belongs to the
-separate "custom firebase‑android‑sdk" task) and the `setLoggingEnabled(false)` codec tweak.
+`android/build.gradle`: **re‑add** the commented `//mavenLocal()` repos + custom Firestore impl lines — the
+swap‑in point for a locally‑built custom Firestore AAR (the separate "custom firebase‑android‑sdk" task). Pin to
+the BOM's resolved Firestore version + `-a`: for 4.16.1, firebase‑bom `34.15.0` → Firestore `26.4.0` → build the
+fork AAR as `26.4.0-a` (its transitive deps `firebase-common 22.0.1` + `play-services-tasks 18.4.0`). Derive the
+versions from `firebase_core/android/gradle.properties` (`FirebaseSDKVersion`) → the firebase‑bom POM →
+the firestore POM, all under `dl.google.com/dl/android/maven2`. Still skipped/tangential: the
+`setLoggingEnabled(false)` codec tweak.
 
 ### Step 2c — Verify every `*Changes` artifact matches its CURRENT non‑`*Changes` source (ALL file types)
 This is the diligence the Confluence doc demands. Every `*Changes` function/type is derived from a non‑`*Changes`

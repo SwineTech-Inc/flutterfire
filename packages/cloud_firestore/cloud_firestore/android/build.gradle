@@ -8,6 +8,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        //mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0'
@@ -18,6 +19,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        //mavenLocal()
     }
 }
 
@@ -65,6 +67,13 @@ android {
         api firebaseCoreProject
         implementation platform("com.google.firebase:firebase-bom:${getRootProjectExtOrCoreProperty("FirebaseSDKVersion", firebaseCoreProject)}")
         implementation 'com.google.firebase:firebase-firestore'
+        // SwineTech: to consume a locally-built CUSTOM firebase-firestore AAR, enable the
+        // mavenLocal() lines above and uncomment these. Versions track BOM 4.16.1 (firebase-bom
+        // 34.15.0): Firestore resolves to 26.4.0 -> build the fork AAR as 26.4.0-a; its transitive
+        // deps are firebase-common 22.0.1 + play-services-tasks 18.4.0. See SWINETECH_BOM_PORT.md.
+        //implementation 'com.google.firebase:firebase-firestore:26.4.0-a'
+        //implementation 'com.google.firebase:firebase-common:22.0.1'
+        //implementation 'com.google.android.gms:play-services-tasks:18.4.0'
     }
 }
 
