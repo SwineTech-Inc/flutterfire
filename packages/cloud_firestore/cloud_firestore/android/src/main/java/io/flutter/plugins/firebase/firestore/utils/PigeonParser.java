@@ -69,6 +69,21 @@ public class PigeonParser {
     return pigeonQuerySnapshot.build();
   }
 
+  // SwineTech: a "true" query snapshot that carries only the changed documents
+  // (document changes + metadata), not the full result set.
+  public static GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges
+      toPigeonQuerySnapshotChanges(
+          com.google.firebase.firestore.QuerySnapshot querySnapshot,
+          DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior) {
+    GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges.Builder
+        pigeonQuerySnapshotChanges =
+            new GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges.Builder();
+    pigeonQuerySnapshotChanges.setMetadata(toPigeonSnapshotMetadata(querySnapshot.getMetadata()));
+    pigeonQuerySnapshotChanges.setDocumentChanges(
+        toPigeonDocumentChanges(querySnapshot.getDocumentChanges(), serverTimestampBehavior));
+    return pigeonQuerySnapshotChanges.build();
+  }
+
   public static GeneratedAndroidFirebaseFirestore.InternalSnapshotMetadata toPigeonSnapshotMetadata(
       com.google.firebase.firestore.SnapshotMetadata snapshotMetadata) {
     GeneratedAndroidFirebaseFirestore.InternalSnapshotMetadata.Builder pigeonSnapshotMetadata =

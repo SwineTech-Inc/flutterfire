@@ -89,6 +89,12 @@ abstract class Query<T extends Object?> {
     ListenSource source = ListenSource.defaultSource,
   });
 
+  /// Notifies of query change results at this location.
+  Stream<QuerySnapshotChanges<T>> snapshotChanges({
+    bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
+  });
+
   /// Creates and returns a new [Query] that's additionally sorted by the specified
   /// [field].
   /// The field may be a [String] representing a single field name or a [FieldPath].
@@ -469,6 +475,27 @@ class _JsonQuery implements Query<Map<String, dynamic>> {
           listenSource: source,
         )
         .map((item) => _JsonQuerySnapshot(firestore, item));
+  }
+
+  /// Notifies of query change results at this location.
+  @override
+  Stream<QuerySnapshotChanges<Map<String, dynamic>>> snapshotChanges({
+    bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
+  }) {
+    if (source == ListenSource.cache &&
+        defaultTargetPlatform == TargetPlatform.windows) {
+      throw UnimplementedError(
+        'Listening from cache is not supported on Windows',
+      );
+    }
+
+    return _delegate
+        .snapshotChanges(
+          includeMetadataChanges: includeMetadataChanges,
+          listenSource: source,
+        )
+        .map((item) => _JsonQuerySnapshotChanges(firestore, item));
   }
 
   /// Creates and returns a new [Query] that's additionally sorted by the specified
@@ -949,6 +976,25 @@ class _WithConverterQuery<T extends Object?> implements Query<T> {
         )
         .map(
           (snapshot) => _WithConverterQuerySnapshot<T>(
+            snapshot,
+            _fromFirestore,
+            _toFirestore,
+          ),
+        );
+  }
+
+  @override
+  Stream<QuerySnapshotChanges<T>> snapshotChanges({
+    bool includeMetadataChanges = false,
+    ListenSource source = ListenSource.defaultSource,
+  }) {
+    return _originalQuery
+        .snapshotChanges(
+          includeMetadataChanges: includeMetadataChanges,
+          source: source,
+        )
+        .map(
+          (snapshot) => _WithConverterQuerySnapshotChanges<T>(
             snapshot,
             _fromFirestore,
             _toFirestore,

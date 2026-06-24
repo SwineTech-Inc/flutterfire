@@ -5,7 +5,6 @@ repository: https://github.com/firebase/flutterfire/tree/main/packages/firebase_
 # NOTE: We strongly prefer non-breaking changes, even at the expense of a
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
 version: 7.1.0
-resolution: workspace
 
 environment:
   sdk: '^3.6.0'

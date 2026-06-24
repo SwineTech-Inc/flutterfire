@@ -1,6 +1,5 @@
 name: firebase_core_example
 description: Demonstrates how to use the firebase_core plugin.
-resolution: workspace
 
 environment:
   sdk: '^3.6.0'

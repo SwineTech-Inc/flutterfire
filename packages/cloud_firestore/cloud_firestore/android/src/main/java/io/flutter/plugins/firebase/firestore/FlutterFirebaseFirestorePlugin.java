@@ -49,6 +49,7 @@ import io.flutter.plugins.firebase.core.FlutterFirebasePluginRegistry;
 import io.flutter.plugins.firebase.firestore.streamhandler.DocumentSnapshotsStreamHandler;
 import io.flutter.plugins.firebase.firestore.streamhandler.LoadBundleStreamHandler;
 import io.flutter.plugins.firebase.firestore.streamhandler.OnTransactionResultListener;
+import io.flutter.plugins.firebase.firestore.streamhandler.QuerySnapshotChangesStreamHandler;
 import io.flutter.plugins.firebase.firestore.streamhandler.QuerySnapshotsStreamHandler;
 import io.flutter.plugins.firebase.firestore.streamhandler.SnapshotsInSyncStreamHandler;
 import io.flutter.plugins.firebase.firestore.streamhandler.TransactionStreamHandler;
@@ -985,6 +986,121 @@ public class FlutterFirebaseFirestorePlugin
         registerEventChannel(
             METHOD_CHANNEL_NAME + "/query",
             new QuerySnapshotsStreamHandler(
+                query,
+                includeMetadataChanges,
+                PigeonParser.parsePigeonServerTimestampBehavior(
+                    options.getServerTimestampBehavior()),
+                PigeonParser.parseListenSource(source))));
+  }
+
+  // SwineTech: "changes-only" variants of namedQueryGet / queryGet / querySnapshot.
+  // They mirror the regular methods but build an InternalQuerySnapshotChanges
+  // (document changes + metadata) via PigeonParser.toPigeonQuerySnapshotChanges.
+  @Override
+  public void namedQueryGetChanges(
+      @NonNull GeneratedAndroidFirebaseFirestore.FirestorePigeonFirebaseApp app,
+      @NonNull String name,
+      @NonNull GeneratedAndroidFirebaseFirestore.InternalGetOptions options,
+      @NonNull
+          GeneratedAndroidFirebaseFirestore.Result<
+                  GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges>
+              result) {
+    cachedThreadPool.execute(
+        () -> {
+          try {
+            FirebaseFirestore firestore = getFirestoreFromPigeon(app);
+            Query query = Tasks.await(firestore.getNamedQuery(name));
+
+            if (query == null) {
+              result.error(
+                  new NullPointerException(
+                      "Named query has not been found. Please check it has been loaded properly via"
+                          + " loadBundle()."));
+              return;
+            }
+
+            final QuerySnapshot querySnapshot =
+                Tasks.await(query.get(PigeonParser.parsePigeonSource(options.getSource())));
+
+            result.success(
+                PigeonParser.toPigeonQuerySnapshotChanges(
+                    querySnapshot,
+                    PigeonParser.parsePigeonServerTimestampBehavior(
+                        options.getServerTimestampBehavior())));
+          } catch (Exception e) {
+            ExceptionConverter.sendErrorToFlutter(result, e);
+          }
+        });
+  }
+
+  @Override
+  public void queryGetChanges(
+      @NonNull GeneratedAndroidFirebaseFirestore.FirestorePigeonFirebaseApp app,
+      @NonNull String path,
+      @NonNull Boolean isCollectionGroup,
+      @NonNull GeneratedAndroidFirebaseFirestore.InternalQueryParameters parameters,
+      @NonNull GeneratedAndroidFirebaseFirestore.InternalGetOptions options,
+      @NonNull
+          GeneratedAndroidFirebaseFirestore.Result<
+                  GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges>
+              result) {
+    cachedThreadPool.execute(
+        () -> {
+          try {
+            Source source = PigeonParser.parsePigeonSource(options.getSource());
+            Query query =
+                PigeonParser.parseQuery(
+                    getFirestoreFromPigeon(app), path, isCollectionGroup, parameters);
+
+            if (query == null) {
+              result.error(
+                  new GeneratedAndroidFirebaseFirestore.FlutterError(
+                      "invalid_query",
+                      "An error occurred while parsing query arguments, see native logs for more"
+                          + " information. Please report this issue.",
+                      null));
+              return;
+            }
+            final QuerySnapshot querySnapshot = Tasks.await(query.get(source));
+
+            result.success(
+                PigeonParser.toPigeonQuerySnapshotChanges(
+                    querySnapshot,
+                    PigeonParser.parsePigeonServerTimestampBehavior(
+                        options.getServerTimestampBehavior())));
+          } catch (Exception e) {
+            ExceptionConverter.sendErrorToFlutter(result, e);
+          }
+        });
+  }
+
+  @Override
+  public void querySnapshotChanges(
+      @NonNull GeneratedAndroidFirebaseFirestore.FirestorePigeonFirebaseApp app,
+      @NonNull String path,
+      @NonNull Boolean isCollectionGroup,
+      @NonNull GeneratedAndroidFirebaseFirestore.InternalQueryParameters parameters,
+      @NonNull GeneratedAndroidFirebaseFirestore.InternalGetOptions options,
+      @NonNull Boolean includeMetadataChanges,
+      @NonNull GeneratedAndroidFirebaseFirestore.ListenSource source,
+      @NonNull GeneratedAndroidFirebaseFirestore.Result<String> result) {
+    Query query =
+        PigeonParser.parseQuery(getFirestoreFromPigeon(app), path, isCollectionGroup, parameters);
+
+    if (query == null) {
+      result.error(
+          new GeneratedAndroidFirebaseFirestore.FlutterError(
+              "invalid_query",
+              "An error occurred while parsing query arguments, see native logs for more"
+                  + " information. Please report this issue.",
+              null));
+      return;
+    }
+
+    result.success(
+        registerEventChannel(
+            METHOD_CHANNEL_NAME + "/queryChanges",
+            new QuerySnapshotChangesStreamHandler(
                 query,
                 includeMetadataChanges,
                 PigeonParser.parsePigeonServerTimestampBehavior(

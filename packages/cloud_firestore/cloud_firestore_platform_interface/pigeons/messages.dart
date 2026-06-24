@@ -118,6 +118,16 @@ class InternalQuerySnapshot {
   final InternalSnapshotMetadata metadata;
 }
 
+class InternalQuerySnapshotChanges {
+  const InternalQuerySnapshotChanges({
+    required this.documentChanges,
+    required this.metadata,
+  });
+
+  final List<InternalDocumentChange?> documentChanges;
+  final InternalSnapshotMetadata metadata;
+}
+
 class InternalPipelineResult {
   const InternalPipelineResult({
     this.documentPath,
@@ -333,6 +343,13 @@ abstract class FirebaseFirestoreHostApi {
   );
 
   @async
+  InternalQuerySnapshotChanges namedQueryGetChanges(
+    FirestorePigeonFirebaseApp app,
+    String name,
+    InternalGetOptions options,
+  );
+
+  @async
   void clearPersistence(
     FirestorePigeonFirebaseApp app,
   );
@@ -428,6 +445,15 @@ abstract class FirebaseFirestoreHostApi {
   );
 
   @async
+  InternalQuerySnapshotChanges queryGetChanges(
+    FirestorePigeonFirebaseApp app,
+    String path,
+    bool isCollectionGroup,
+    InternalQueryParameters parameters,
+    InternalGetOptions options,
+  );
+
+  @async
   List<AggregateQueryResponse?> aggregateQuery(
     FirestorePigeonFirebaseApp app,
     String path,
@@ -445,6 +471,17 @@ abstract class FirebaseFirestoreHostApi {
 
   @async
   String querySnapshot(
+    FirestorePigeonFirebaseApp app,
+    String path,
+    bool isCollectionGroup,
+    InternalQueryParameters parameters,
+    InternalGetOptions options,
+    bool includeMetadataChanges,
+    ListenSource source,
+  );
+
+  @async
+  String querySnapshotChanges(
     FirestorePigeonFirebaseApp app,
     String path,
     bool isCollectionGroup,

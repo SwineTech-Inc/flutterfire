@@ -1,7 +1,6 @@
 name: firebase_performance_example
 description: Demonstrates how to use the firebase_performance plugin.
 version: 0.0.1
-resolution: workspace
 publish_to: none
 
 environment:

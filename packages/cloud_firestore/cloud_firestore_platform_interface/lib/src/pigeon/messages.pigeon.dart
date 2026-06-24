@@ -539,6 +539,55 @@ class InternalQuerySnapshot {
   int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
 }
 
+class InternalQuerySnapshotChanges {
+  InternalQuerySnapshotChanges({
+    required this.documentChanges,
+    required this.metadata,
+  });
+
+  List<InternalDocumentChange?> documentChanges;
+
+  InternalSnapshotMetadata metadata;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      documentChanges,
+      metadata,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static InternalQuerySnapshotChanges decode(Object result) {
+    result as List<Object?>;
+    return InternalQuerySnapshotChanges(
+      documentChanges:
+          (result[0]! as List<Object?>).cast<InternalDocumentChange?>(),
+      metadata: result[1]! as InternalSnapshotMetadata,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! InternalQuerySnapshotChanges ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(documentChanges, other.documentChanges) &&
+        _deepEquals(metadata, other.metadata);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+}
+
 class InternalPipelineResult {
   InternalPipelineResult({
     this.documentPath,
@@ -1107,32 +1156,35 @@ class PigeonCodec extends FirestoreMessageCodec {
     } else if (value is InternalQuerySnapshot) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    } else if (value is InternalPipelineResult) {
+    } else if (value is InternalQuerySnapshotChanges) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
-    } else if (value is InternalPipelineSnapshot) {
+    } else if (value is InternalPipelineResult) {
       buffer.putUint8(145);
       writeValue(buffer, value.encode());
-    } else if (value is InternalGetOptions) {
+    } else if (value is InternalPipelineSnapshot) {
       buffer.putUint8(146);
       writeValue(buffer, value.encode());
-    } else if (value is InternalDocumentOption) {
+    } else if (value is InternalGetOptions) {
       buffer.putUint8(147);
       writeValue(buffer, value.encode());
-    } else if (value is InternalTransactionCommand) {
+    } else if (value is InternalDocumentOption) {
       buffer.putUint8(148);
       writeValue(buffer, value.encode());
-    } else if (value is DocumentReferenceRequest) {
+    } else if (value is InternalTransactionCommand) {
       buffer.putUint8(149);
       writeValue(buffer, value.encode());
-    } else if (value is InternalQueryParameters) {
+    } else if (value is DocumentReferenceRequest) {
       buffer.putUint8(150);
       writeValue(buffer, value.encode());
-    } else if (value is AggregateQuery) {
+    } else if (value is InternalQueryParameters) {
       buffer.putUint8(151);
       writeValue(buffer, value.encode());
-    } else if (value is AggregateQueryResponse) {
+    } else if (value is AggregateQuery) {
       buffer.putUint8(152);
+      writeValue(buffer, value.encode());
+    } else if (value is AggregateQueryResponse) {
+      buffer.putUint8(153);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -1184,22 +1236,24 @@ class PigeonCodec extends FirestoreMessageCodec {
       case 143:
         return InternalQuerySnapshot.decode(readValue(buffer)!);
       case 144:
-        return InternalPipelineResult.decode(readValue(buffer)!);
+        return InternalQuerySnapshotChanges.decode(readValue(buffer)!);
       case 145:
-        return InternalPipelineSnapshot.decode(readValue(buffer)!);
+        return InternalPipelineResult.decode(readValue(buffer)!);
       case 146:
-        return InternalGetOptions.decode(readValue(buffer)!);
+        return InternalPipelineSnapshot.decode(readValue(buffer)!);
       case 147:
-        return InternalDocumentOption.decode(readValue(buffer)!);
+        return InternalGetOptions.decode(readValue(buffer)!);
       case 148:
-        return InternalTransactionCommand.decode(readValue(buffer)!);
+        return InternalDocumentOption.decode(readValue(buffer)!);
       case 149:
-        return DocumentReferenceRequest.decode(readValue(buffer)!);
+        return InternalTransactionCommand.decode(readValue(buffer)!);
       case 150:
-        return InternalQueryParameters.decode(readValue(buffer)!);
+        return DocumentReferenceRequest.decode(readValue(buffer)!);
       case 151:
-        return AggregateQuery.decode(readValue(buffer)!);
+        return InternalQueryParameters.decode(readValue(buffer)!);
       case 152:
+        return AggregateQuery.decode(readValue(buffer)!);
+      case 153:
         return AggregateQueryResponse.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1262,6 +1316,29 @@ class FirebaseFirestoreHostApi {
       isNullValid: false,
     );
     return pigeonVar_replyValue! as InternalQuerySnapshot;
+  }
+
+  Future<InternalQuerySnapshotChanges> namedQueryGetChanges(
+      FirestorePigeonFirebaseApp app,
+      String name,
+      InternalGetOptions options) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.namedQueryGetChanges$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[app, name, options]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as InternalQuerySnapshotChanges;
   }
 
   Future<void> clearPersistence(FirestorePigeonFirebaseApp app) async {
@@ -1588,6 +1665,31 @@ class FirebaseFirestoreHostApi {
     return pigeonVar_replyValue! as InternalQuerySnapshot;
   }
 
+  Future<InternalQuerySnapshotChanges> queryGetChanges(
+      FirestorePigeonFirebaseApp app,
+      String path,
+      bool isCollectionGroup,
+      InternalQueryParameters parameters,
+      InternalGetOptions options) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.queryGetChanges$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[app, path, isCollectionGroup, parameters, options]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as InternalQuerySnapshotChanges;
+  }
+
   Future<List<AggregateQueryResponse?>> aggregateQuery(
       FirestorePigeonFirebaseApp app,
       String path,
@@ -1645,6 +1747,41 @@ class FirebaseFirestoreHostApi {
       ListenSource source) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshot$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[
+      app,
+      path,
+      isCollectionGroup,
+      parameters,
+      options,
+      includeMetadataChanges,
+      source
+    ]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as String;
+  }
+
+  Future<String> querySnapshotChanges(
+      FirestorePigeonFirebaseApp app,
+      String path,
+      bool isCollectionGroup,
+      InternalQueryParameters parameters,
+      InternalGetOptions options,
+      bool includeMetadataChanges,
+      ListenSource source) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshotChanges$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
