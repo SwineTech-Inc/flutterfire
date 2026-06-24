@@ -165,6 +165,7 @@ typedef NS_ENUM(NSUInteger, AggregateType) {
 @class InternalDocumentSnapshot;
 @class InternalDocumentChange;
 @class InternalQuerySnapshot;
+@class InternalQuerySnapshotChanges;
 @class InternalPipelineResult;
 @class InternalPipelineSnapshot;
 @class InternalGetOptions;
@@ -240,6 +241,15 @@ typedef NS_ENUM(NSUInteger, AggregateType) {
                   documentChanges:(NSArray<InternalDocumentChange *> *)documentChanges
                          metadata:(InternalSnapshotMetadata *)metadata;
 @property(nonatomic, copy) NSArray<InternalDocumentSnapshot *> *documents;
+@property(nonatomic, copy) NSArray<InternalDocumentChange *> *documentChanges;
+@property(nonatomic, strong) InternalSnapshotMetadata *metadata;
+@end
+
+@interface InternalQuerySnapshotChanges : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithDocumentChanges:(NSArray<InternalDocumentChange *> *)documentChanges
+                               metadata:(InternalSnapshotMetadata *)metadata;
 @property(nonatomic, copy) NSArray<InternalDocumentChange *> *documentChanges;
 @property(nonatomic, strong) InternalSnapshotMetadata *metadata;
 @end
@@ -361,6 +371,11 @@ NSObject<FlutterMessageCodec> *GetFirebaseFirestoreHostApiCodec(void);
                  options:(InternalGetOptions *)options
               completion:
                   (void (^)(InternalQuerySnapshot *_Nullable, FlutterError *_Nullable))completion;
+- (void)namedQueryGetChangesApp:(FirestorePigeonFirebaseApp *)app
+                           name:(NSString *)name
+                        options:(InternalGetOptions *)options
+                     completion:(void (^)(InternalQuerySnapshotChanges *_Nullable,
+                                          FlutterError *_Nullable))completion;
 - (void)clearPersistenceApp:(FirestorePigeonFirebaseApp *)app
                  completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)disableNetworkApp:(FirestorePigeonFirebaseApp *)app
@@ -412,6 +427,13 @@ NSObject<FlutterMessageCodec> *GetFirebaseFirestoreHostApiCodec(void);
               options:(InternalGetOptions *)options
            completion:
                (void (^)(InternalQuerySnapshot *_Nullable, FlutterError *_Nullable))completion;
+- (void)queryGetChangesApp:(FirestorePigeonFirebaseApp *)app
+                      path:(NSString *)path
+         isCollectionGroup:(BOOL)isCollectionGroup
+                parameters:(InternalQueryParameters *)parameters
+                   options:(InternalGetOptions *)options
+                completion:(void (^)(InternalQuerySnapshotChanges *_Nullable,
+                                     FlutterError *_Nullable))completion;
 - (void)aggregateQueryApp:(FirestorePigeonFirebaseApp *)app
                      path:(NSString *)path
                parameters:(InternalQueryParameters *)parameters
@@ -431,6 +453,14 @@ NSObject<FlutterMessageCodec> *GetFirebaseFirestoreHostApiCodec(void);
     includeMetadataChanges:(BOOL)includeMetadataChanges
                     source:(ListenSource)source
                 completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)querySnapshotChangesApp:(FirestorePigeonFirebaseApp *)app
+                           path:(NSString *)path
+              isCollectionGroup:(BOOL)isCollectionGroup
+                     parameters:(InternalQueryParameters *)parameters
+                        options:(InternalGetOptions *)options
+         includeMetadataChanges:(BOOL)includeMetadataChanges
+                         source:(ListenSource)source
+                     completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 - (void)documentReferenceSnapshotApp:(FirestorePigeonFirebaseApp *)app
                           parameters:(DocumentReferenceRequest *)parameters
               includeMetadataChanges:(BOOL)includeMetadataChanges

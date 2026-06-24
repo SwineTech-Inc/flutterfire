@@ -87,4 +87,14 @@ class WriteBatch {
       _CodecUtility.replaceValueWithDelegatesInMapFieldPath(firestoreData)!,
     );
   }
+
+  /// Remove fields in the batch referred to by [document].
+  void removeFromBatch(String documentPath) {
+    _delegate.removeFromBatch(documentPath);
+  }
+
+  // Used for debugging/crashlytics purposes
+  List<InternalTransactionCommand> getBatchData() {
+    return _delegate.getBatchData();
+  }
 }

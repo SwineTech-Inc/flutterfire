@@ -71,6 +71,7 @@ part 'src/pipeline_stage.dart';
 part 'src/query.dart';
 part 'src/query_document_snapshot.dart';
 part 'src/query_snapshot.dart';
+part 'src/query_snapshot_changes.dart';
 part 'src/snapshot_metadata.dart';
 part 'src/transaction.dart';
 part 'src/utils/codec_utility.dart';

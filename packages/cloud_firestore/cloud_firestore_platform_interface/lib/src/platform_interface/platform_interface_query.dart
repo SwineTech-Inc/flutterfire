@@ -140,6 +140,14 @@ abstract class QueryPlatform extends PlatformInterface {
     throw UnimplementedError('snapshots() is not implemented');
   }
 
+  /// Notifies of query change results at this location
+  Stream<QuerySnapshotChangesPlatform> snapshotChanges({
+    bool includeMetadataChanges = false,
+    required ListenSource listenSource,
+  }) {
+    throw UnimplementedError('snapshotChanges() is not implemented');
+  }
+
   /// Creates and returns a new [QueryPlatform] that's additionally sorted by the specified
   /// [field].
   /// The field may be a [String] representing a single field name or a [FieldPath].
