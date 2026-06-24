@@ -1151,6 +1151,101 @@ public class GeneratedAndroidFirebaseFirestore {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class InternalQuerySnapshotChanges {
+    private @NonNull List<InternalDocumentChange> documentChanges;
+
+    public @NonNull List<InternalDocumentChange> getDocumentChanges() {
+      return documentChanges;
+    }
+
+    public void setDocumentChanges(@NonNull List<InternalDocumentChange> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"documentChanges\" is null.");
+      }
+      this.documentChanges = setterArg;
+    }
+
+    private @NonNull InternalSnapshotMetadata metadata;
+
+    public @NonNull InternalSnapshotMetadata getMetadata() {
+      return metadata;
+    }
+
+    public void setMetadata(@NonNull InternalSnapshotMetadata setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"metadata\" is null.");
+      }
+      this.metadata = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    InternalQuerySnapshotChanges() {}
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      InternalQuerySnapshotChanges that = (InternalQuerySnapshotChanges) o;
+      return pigeonDeepEquals(documentChanges, that.documentChanges)
+          && pigeonDeepEquals(metadata, that.metadata);
+    }
+
+    @Override
+    public int hashCode() {
+      Object[] fields = new Object[] {getClass(), documentChanges, metadata};
+      return pigeonDeepHashCode(fields);
+    }
+
+    public static final class Builder {
+
+      private @Nullable List<InternalDocumentChange> documentChanges;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setDocumentChanges(@NonNull List<InternalDocumentChange> setterArg) {
+        this.documentChanges = setterArg;
+        return this;
+      }
+
+      private @Nullable InternalSnapshotMetadata metadata;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setMetadata(@NonNull InternalSnapshotMetadata setterArg) {
+        this.metadata = setterArg;
+        return this;
+      }
+
+      public @NonNull InternalQuerySnapshotChanges build() {
+        InternalQuerySnapshotChanges pigeonReturn = new InternalQuerySnapshotChanges();
+        pigeonReturn.setDocumentChanges(documentChanges);
+        pigeonReturn.setMetadata(metadata);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    public ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(2);
+      toListResult.add(documentChanges);
+      toListResult.add(metadata);
+      return toListResult;
+    }
+
+    static @NonNull InternalQuerySnapshotChanges fromList(
+        @NonNull ArrayList<Object> pigeonVar_list) {
+      InternalQuerySnapshotChanges pigeonResult = new InternalQuerySnapshotChanges();
+      Object documentChanges = pigeonVar_list.get(0);
+      pigeonResult.setDocumentChanges((List<InternalDocumentChange>) documentChanges);
+      Object metadata = pigeonVar_list.get(1);
+      pigeonResult.setMetadata((InternalSnapshotMetadata) metadata);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
   public static final class InternalPipelineResult {
     private @Nullable String documentPath;
 
@@ -2393,22 +2488,24 @@ public class GeneratedAndroidFirebaseFirestore {
         case (byte) 143:
           return InternalQuerySnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 144:
-          return InternalPipelineResult.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalQuerySnapshotChanges.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 145:
-          return InternalPipelineSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalPipelineResult.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 146:
-          return InternalGetOptions.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalPipelineSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 147:
-          return InternalDocumentOption.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalGetOptions.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 148:
-          return InternalTransactionCommand.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalDocumentOption.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 149:
-          return DocumentReferenceRequest.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalTransactionCommand.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 150:
-          return InternalQueryParameters.fromList((ArrayList<Object>) readValue(buffer));
+          return DocumentReferenceRequest.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 151:
-          return AggregateQuery.fromList((ArrayList<Object>) readValue(buffer));
+          return InternalQueryParameters.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 152:
+          return AggregateQuery.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 153:
           return AggregateQueryResponse.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -2463,32 +2560,35 @@ public class GeneratedAndroidFirebaseFirestore {
       } else if (value instanceof InternalQuerySnapshot) {
         stream.write(143);
         writeValue(stream, ((InternalQuerySnapshot) value).toList());
-      } else if (value instanceof InternalPipelineResult) {
+      } else if (value instanceof InternalQuerySnapshotChanges) {
         stream.write(144);
+        writeValue(stream, ((InternalQuerySnapshotChanges) value).toList());
+      } else if (value instanceof InternalPipelineResult) {
+        stream.write(145);
         writeValue(stream, ((InternalPipelineResult) value).toList());
       } else if (value instanceof InternalPipelineSnapshot) {
-        stream.write(145);
+        stream.write(146);
         writeValue(stream, ((InternalPipelineSnapshot) value).toList());
       } else if (value instanceof InternalGetOptions) {
-        stream.write(146);
+        stream.write(147);
         writeValue(stream, ((InternalGetOptions) value).toList());
       } else if (value instanceof InternalDocumentOption) {
-        stream.write(147);
+        stream.write(148);
         writeValue(stream, ((InternalDocumentOption) value).toList());
       } else if (value instanceof InternalTransactionCommand) {
-        stream.write(148);
+        stream.write(149);
         writeValue(stream, ((InternalTransactionCommand) value).toList());
       } else if (value instanceof DocumentReferenceRequest) {
-        stream.write(149);
+        stream.write(150);
         writeValue(stream, ((DocumentReferenceRequest) value).toList());
       } else if (value instanceof InternalQueryParameters) {
-        stream.write(150);
+        stream.write(151);
         writeValue(stream, ((InternalQueryParameters) value).toList());
       } else if (value instanceof AggregateQuery) {
-        stream.write(151);
+        stream.write(152);
         writeValue(stream, ((AggregateQuery) value).toList());
       } else if (value instanceof AggregateQueryResponse) {
-        stream.write(152);
+        stream.write(153);
         writeValue(stream, ((AggregateQueryResponse) value).toList());
       } else {
         super.writeValue(stream, value);
@@ -2504,7 +2604,6 @@ public class GeneratedAndroidFirebaseFirestore {
     /** Failure case callback method for handling errors. */
     void error(@NonNull Throwable error);
   }
-
   /** Asynchronous error handling return type for nullable API method returns. */
   public interface NullableResult<T> {
     /** Success case callback method for handling returns. */
@@ -2513,7 +2612,6 @@ public class GeneratedAndroidFirebaseFirestore {
     /** Failure case callback method for handling errors. */
     void error(@NonNull Throwable error);
   }
-
   /** Asynchronous error handling return type for void API method returns. */
   public interface VoidResult {
     /** Success case callback method for handling returns. */
@@ -2522,7 +2620,6 @@ public class GeneratedAndroidFirebaseFirestore {
     /** Failure case callback method for handling errors. */
     void error(@NonNull Throwable error);
   }
-
   /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
   public interface FirebaseFirestoreHostApi {
 
@@ -2536,6 +2633,12 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull String name,
         @NonNull InternalGetOptions options,
         @NonNull Result<InternalQuerySnapshot> result);
+
+    void namedQueryGetChanges(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String name,
+        @NonNull InternalGetOptions options,
+        @NonNull Result<InternalQuerySnapshotChanges> result);
 
     void clearPersistence(@NonNull FirestorePigeonFirebaseApp app, @NonNull VoidResult result);
 
@@ -2603,6 +2706,14 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull InternalGetOptions options,
         @NonNull Result<InternalQuerySnapshot> result);
 
+    void queryGetChanges(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String path,
+        @NonNull Boolean isCollectionGroup,
+        @NonNull InternalQueryParameters parameters,
+        @NonNull InternalGetOptions options,
+        @NonNull Result<InternalQuerySnapshotChanges> result);
+
     void aggregateQuery(
         @NonNull FirestorePigeonFirebaseApp app,
         @NonNull String path,
@@ -2618,6 +2729,16 @@ public class GeneratedAndroidFirebaseFirestore {
         @NonNull VoidResult result);
 
     void querySnapshot(
+        @NonNull FirestorePigeonFirebaseApp app,
+        @NonNull String path,
+        @NonNull Boolean isCollectionGroup,
+        @NonNull InternalQueryParameters parameters,
+        @NonNull InternalGetOptions options,
+        @NonNull Boolean includeMetadataChanges,
+        @NonNull ListenSource source,
+        @NonNull Result<String> result);
+
+    void querySnapshotChanges(
         @NonNull FirestorePigeonFirebaseApp app,
         @NonNull String path,
         @NonNull Boolean isCollectionGroup,
@@ -2649,7 +2770,6 @@ public class GeneratedAndroidFirebaseFirestore {
     static @NonNull MessageCodec<Object> getCodec() {
       return PigeonCodec.INSTANCE;
     }
-
     /**
      * Sets up an instance of `FirebaseFirestoreHostApi` to handle messages through the
      * `binaryMessenger`.
@@ -2726,6 +2846,40 @@ public class GeneratedAndroidFirebaseFirestore {
                     };
 
                 api.namedQueryGet(appArg, nameArg, optionsArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.namedQueryGetChanges"
+                    + messageChannelSuffix,
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String nameArg = (String) args.get(1);
+                InternalGetOptions optionsArg = (InternalGetOptions) args.get(2);
+                Result<InternalQuerySnapshotChanges> resultCallback =
+                    new Result<InternalQuerySnapshotChanges>() {
+                      public void success(InternalQuerySnapshotChanges result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.namedQueryGetChanges(appArg, nameArg, optionsArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -3270,6 +3424,48 @@ public class GeneratedAndroidFirebaseFirestore {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
                 binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.queryGetChanges"
+                    + messageChannelSuffix,
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String pathArg = (String) args.get(1);
+                Boolean isCollectionGroupArg = (Boolean) args.get(2);
+                InternalQueryParameters parametersArg = (InternalQueryParameters) args.get(3);
+                InternalGetOptions optionsArg = (InternalGetOptions) args.get(4);
+                Result<InternalQuerySnapshotChanges> resultCallback =
+                    new Result<InternalQuerySnapshotChanges>() {
+                      public void success(InternalQuerySnapshotChanges result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.queryGetChanges(
+                    appArg,
+                    pathArg,
+                    isCollectionGroupArg,
+                    parametersArg,
+                    optionsArg,
+                    resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
                 "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.aggregateQuery"
                     + messageChannelSuffix,
                 getCodec());
@@ -3377,6 +3573,52 @@ public class GeneratedAndroidFirebaseFirestore {
                     };
 
                 api.querySnapshot(
+                    appArg,
+                    pathArg,
+                    isCollectionGroupArg,
+                    parametersArg,
+                    optionsArg,
+                    includeMetadataChangesArg,
+                    sourceArg,
+                    resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger,
+                "dev.flutter.pigeon.cloud_firestore_platform_interface.FirebaseFirestoreHostApi.querySnapshotChanges"
+                    + messageChannelSuffix,
+                getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                FirestorePigeonFirebaseApp appArg = (FirestorePigeonFirebaseApp) args.get(0);
+                String pathArg = (String) args.get(1);
+                Boolean isCollectionGroupArg = (Boolean) args.get(2);
+                InternalQueryParameters parametersArg = (InternalQueryParameters) args.get(3);
+                InternalGetOptions optionsArg = (InternalGetOptions) args.get(4);
+                Boolean includeMetadataChangesArg = (Boolean) args.get(5);
+                ListenSource sourceArg = (ListenSource) args.get(6);
+                Result<String> resultCallback =
+                    new Result<String>() {
+                      public void success(String result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.querySnapshotChanges(
                     appArg,
                     pathArg,
                     isCollectionGroupArg,

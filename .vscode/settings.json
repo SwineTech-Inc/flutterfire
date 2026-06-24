@@ -1,3 +1,4 @@
 {
   "dart.runPubGetOnPubspecChanges": "always",
+  "cmake.sourceDirectory": "/Users/dave/dev_folder/projects/flutterfire/tests/windows",
 }

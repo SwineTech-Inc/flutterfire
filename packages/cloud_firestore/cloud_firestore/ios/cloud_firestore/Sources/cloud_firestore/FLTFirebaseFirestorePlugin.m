@@ -16,6 +16,7 @@
 #import "include/cloud_firestore/Private/FLTFirebaseFirestoreUtils.h"
 #import "include/cloud_firestore/Private/FLTLoadBundleStreamHandler.h"
 #import "include/cloud_firestore/Private/FLTPipelineParser.h"
+#import "include/cloud_firestore/Private/FLTQuerySnapshotChangesStreamHandler.h"
 #import "include/cloud_firestore/Private/FLTQuerySnapshotStreamHandler.h"
 #import "include/cloud_firestore/Private/FLTSnapshotsInSyncStreamHandler.h"
 #import "include/cloud_firestore/Private/FLTTransactionStreamHandler.h"
@@ -33,6 +34,8 @@
 NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/firebase_firestore";
 NSString *const kFLTFirebaseFirestoreQuerySnapshotEventChannelName =
     @"plugins.flutter.io/firebase_firestore/query";
+NSString *const kFLTFirebaseFirestoreQuerySnapshotChangesEventChannelName =
+    @"plugins.flutter.io/firebase_firestore/queryChanges";
 NSString *const kFLTFirebaseFirestoreDocumentSnapshotEventChannelName =
     @"plugins.flutter.io/firebase_firestore/document";
 NSString *const kFLTFirebaseFirestoreSnapshotsInSyncEventChannelName =
@@ -581,6 +584,122 @@ FlutterStandardMethodCodec *_codec;
   completion(
       [self registerEventChannelWithPrefix:kFLTFirebaseFirestoreQuerySnapshotEventChannelName
                              streamHandler:[[FLTQuerySnapshotStreamHandler alloc]
+                                                     initWithFirestore:firestore
+                                                                 query:query
+                                                includeMetadataChanges:includeMetadataChanges
+                                               serverTimestampBehavior:serverTimestampBehavior
+                                                                source:listenSource]],
+      nil);
+}
+
+// SwineTech: "changes-only" variants of namedQueryGet / queryGet / querySnapshot.
+// They mirror the regular methods but build an InternalQuerySnapshotChanges
+// (document changes + metadata) via FirestorePigeonParser toPigeonQuerySnapshotChanges.
+- (void)namedQueryGetChangesApp:(nonnull FirestorePigeonFirebaseApp *)app
+                           name:(nonnull NSString *)name
+                        options:(nonnull InternalGetOptions *)options
+                     completion:(nonnull void (^)(InternalQuerySnapshotChanges *_Nullable,
+                                                  FlutterError *_Nullable))completion {
+  FIRFirestore *firestore = [self getFIRFirestoreFromAppNameFromPigeon:app];
+
+  FIRFirestoreSource source = [FirestorePigeonParser parseSource:options.source];
+  FIRServerTimestampBehavior serverTimestampBehavior =
+      [FirestorePigeonParser parseServerTimestampBehavior:options.serverTimestampBehavior];
+
+  [firestore
+      getQueryNamed:name
+         completion:^(FIRQuery *_Nullable query) {
+           if (query == nil) {
+             completion(nil,
+                        [FlutterError errorWithCode:@"non-existent-named-query"
+                                            message:@"Named query has not been found. Please check "
+                                                    @"it has been loaded properly via loadBundle()."
+                                            details:nil]);
+
+             return;
+           }
+           [query
+               getDocumentsWithSource:source
+                           completion:^(FIRQuerySnapshot *_Nullable snapshot,
+                                        NSError *_Nullable error) {
+                             if (error != nil) {
+                               completion(nil, [self convertToFlutterError:error]);
+                             } else {
+                               completion([FirestorePigeonParser
+                                              toPigeonQuerySnapshotChanges:snapshot
+                                                   serverTimestampBehavior:serverTimestampBehavior],
+                                          nil);
+                             }
+                           }];
+         }];
+}
+
+- (void)queryGetChangesApp:(nonnull FirestorePigeonFirebaseApp *)app
+                      path:(nonnull NSString *)path
+         isCollectionGroup:(BOOL)isCollectionGroup
+                parameters:(nonnull InternalQueryParameters *)parameters
+                   options:(nonnull InternalGetOptions *)options
+                completion:(nonnull void (^)(InternalQuerySnapshotChanges *_Nullable,
+                                             FlutterError *_Nullable))completion {
+  FIRFirestore *firestore = [self getFIRFirestoreFromAppNameFromPigeon:app];
+  FIRQuery *query = [FirestorePigeonParser parseQueryWithParameters:parameters
+                                                          firestore:firestore
+                                                               path:path
+                                                  isCollectionGroup:isCollectionGroup];
+  if (query == nil) {
+    completion(nil, [FlutterError errorWithCode:@"error-parsing"
+                                        message:@"An error occurred while parsing query arguments, "
+                                                @"this is most likely an error with this SDK."
+                                        details:nil]);
+    return;
+  }
+
+  FIRFirestoreSource source = [FirestorePigeonParser parseSource:options.source];
+  FIRServerTimestampBehavior serverTimestampBehavior =
+      [FirestorePigeonParser parseServerTimestampBehavior:options.serverTimestampBehavior];
+
+  [query getDocumentsWithSource:source
+                     completion:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+                       if (error != nil) {
+                         completion(nil, [self convertToFlutterError:error]);
+                       } else {
+                         completion([FirestorePigeonParser
+                                        toPigeonQuerySnapshotChanges:snapshot
+                                             serverTimestampBehavior:serverTimestampBehavior],
+                                    nil);
+                       }
+                     }];
+}
+
+- (void)querySnapshotChangesApp:(nonnull FirestorePigeonFirebaseApp *)app
+                           path:(nonnull NSString *)path
+              isCollectionGroup:(BOOL)isCollectionGroup
+                     parameters:(nonnull InternalQueryParameters *)parameters
+                        options:(nonnull InternalGetOptions *)options
+         includeMetadataChanges:(BOOL)includeMetadataChanges
+                         source:(ListenSource)source
+                     completion:(nonnull void (^)(NSString *_Nullable,
+                                                  FlutterError *_Nullable))completion {
+  FIRFirestore *firestore = [self getFIRFirestoreFromAppNameFromPigeon:app];
+  FIRQuery *query = [FirestorePigeonParser parseQueryWithParameters:parameters
+                                                          firestore:firestore
+                                                               path:path
+                                                  isCollectionGroup:isCollectionGroup];
+  if (query == nil) {
+    completion(nil, [FlutterError errorWithCode:@"error-parsing"
+                                        message:@"An error occurred while parsing query arguments, "
+                                                @"this is most likely an error with this SDK."
+                                        details:nil]);
+    return;
+  }
+
+  FIRServerTimestampBehavior serverTimestampBehavior =
+      [FirestorePigeonParser parseServerTimestampBehavior:options.serverTimestampBehavior];
+  FIRListenSource listenSource = [FirestorePigeonParser parseListenSource:source];
+
+  completion(
+      [self registerEventChannelWithPrefix:kFLTFirebaseFirestoreQuerySnapshotChangesEventChannelName
+                             streamHandler:[[FLTQuerySnapshotChangesStreamHandler alloc]
                                                      initWithFirestore:firestore
                                                                  query:query
                                                 includeMetadataChanges:includeMetadataChanges

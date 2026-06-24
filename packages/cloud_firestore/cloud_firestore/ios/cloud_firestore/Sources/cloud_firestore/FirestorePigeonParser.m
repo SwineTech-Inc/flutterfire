@@ -308,4 +308,17 @@
                metadata:[FirestorePigeonParser toPigeonSnapshotMetadata:querySnaphot.metadata]];
 }
 
+// SwineTech: a "true" query snapshot carrying only the changed documents
+// (document changes + metadata), not the full result set.
++ (InternalQuerySnapshotChanges *_Nonnull)
+    toPigeonQuerySnapshotChanges:(FIRQuerySnapshot *_Nonnull)querySnaphot
+         serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+  return [InternalQuerySnapshotChanges
+      makeWithDocumentChanges:[FirestorePigeonParser
+                                  toPigeonDocumentChanges:querySnaphot.documentChanges
+                                  serverTimestampBehavior:serverTimestampBehavior]
+                     metadata:[FirestorePigeonParser
+                                  toPigeonSnapshotMetadata:querySnaphot.metadata]];
+}
+
 @end
