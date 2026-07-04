@@ -29,5 +29,7 @@ class MethodChannelQuerySnapshotChanges extends QuerySnapshotChangesPlatform {
             SnapshotMetadataPlatform(
               data.metadata.hasPendingWrites,
               data.metadata.isFromCache,
-            ));
+            ),
+            // SwineTech: null (from platforms that don't set it) == not partial.
+            data.isPartial ?? false);
 }
