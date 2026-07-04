@@ -15,8 +15,9 @@ class QuerySnapshotChangesPlatform extends PlatformInterface {
   /// Create a [QuerySnapshotChangesPlatform]
   QuerySnapshotChangesPlatform(
     this.docChanges,
-    this.metadata,
-  ) : super(token: _token);
+    this.metadata, [
+    this.isPartial = false,
+  ]) : super(token: _token);
 
   static final Object _token = Object();
 
@@ -36,6 +37,12 @@ class QuerySnapshotChangesPlatform extends PlatformInterface {
 
   /// Metadata for the document
   final SnapshotMetadataPlatform metadata;
+
+  /// Whether this is a non-final batch of a chunked initial snapshot. When true,
+  /// more batches for the same logical snapshot will follow; the whole initial
+  /// result set has arrived once a snapshot with this set to false is received.
+  /// Ordinary (delta) snapshots are never partial.
+  final bool isPartial;
 
   /// The number of documents with changes in this [QuerySnapshotChangesPlatform].
   int get size => docChanges.length;
