@@ -8,8 +8,6 @@ package io.flutter.plugins.firebase.firestore.streamhandler;
 
 import static io.flutter.plugins.firebase.firestore.FlutterFirebaseFirestorePlugin.DEFAULT_ERROR_CODE;
 
-import android.os.Handler;
-import android.os.Looper;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenSource;
@@ -39,19 +37,15 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   ListenSource source;
 
   // SwineTech: a large initial snapshot arrives as the whole result set expressed as ADDED
-  // document changes. Delivering it as a single method-channel message materializes every
-  // document at once (pigeon objects + serialized buffer) and drives the cold-start memory peak.
-  // Split large change lists into batches of this size, emitting one message per batch, so peak
-  // memory stays bounded to a single batch. Ordinary (smaller) deltas are sent as one message.
+  // document changes. Delivering it as ONE method-channel message materializes the whole herd at
+  // once (a single multi-MB serialized buffer with every pigeon object live together). Split large
+  // change lists into batches of this size, one message per batch, so no single allocation spans
+  // the whole result set. Ordinary (smaller) deltas are sent as one message.
+  //
+  // Batches are emitted synchronously (no inter-batch pacing): memory during the initial load is
+  // already bounded by the fork's per-field cache + changes-only projected View + byte-backed
+  // ObjectValue, so pacing only added load latency and queued batch buffers for no memory win.
   private static final int INITIAL_DELIVERY_BATCH_SIZE = 500;
-
-  // SwineTech: batches of a large snapshot are delivered one per main-looper turn (with a short
-  // gap) rather than in a synchronous loop, so the concurrent GC can reclaim each batch's transient
-  // inflation (getData maps + pigeon objects) before the next is built. Without this the whole
-  // herd's inflation piles up as garbage in one burst and drives the cold-start peak.
-  private static final long BATCH_DELIVERY_INTERVAL_MS = 8;
-
-  private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
   public QuerySnapshotChangesStreamHandler(
       Query query,
@@ -96,40 +90,27 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
                 // so one logical snapshot split across several sequential events is equivalent.
                 List<DocumentChange> documentChanges = querySnapshotChanges.getDocumentChanges();
                 SnapshotMetadata metadata = querySnapshotChanges.getMetadata();
-                if (documentChanges.size() <= INITIAL_DELIVERY_BATCH_SIZE) {
+                int total = documentChanges.size();
+                if (total <= INITIAL_DELIVERY_BATCH_SIZE) {
                   events.success(
                       PigeonParser.toPigeonQuerySnapshotChanges(
                           metadata, documentChanges, serverTimestampBehavior, false));
                 } else {
-                  // Deliver the first batch now and pace the remaining batches across main-looper
-                  // turns (see deliverBatch) so the GC can reclaim each batch before the next.
-                  deliverBatch(events, metadata, documentChanges, 0);
+                  for (int start = 0; start < total; start += INITIAL_DELIVERY_BATCH_SIZE) {
+                    int end = Math.min(start + INITIAL_DELIVERY_BATCH_SIZE, total);
+                    // isPartial is true for every batch except the last, so the consumer knows when
+                    // the whole initial result set has been delivered.
+                    boolean isPartial = end < total;
+                    events.success(
+                        PigeonParser.toPigeonQuerySnapshotChanges(
+                            metadata,
+                            documentChanges.subList(start, end),
+                            serverTimestampBehavior,
+                            isPartial));
+                  }
                 }
               }
             });
-  }
-
-  // SwineTech: delivers one batch of a large snapshot, then schedules the next on the main looper
-  // (rather than looping synchronously) so the concurrent GC reclaims this batch's transient
-  // inflation before the next is built. isPartial is true for every batch except the last, so the
-  // consumer only treats the initial result set as complete once the final (non-partial) batch
-  // arrives.
-  private void deliverBatch(
-      EventSink events, SnapshotMetadata metadata, List<DocumentChange> changes, int start) {
-    // Stop if the stream was torn down (onCancel / onError) while batches were still pending.
-    if (listenerRegistration == null) {
-      return;
-    }
-    int total = changes.size();
-    int end = Math.min(start + INITIAL_DELIVERY_BATCH_SIZE, total);
-    boolean isPartial = end < total;
-    events.success(
-        PigeonParser.toPigeonQuerySnapshotChanges(
-            metadata, changes.subList(start, end), serverTimestampBehavior, isPartial));
-    if (isPartial) {
-      mainHandler.postDelayed(
-          () -> deliverBatch(events, metadata, changes, end), BATCH_DELIVERY_INTERVAL_MS);
-    }
   }
 
   @Override
