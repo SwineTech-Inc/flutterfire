@@ -591,7 +591,10 @@ class InternalQuerySnapshotChanges {
       return true;
     }
     return _deepEquals(documentChanges, other.documentChanges) &&
-        _deepEquals(metadata, other.metadata);
+        _deepEquals(metadata, other.metadata) &&
+        // SwineTech (hand-added): keep in sync with hashCode/_toList — isPartial
+        // participates in equality so equal objects always share a hashCode.
+        _deepEquals(isPartial, other.isPartial);
   }
 
   @override
