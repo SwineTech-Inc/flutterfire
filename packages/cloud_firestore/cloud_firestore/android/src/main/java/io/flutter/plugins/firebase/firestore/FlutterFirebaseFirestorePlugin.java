@@ -334,7 +334,7 @@ public class FlutterFirebaseFirestorePlugin
       FirebaseFirestore firestore = FirebaseFirestore.getInstance(app, pigeonApp.getDatabaseURL());
       firestore.setFirestoreSettings(getSettingsFromPigeon(pigeonApp));
 
-      firestore.setLoggingEnabled(true); // Can enable for debugging.
+      firestore.setLoggingEnabled(false); // Can enable for debugging.
 
       FlutterFirebaseFirestorePlugin.setCachedFirebaseFirestoreInstanceForKey(
           firestore, pigeonApp.getDatabaseURL());
