@@ -1204,12 +1204,15 @@ public class GeneratedAndroidFirebaseFirestore {
       }
       InternalQuerySnapshotChanges that = (InternalQuerySnapshotChanges) o;
       return pigeonDeepEquals(documentChanges, that.documentChanges)
-          && pigeonDeepEquals(metadata, that.metadata);
+          && pigeonDeepEquals(metadata, that.metadata)
+          // SwineTech (hand-added): keep in sync with hashCode/toList — isPartial
+          // participates in equality so equal objects always share a hashCode.
+          && pigeonDeepEquals(isPartial, that.isPartial);
     }
 
     @Override
     public int hashCode() {
-      Object[] fields = new Object[] {getClass(), documentChanges, metadata};
+      Object[] fields = new Object[] {getClass(), documentChanges, metadata, isPartial};
       return pigeonDeepHashCode(fields);
     }
 
