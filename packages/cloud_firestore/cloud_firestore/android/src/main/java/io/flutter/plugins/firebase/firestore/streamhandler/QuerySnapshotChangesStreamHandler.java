@@ -36,16 +36,22 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
 
   ListenSource source;
 
-  // SwineTech: a large initial snapshot arrives as the whole result set expressed as ADDED
-  // document changes. Delivering it as ONE method-channel message materializes the whole herd at
-  // once (a single multi-MB serialized buffer with every pigeon object live together). Split large
-  // change lists into batches of this size, one message per batch, so no single allocation spans
-  // the whole result set. Ordinary (smaller) deltas are sent as one message.
+  // SwineTech: any snapshot whose change set exceeds this size is split into batches of this many
+  // document changes, one method-channel message per batch. This is NOT only the initial load — a
+  // large delta (bulk write, or reconnect after extended offline edits) is split too. Delivering a
+  // huge change set as ONE message forces a single contiguous multi-MB allocation (an ArrayList of
+  // pigeon objects plus the serialized ByteBuffer) — the usual proximate OOM / fragmentation
+  // trigger. Splitting guarantees no single allocation spans the whole result set.
   //
-  // Batches are emitted synchronously (no inter-batch pacing): memory during the initial load is
-  // already bounded by the fork's per-field cache + changes-only projected View + byte-backed
-  // ObjectValue, so pacing only added load latency and queued batch buffers for no memory win.
-  private static final int INITIAL_DELIVERY_BATCH_SIZE = 500;
+  // It does NOT by itself bound peak memory: getDocumentChanges() below holds the full SDK-side
+  // change list live for the whole callback, and with synchronous emit the per-batch buffers can
+  // queue before Dart drains them. The primary memory lever is setChangesOnly(true) (below) plus
+  // the fork's changes-only projected View / per-field cache / byte-backed ObjectValue — see
+  // charlotte/SWINETECH_FIREBASE_FORK.md.
+  //
+  // Batches are emitted synchronously (no inter-batch pacing): pacing was measured to add load
+  // latency for no memory win, so it was dropped.
+  private static final int DELIVERY_BATCH_SIZE = 500;
 
   public QuerySnapshotChangesStreamHandler(
       Query query,
@@ -83,31 +89,45 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
                 // nested `InternalDocumentChange` / `InternalSnapshotMetadata` with their
                 // proper type codes. Pigeon 26 no longer flattens nested types via `.toList()`.
                 //
-                // SwineTech: a large snapshot (notably the initial one, which carries the whole
-                // result set as ADDED changes) is delivered in batches so peak memory during
-                // conversion + serialization stays bounded to one batch rather than the whole
-                // result set. The consumer merges document changes incrementally by document id,
-                // so one logical snapshot split across several sequential events is equivalent.
-                List<DocumentChange> documentChanges = querySnapshotChanges.getDocumentChanges();
-                SnapshotMetadata metadata = querySnapshotChanges.getMetadata();
-                int total = documentChanges.size();
-                if (total <= INITIAL_DELIVERY_BATCH_SIZE) {
-                  events.success(
-                      PigeonParser.toPigeonQuerySnapshotChanges(
-                          metadata, documentChanges, serverTimestampBehavior, false));
-                } else {
-                  for (int start = 0; start < total; start += INITIAL_DELIVERY_BATCH_SIZE) {
-                    int end = Math.min(start + INITIAL_DELIVERY_BATCH_SIZE, total);
-                    // isPartial is true for every batch except the last, so the consumer knows when
-                    // the whole initial result set has been delivered.
-                    boolean isPartial = end < total;
+                // SwineTech: a large change set is delivered as several sequential events (see
+                // DELIVERY_BATCH_SIZE). This plugin does NOT merge them — the application consumer
+                // must merge the batches (by document id) and treat isPartial == false as the
+                // signal that the whole change set has arrived (see pigflow #244).
+                //
+                // The batch loop is guarded: unlike the old single-message path, a failure part
+                // way through (conversion, codec serialization, ...) after one or more
+                // isPartial=true batches would otherwise strand the consumer waiting for the
+                // terminal isPartial=false batch that never comes. On failure, terminate the
+                // stream deterministically, mirroring the listener-error branch above.
+                // (OutOfMemoryError is an Error, not an Exception, and is intentionally not
+                // caught — recovery after OOM is unreliable.)
+                try {
+                  List<DocumentChange> documentChanges = querySnapshotChanges.getDocumentChanges();
+                  SnapshotMetadata metadata = querySnapshotChanges.getMetadata();
+                  int total = documentChanges.size();
+                  if (total <= DELIVERY_BATCH_SIZE) {
                     events.success(
                         PigeonParser.toPigeonQuerySnapshotChanges(
-                            metadata,
-                            documentChanges.subList(start, end),
-                            serverTimestampBehavior,
-                            isPartial));
+                            metadata, documentChanges, serverTimestampBehavior, false));
+                  } else {
+                    for (int start = 0; start < total; start += DELIVERY_BATCH_SIZE) {
+                      int end = Math.min(start + DELIVERY_BATCH_SIZE, total);
+                      // isPartial is true for every batch except the last, so the consumer knows
+                      // when the whole change set has been delivered.
+                      boolean isPartial = end < total;
+                      events.success(
+                          PigeonParser.toPigeonQuerySnapshotChanges(
+                              metadata,
+                              documentChanges.subList(start, end),
+                              serverTimestampBehavior,
+                              isPartial));
+                    }
                   }
+                } catch (Exception e) {
+                  Map<String, String> exceptionDetails = ExceptionConverter.createDetails(e);
+                  events.error(DEFAULT_ERROR_CODE, e.getMessage(), exceptionDetails);
+                  events.endOfStream();
+                  onCancel(null);
                 }
               }
             });
