@@ -38,12 +38,20 @@ class QuerySnapshotChangesPlatform extends PlatformInterface {
   /// Metadata for the document
   final SnapshotMetadataPlatform metadata;
 
-  /// Whether this is a non-final batch of a chunked initial snapshot. When true,
-  /// more batches for the same logical snapshot will follow; the whole initial
-  /// result set has arrived once a snapshot with this set to false is received.
-  /// Ordinary (delta) snapshots are never partial.
+  /// Whether this is a non-final batch of a snapshot whose change set was too
+  /// large to deliver in a single platform message and was split into batches.
+  ///
+  /// True for every batch except the last; the whole change set has arrived once
+  /// a snapshot with this set to `false` is received. The application consumer
+  /// must merge the batches (by document id) and treat `isPartial == false` as
+  /// the completion signal — this layer does not merge. Any snapshot exceeding
+  /// the delivery batch size is split, including large deltas — not just the
+  /// initial load.
   final bool isPartial;
 
   /// The number of documents with changes in this [QuerySnapshotChangesPlatform].
+  ///
+  /// When a large snapshot is split (see [isPartial]), this is the size of *this
+  /// batch*, not the total for the logical snapshot.
   int get size => docChanges.length;
 }

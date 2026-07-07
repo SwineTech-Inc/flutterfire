@@ -14,13 +14,23 @@ abstract class QuerySnapshotChanges<T extends Object?> {
   /// Returns the [SnapshotMetadata] for this snapshot.
   SnapshotMetadata get metadata;
 
-  /// Whether this is a non-final batch of a chunked initial snapshot. When true,
-  /// more batches for the same logical snapshot will follow. The whole initial
-  /// result set has arrived once a snapshot with this set to false is received.
-  /// Ordinary (delta) snapshots are never partial.
+  /// Whether this is a non-final batch of a snapshot whose change set was too
+  /// large to deliver in a single platform message and was split into batches.
+  ///
+  /// True for every batch except the last; the whole change set has arrived once
+  /// a snapshot with this set to `false` is received. The application consumer is
+  /// responsible for merging the batches (by document id) and treating
+  /// `isPartial == false` as the completion signal — this layer does not merge.
+  ///
+  /// Any snapshot exceeding the delivery batch size is split, including large
+  /// deltas (e.g. a bulk write, or reconnecting after extended offline edits) —
+  /// not just the initial load.
   bool get isPartial;
 
   /// Returns the size (number of documents) of this snapshot.
+  ///
+  /// When a large snapshot is split (see [isPartial]), this is the size of *this
+  /// batch* (≤ the delivery batch size), not the total for the logical snapshot.
   int get size;
 }
 
