@@ -1178,6 +1178,19 @@ public class GeneratedAndroidFirebaseFirestore {
       this.metadata = setterArg;
     }
 
+    // SwineTech (hand-added field; keep in sync if this file is ever regenerated): true for every
+    // batch of a chunked initial snapshot except the last, so the consumer can detect when the
+    // whole initial result set has been delivered. Nullable/absent means "not partial".
+    private @Nullable Boolean isPartial;
+
+    public @Nullable Boolean getIsPartial() {
+      return isPartial;
+    }
+
+    public void setIsPartial(@Nullable Boolean setterArg) {
+      this.isPartial = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     InternalQuerySnapshotChanges() {}
 
@@ -1191,12 +1204,15 @@ public class GeneratedAndroidFirebaseFirestore {
       }
       InternalQuerySnapshotChanges that = (InternalQuerySnapshotChanges) o;
       return pigeonDeepEquals(documentChanges, that.documentChanges)
-          && pigeonDeepEquals(metadata, that.metadata);
+          && pigeonDeepEquals(metadata, that.metadata)
+          // SwineTech (hand-added): keep in sync with hashCode/toList — isPartial
+          // participates in equality so equal objects always share a hashCode.
+          && pigeonDeepEquals(isPartial, that.isPartial);
     }
 
     @Override
     public int hashCode() {
-      Object[] fields = new Object[] {getClass(), documentChanges, metadata};
+      Object[] fields = new Object[] {getClass(), documentChanges, metadata, isPartial};
       return pigeonDeepHashCode(fields);
     }
 
@@ -1218,19 +1234,29 @@ public class GeneratedAndroidFirebaseFirestore {
         return this;
       }
 
+      private @Nullable Boolean isPartial;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setIsPartial(@Nullable Boolean setterArg) {
+        this.isPartial = setterArg;
+        return this;
+      }
+
       public @NonNull InternalQuerySnapshotChanges build() {
         InternalQuerySnapshotChanges pigeonReturn = new InternalQuerySnapshotChanges();
         pigeonReturn.setDocumentChanges(documentChanges);
         pigeonReturn.setMetadata(metadata);
+        pigeonReturn.setIsPartial(isPartial);
         return pigeonReturn;
       }
     }
 
     @NonNull
     public ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(2);
+      ArrayList<Object> toListResult = new ArrayList<>(3);
       toListResult.add(documentChanges);
       toListResult.add(metadata);
+      toListResult.add(isPartial);
       return toListResult;
     }
 
@@ -1241,6 +1267,10 @@ public class GeneratedAndroidFirebaseFirestore {
       pigeonResult.setDocumentChanges((List<InternalDocumentChange>) documentChanges);
       Object metadata = pigeonVar_list.get(1);
       pigeonResult.setMetadata((InternalSnapshotMetadata) metadata);
+      // SwineTech: length-tolerant — messages from platforms that don't set isPartial encode only
+      // the first two elements.
+      Object isPartial = pigeonVar_list.size() > 2 ? pigeonVar_list.get(2) : null;
+      pigeonResult.setIsPartial((Boolean) isPartial);
       return pigeonResult;
     }
   }

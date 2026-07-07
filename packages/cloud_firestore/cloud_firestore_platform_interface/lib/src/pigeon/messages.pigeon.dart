@@ -543,16 +543,24 @@ class InternalQuerySnapshotChanges {
   InternalQuerySnapshotChanges({
     required this.documentChanges,
     required this.metadata,
+    this.isPartial,
   });
 
   List<InternalDocumentChange?> documentChanges;
 
   InternalSnapshotMetadata metadata;
 
+  // SwineTech (hand-added field; keep in sync if this file is ever regenerated): true for every
+  // batch of a chunked initial snapshot except the last, letting the consumer detect when the
+  // whole initial result set has arrived. Null/absent (e.g. from platforms that don't set it)
+  // means "not partial".
+  bool? isPartial;
+
   List<Object?> _toList() {
     return <Object?>[
       documentChanges,
       metadata,
+      isPartial,
     ];
   }
 
@@ -566,6 +574,9 @@ class InternalQuerySnapshotChanges {
       documentChanges:
           (result[0]! as List<Object?>).cast<InternalDocumentChange?>(),
       metadata: result[1]! as InternalSnapshotMetadata,
+      // SwineTech: length-tolerant so 2-element messages (from platforms that don't set
+      // isPartial) decode as null instead of throwing a RangeError.
+      isPartial: result.length > 2 ? result[2] as bool? : null,
     );
   }
 
@@ -580,7 +591,10 @@ class InternalQuerySnapshotChanges {
       return true;
     }
     return _deepEquals(documentChanges, other.documentChanges) &&
-        _deepEquals(metadata, other.metadata);
+        _deepEquals(metadata, other.metadata) &&
+        // SwineTech (hand-added): keep in sync with hashCode/_toList — isPartial
+        // participates in equality so equal objects always share a hashCode.
+        _deepEquals(isPartial, other.isPartial);
   }
 
   @override

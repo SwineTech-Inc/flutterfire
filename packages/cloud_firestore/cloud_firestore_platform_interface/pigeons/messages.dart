@@ -122,10 +122,19 @@ class InternalQuerySnapshotChanges {
   const InternalQuerySnapshotChanges({
     required this.documentChanges,
     required this.metadata,
+    this.isPartial,
   });
 
   final List<InternalDocumentChange?> documentChanges;
   final InternalSnapshotMetadata metadata;
+
+  // SwineTech: true for every batch of a split large snapshot except the last, so the
+  // consumer can detect when the whole change set has been delivered; null/absent means
+  // "not partial". Declared here in the pigeon source of truth so a regen keeps the field
+  // in encode/decode instead of silently dropping it. NB: pigeon is hand-maintained in
+  // this fork — do not regenerate (see SWINETECH_BOM_PORT.md); this mirrors the field
+  // hand-added to the generated messages.pigeon.dart / GeneratedAndroidFirebaseFirestore.java.
+  final bool? isPartial;
 }
 
 class InternalPipelineResult {

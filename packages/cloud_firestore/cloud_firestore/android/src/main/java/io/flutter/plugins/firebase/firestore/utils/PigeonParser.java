@@ -75,12 +75,31 @@ public class PigeonParser {
       toPigeonQuerySnapshotChanges(
           com.google.firebase.firestore.QuerySnapshot querySnapshot,
           DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior) {
+    return toPigeonQuerySnapshotChanges(
+        querySnapshot.getMetadata(),
+        querySnapshot.getDocumentChanges(),
+        serverTimestampBehavior,
+        false);
+  }
+
+  // SwineTech: builds an InternalQuerySnapshotChanges from an explicit metadata + document-change
+  // list, so a large snapshot's changes can be delivered in batches (see
+  // QuerySnapshotChangesStreamHandler) instead of materializing the whole result set in one
+  // method-channel message. isPartial is true for every batch except the last of a chunked
+  // delivery, so the consumer can tell when the whole initial result set has arrived.
+  public static GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges
+      toPigeonQuerySnapshotChanges(
+          com.google.firebase.firestore.SnapshotMetadata metadata,
+          List<com.google.firebase.firestore.DocumentChange> documentChanges,
+          DocumentSnapshot.ServerTimestampBehavior serverTimestampBehavior,
+          boolean isPartial) {
     GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges.Builder
         pigeonQuerySnapshotChanges =
             new GeneratedAndroidFirebaseFirestore.InternalQuerySnapshotChanges.Builder();
-    pigeonQuerySnapshotChanges.setMetadata(toPigeonSnapshotMetadata(querySnapshot.getMetadata()));
+    pigeonQuerySnapshotChanges.setMetadata(toPigeonSnapshotMetadata(metadata));
     pigeonQuerySnapshotChanges.setDocumentChanges(
-        toPigeonDocumentChanges(querySnapshot.getDocumentChanges(), serverTimestampBehavior));
+        toPigeonDocumentChanges(documentChanges, serverTimestampBehavior));
+    pigeonQuerySnapshotChanges.setIsPartial(isPartial);
     return pigeonQuerySnapshotChanges.build();
   }
 
