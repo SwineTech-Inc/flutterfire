@@ -24,8 +24,10 @@ InternalSnapshotMetadata _metadata({
       isFromCache: isFromCache,
     );
 
-InternalQuerySnapshotChanges _changes(bool? isPartial,
-        {InternalSnapshotMetadata? metadata}) =>
+InternalQuerySnapshotChanges _changes(
+  bool? isPartial, {
+  InternalSnapshotMetadata? metadata,
+}) =>
     InternalQuerySnapshotChanges(
       documentChanges: const <InternalDocumentChange?>[],
       metadata: metadata ?? _metadata(),
@@ -135,7 +137,8 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
         const MethodChannel(
-            'plugins.flutter.io/firebase_firestore/queryChanges/obs-1/ack'),
+          'plugins.flutter.io/firebase_firestore/queryChanges/obs-1/ack',
+        ),
         null,
       );
     });
@@ -152,7 +155,8 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
         const MethodChannel(
-            'plugins.flutter.io/firebase_firestore/queryChanges/obs-1/ack'),
+          'plugins.flutter.io/firebase_firestore/queryChanges/obs-1/ack',
+        ),
         (call) async {
           calls.add(call.method);
           return null;
@@ -181,7 +185,8 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
         const MethodChannel(
-            'plugins.flutter.io/firebase_firestore/queryChanges/obs-2/ack'),
+          'plugins.flutter.io/firebase_firestore/queryChanges/obs-2/ack',
+        ),
         (call) async {
           calls++;
           return null;
@@ -190,8 +195,11 @@ void main() {
 
       await unsupported.acknowledgeHydrated();
 
-      expect(calls, isZero,
-          reason: 'obs-2 was latched as unsupported by the first attempt');
+      expect(
+        calls,
+        isZero,
+        reason: 'obs-2 was latched as unsupported by the first attempt',
+      );
     });
   });
 }
