@@ -90,6 +90,10 @@ android {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    // SwineTech (SP30-9652): BatchDeliveryGate posts through a real android.os.Handler, so its
+    // tests need a Looper. Robolectric provides one on the JVM; the alternative is an instrumented
+    // test needing a device, which would not gate an ordinary CI run.
+    testImplementation 'org.robolectric:robolectric:4.12.2'
 }
 
 apply from: file("./user-agent.gradle")

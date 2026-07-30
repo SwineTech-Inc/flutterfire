@@ -43,6 +43,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.StandardMethodCodec;
 import io.flutter.plugins.firebase.core.FlutterFirebasePlugin;
 import io.flutter.plugins.firebase.core.FlutterFirebasePluginRegistry;
@@ -87,6 +88,20 @@ public class FlutterFirebaseFirestorePlugin
   private final Map<String, Transaction> transactions = new HashMap<>();
   private final Map<String, EventChannel> eventChannels = new HashMap<>();
   private final Map<String, StreamHandler> streamHandlers = new HashMap<>();
+
+  // SwineTech (SP30-9652): per-observer acknowledgement channels for the changes-only streams.
+  //
+  // The batching in QuerySnapshotChangesStreamHandler bounds how many converted batches exist at
+  // once, but a permit used to be released when the payload was handed to Dart rather than when
+  // Dart had HYDRATED it — so the consumer's hydration queue accumulated with nothing capping it.
+  // Closing that needs a Dart -> native signal, and this is it.
+  //
+  // A plain MethodChannel per observer rather than a Pigeon method: the signal carries no batch
+  // identity (delivery and hydration are both strictly ordered, so counting is sufficient), which
+  // means no payload change and therefore no Pigeon regeneration across Android, iOS and web. iOS
+  // does not register these and does not need to — its handler neither batches nor throttles, so
+  // there is nothing there to bound. The Dart side tolerates the channel being absent.
+  private final Map<String, MethodChannel> ackChannels = new HashMap<>();
   private final Map<String, OnTransactionResultListener> transactionHandlers = new HashMap<>();
 
   // Used in the decoder to know which ServerTimestampBehavior to use
@@ -272,10 +287,38 @@ public class FlutterFirebaseFirestorePlugin
     eventChannels.put(identifier, channel);
     streamHandlers.put(identifier, handler);
 
+    // SwineTech (SP30-9652): only the changes-only handler throttles delivery, so only it needs an
+    // acknowledgement channel. Keyed off the same identifier so the Dart side can derive the name.
+    if (handler instanceof QuerySnapshotChangesStreamHandler) {
+      final QuerySnapshotChangesStreamHandler changesHandler =
+          (QuerySnapshotChangesStreamHandler) handler;
+      MethodChannel ackChannel =
+          new MethodChannel(binaryMessenger, channelName + "/ack", MESSAGE_CODEC);
+
+      ackChannel.setMethodCallHandler(
+          (call, result) -> {
+            if ("ack".equals(call.method)) {
+              changesHandler.acknowledgeHydration();
+              result.success(null);
+            } else {
+              result.notImplemented();
+            }
+          });
+
+      ackChannels.put(identifier, ackChannel);
+    }
+
     return identifier;
   }
 
   private void removeEventListeners() {
+    synchronized (ackChannels) {
+      for (String identifier : ackChannels.keySet()) {
+        Objects.requireNonNull(ackChannels.get(identifier)).setMethodCallHandler(null);
+      }
+      ackChannels.clear();
+    }
+
     synchronized (eventChannels) {
       for (String identifier : eventChannels.keySet()) {
         Objects.requireNonNull(eventChannels.get(identifier)).setStreamHandler(null);
