@@ -63,6 +63,17 @@ android {
         disable 'InvalidPackage'
     }
 
+    // SwineTech (SP30-9652): JVM unit tests for the streamhandler package. This fork is
+    // maintained rather than tracked, and QuerySnapshotChangesStreamHandler carries the
+    // only crash-class in the SP30-9652 work, so it needs a regression harness. No
+    // plugin in this monorepo had Android tests before this.
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
     dependencies {
         api firebaseCoreProject
 //        implementation platform("com.google.firebase:firebase-bom:${getRootProjectExtOrCoreProperty("FirebaseSDKVersion", firebaseCoreProject)}")
@@ -75,6 +86,10 @@ android {
         implementation 'com.google.firebase:firebase-common:22.0.1'
         implementation 'com.google.android.gms:play-services-tasks:18.4.0'
     }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
 }
 
 apply from: file("./user-agent.gradle")
