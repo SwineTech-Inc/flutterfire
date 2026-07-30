@@ -474,7 +474,12 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
    * <p>Dropping post-teardown submissions is correct rather than merely defensive — the sink is
    * already gone, so the converted batch would be discarded on arrival anyway.
    */
-  private static final class GuardedConversionExecutor implements Executor {
+  // Package-private, not private, so QuerySnapshotChangesStreamHandlerTest can reach it.
+  // This is the mechanism the SP30-9652 crash fix rests on, so it is the one piece that
+  // most needs a regression test — and it has no Firestore or Android dependencies, so a
+  // plain JVM test can cover it exactly.
+  @SuppressWarnings("WeakerAccess")
+  static final class GuardedConversionExecutor implements Executor {
     private final ExecutorService delegate;
     private final AtomicBoolean stopped = new AtomicBoolean(false);
 
