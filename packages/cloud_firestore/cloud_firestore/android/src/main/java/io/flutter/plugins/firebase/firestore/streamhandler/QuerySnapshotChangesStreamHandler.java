@@ -27,8 +27,10 @@ import io.flutter.plugins.firebase.firestore.utils.ExceptionConverter;
 import io.flutter.plugins.firebase.firestore.utils.PigeonParser;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,10 +66,22 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   // SwineTech (ANR fix): how many converted-but-not-yet-delivered batches may exist at once.
   //
   // Conversion now runs on a background thread while delivery runs on main, so conversion can
-  // outrun the main thread and pile up pigeon payloads — precisely the unbounded accumulation this
-  // fork exists to prevent. A permit is taken before a batch is converted and released after its
-  // events.success() has run, so peak extra memory is bounded to this many batches regardless of
-  // how far ahead conversion gets.
+  // outrun the main thread and pile up pigeon payloads. A permit is taken before a batch is
+  // converted and released after its events.success() has run, so the number of resident CONVERTED
+  // PAYLOADS is bounded to this many batches.
+  //
+  // SwineTech (SP30-9652): that is the whole of what it bounds — an earlier version of this comment
+  // claimed "peak extra memory is bounded to this many batches regardless of how far ahead
+  // conversion gets", which is not true. acquire() blocks the very thread the Firestore SDK submits
+  // to, and Executors.newSingleThreadExecutor is backed by an UNBOUNDED LinkedBlockingQueue, so
+  // while conversion is parked here AsyncEventListener keeps calling execute(...) for every
+  // subsequent snapshot and each queued Runnable pins its own QuerySnapshot. The accumulation is
+  // relocated from converted payloads to queued raw snapshots, not eliminated. Raw snapshots are
+  // much the cheaper of the two (setChangesOnly(true) leaves the query view holding projected
+  // documents), which is why this is documented rather than restructured — but do not read the
+  // permit count as an end-to-end memory bound. Note also that error delivery for this listener
+  // goes through the same single executor, so onEvent(null, error) queues behind a parked
+  // conversion.
   //
   // SwineTech (SP30-9652): lowered 3 -> 2 after the moto g fast peak-heap measurement above. 2
   // still lets one batch convert while another awaits delivery (keeping conversion and the main
@@ -112,7 +126,7 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   //
   // Serial (single-thread) is required, not incidental: Firestore delivers snapshots in order and
   // the consumer merges batches by document id, so conversion must not reorder them.
-  private ExecutorService conversionExecutor;
+  private GuardedConversionExecutor conversionExecutor;
   private Semaphore inFlightBatches;
 
   // Set once the stream is torn down (onCancel) or terminated by an error. Read from both the
@@ -120,6 +134,16 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   private final AtomicBoolean terminated = new AtomicBoolean(false);
 
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+  // SwineTech (SP30-9652): distinct Handler tokens, so dropping queued batch deliveries at teardown
+  // cannot also drop the terminal error notification. Both used to go through an untokened post()
+  // while teardown cleared the queue with removeCallbacksAndMessages(null) — which could discard a
+  // terminateWithError that had not run yet, leaving the consumer holding isPartial=true batches
+  // with no terminal batch, no onError and no onDone. That is precisely the stranding the
+  // "terminate the stream deterministically" guard exists to prevent, just displaced onto the Dart
+  // side's inter-batch watchdog 60 s later.
+  private static final Object BATCH_TOKEN = new Object();
+  private static final Object TERMINAL_TOKEN = new Object();
 
   public QuerySnapshotChangesStreamHandler(
       Query query,
@@ -148,8 +172,9 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     terminated.set(false);
     inFlightBatches = new Semaphore(MAX_IN_FLIGHT_BATCHES);
     conversionExecutor =
-        Executors.newSingleThreadExecutor(
-            runnable -> new Thread(runnable, "SwineQSChanges-" + handlerId));
+        new GuardedConversionExecutor(
+            Executors.newSingleThreadExecutor(
+                runnable -> new Thread(runnable, "SwineQSChanges-" + handlerId)));
 
     SnapshotListenOptions.Builder optionsBuilder = new SnapshotListenOptions.Builder();
     optionsBuilder.setMetadataChanges(metadataChanges);
@@ -302,7 +327,16 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       // Zero clock reads and zero property lookups on the default path: `debug` was resolved once
       // for the whole snapshot, and these timestamps exist solely to feed the line below.
       long postedAtMs = debug ? SystemClock.elapsedRealtime() : 0L;
-      mainHandler.post(
+      // SwineTech (SP30-9652): resolved to an int BEFORE the post, and the lambda below reads this
+      // instead of `changes`. `changes` is a subList VIEW over the snapshot's entire
+      // documentChanges list — AbstractList$SubList keeps a strong reference to its parent — and
+      // Java captures every free variable a lambda body mentions whether or not the branch
+      // mentioning it runs. So reading changes.size() inside the debug-gated block was enough to
+      // keep the whole ~16K-document change list reachable from each queued runnable, past the
+      // Firestore callback's return and on top of the decoded payload the runnable already holds.
+      // Four bytes instead.
+      final int docCount = changes.size();
+      mainHandler.postAtTime(
           () -> {
             try {
               if (!terminated.get()) {
@@ -325,17 +359,30 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
                           + "/"
                           + batchCount
                           + " docs="
-                          + changes.size()
+                          + docCount
                           + " waitMs="
                           + (emitStartMs - postedAtMs)
                           + " emitMs="
                           + (SystemClock.elapsedRealtime() - emitStartMs));
                 }
               }
+            } catch (Exception e) {
+              // SwineTech (SP30-9652): events.success() is the Pigeon codec encode plus the channel
+              // send, and it moved in here when delivery became asynchronous. Before that it ran
+              // inside the snapshot callback's try/catch, so an encode failure
+              // (StandardMessageCodec.writeValue on an unexpected Firestore value) or a messenger
+              // failure produced events.error + events.endOfStream deterministically. A Runnable has
+              // nowhere to throw: an exception escaping run() reaches Looper.loop() uncaught, which
+              // is process death — and if the process somehow survives, `terminated` stays false,
+              // the conversion thread keeps posting, and the consumer is left with isPartial=true
+              // batches and no terminal batch, no onError and no onDone. Restore the old contract.
+              terminateWithError(events, e.getMessage(), ExceptionConverter.createDetails(e));
             } finally {
               inFlightBatches.release();
             }
-          });
+          },
+          BATCH_TOKEN,
+          SystemClock.uptimeMillis());
       posted = true;
     } finally {
       if (!posted) {
@@ -358,12 +405,16 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
 
     // Drop batches converted but not yet delivered: the consumer is about to be told the stream
     // failed, and a partial batch arriving after endOfStream would violate the delivery contract.
-    mainHandler.removeCallbacksAndMessages(null);
-    mainHandler.post(
+    // Scoped to BATCH_TOKEN, never null — see the token fields for why clearing the whole queue
+    // could drop this very notification.
+    mainHandler.removeCallbacksAndMessages(BATCH_TOKEN);
+    mainHandler.postAtTime(
         () -> {
           events.error(DEFAULT_ERROR_CODE, message, details);
           events.endOfStream();
-        });
+        },
+        TERMINAL_TOKEN,
+        SystemClock.uptimeMillis());
 
     releaseResources();
   }
@@ -374,15 +425,19 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       Log.d(DEBUG_TAG, "onCancel h=" + handlerId);
     }
     terminated.set(true);
-    // Drop any batch already converted but still queued — the sink is going away.
-    mainHandler.removeCallbacksAndMessages(null);
+    // Drop any batch already converted but still queued — the sink is going away. Scoped to
+    // BATCH_TOKEN so a terminateWithError notification that has not run yet survives: the consumer
+    // still needs to be told the stream failed rather than left waiting on its watchdog.
+    mainHandler.removeCallbacksAndMessages(BATCH_TOKEN);
     releaseResources();
   }
 
   /**
-   * Detaches the Firestore listener and stops the conversion thread. {@code shutdownNow()} is
-   * deliberate: it interrupts a conversion thread parked in {@link Semaphore#acquire()} whose
-   * permits will never be returned now that queued deliveries have been dropped.
+   * Detaches the Firestore listener and stops the conversion thread.
+   *
+   * <p>The stop goes through {@link GuardedConversionExecutor}, which is what makes it safe to do
+   * while the Firestore SDK still holds a reference to the executor — see that class for why doing
+   * it directly was a process crash.
    */
   private void releaseResources() {
     if (listenerRegistration != null) {
@@ -390,10 +445,65 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       listenerRegistration = null;
     }
 
-    ExecutorService executor = conversionExecutor;
+    GuardedConversionExecutor executor = conversionExecutor;
     conversionExecutor = null;
     if (executor != null) {
-      executor.shutdownNow();
+      executor.stop();
+    }
+  }
+
+  /**
+   * The {@link Executor} actually handed to {@code setExecutor}, wrapping the real single-thread
+   * conversion pool.
+   *
+   * <p>SwineTech (SP30-9652): this indirection exists because shutting down an executor the
+   * Firestore SDK still holds is a hard crash. {@code ListenerRegistration.remove()} only
+   * <em>enqueues</em> {@code stopListening} on Firestore's AsyncQueue, so a snapshot already queued
+   * ahead of it is still raised afterwards — and {@code AsyncEventListener.onEvent} calls {@code
+   * executor.execute(...)} <em>unconditionally</em> (its {@code muted} check lives inside the
+   * submitted Runnable, not around the submission). Executing on a shut-down ThreadPoolExecutor
+   * throws {@link RejectedExecutionException}, which {@code AsyncQueue}'s shutdown-aware executor
+   * catches and converts into {@code AsyncQueue.panic()} — rethrown on the main looper as {@code
+   * RuntimeException("Internal error in Cloud Firestore")}, i.e. process death. The window opened on
+   * every barn change, recovery reload and logout. Verified against firebase-firestore 26.4.0.
+   *
+   * <p>It is specific to this fork: before {@code setExecutor} was called at all the default was
+   * {@code TaskExecutors.MAIN_THREAD}, which is never shut down, so the crash class arrived with the
+   * off-main-thread conversion and had to leave with a containment boundary of its own.
+   *
+   * <p>Dropping post-teardown submissions is correct rather than merely defensive — the sink is
+   * already gone, so the converted batch would be discarded on arrival anyway.
+   */
+  private static final class GuardedConversionExecutor implements Executor {
+    private final ExecutorService delegate;
+    private final AtomicBoolean stopped = new AtomicBoolean(false);
+
+    GuardedConversionExecutor(ExecutorService delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void execute(Runnable command) {
+      if (stopped.get()) {
+        return;
+      }
+
+      try {
+        delegate.execute(command);
+      } catch (RejectedExecutionException ignored) {
+        // Raced our own stop(): the same situation as the flag above, and on no account something
+        // to let propagate back into Firestore's AsyncQueue.
+      }
+    }
+
+    /**
+     * Stops accepting work, then interrupts the conversion thread. {@code shutdownNow()} is
+     * deliberate: it releases a thread parked in {@link Semaphore#acquire()} whose permits will
+     * never be returned now that the queued deliveries holding them have been dropped.
+     */
+    void stop() {
+      stopped.set(true);
+      delegate.shutdownNow();
     }
   }
 }
