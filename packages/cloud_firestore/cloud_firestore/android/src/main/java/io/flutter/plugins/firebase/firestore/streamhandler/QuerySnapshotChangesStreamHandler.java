@@ -32,7 +32,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // SwineTech: streams a "true" query snapshot that carries only the changed
 // documents (document changes + metadata), not the full result set. Mirrors
@@ -63,36 +65,36 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   // and doubles the number of main-looper turns the emit loop yields on.
   private static final int DELIVERY_BATCH_SIZE = 250;
 
-  // SwineTech (ANR fix): how many converted-but-not-yet-delivered batches may exist at once.
+  // SwineTech (ANR fix): how many batches may be in flight between conversion and the consumer.
   //
-  // Conversion now runs on a background thread while delivery runs on main, so conversion can
-  // outrun the main thread and pile up pigeon payloads. A permit is taken before a batch is
-  // converted and released after its events.success() has run, so the number of resident CONVERTED
-  // PAYLOADS is bounded to this many batches.
+  // A permit is taken before a batch is converted and returned only when the Dart side reports it
+  // HYDRATED — not when events.success() hands the payload over. That distinction is the whole
+  // point: releasing on hand-off bounded only the native resident payloads, while the payload then
+  // sat in the consumer's hydration queue with nothing capping it. An earlier version of this
+  // comment claimed a bound "regardless of how far ahead conversion gets", which was false in both
+  // directions — conversion could also relocate the accumulation into the executor's UNBOUNDED
+  // LinkedBlockingQueue by parking in acquire(). With the acknowledgement in place this is a real
+  // end-to-end bound: at most this many batches exist anywhere between the SDK and hydrated Dart
+  // state.
   //
-  // SwineTech (SP30-9652): that is the whole of what it bounds — an earlier version of this comment
-  // claimed "peak extra memory is bounded to this many batches regardless of how far ahead
-  // conversion gets", which is not true. acquire() blocks the very thread the Firestore SDK submits
-  // to, and Executors.newSingleThreadExecutor is backed by an UNBOUNDED LinkedBlockingQueue, so
-  // while conversion is parked here AsyncEventListener keeps calling execute(...) for every
-  // subsequent snapshot and each queued Runnable pins its own QuerySnapshot. The accumulation is
-  // relocated from converted payloads to queued raw snapshots, not eliminated. Raw snapshots are
-  // much the cheaper of the two (setChangesOnly(true) leaves the query view holding projected
-  // documents), which is why this is documented rather than restructured — but do not read the
-  // permit count as an end-to-end memory bound. Note also that error delivery for this listener
-  // goes through the same single executor, so onEvent(null, error) queues behind a parked
-  // conversion.
+  // SwineTech (SP30-9652): raised 2 -> 5 when the acknowledgement landed. Permits are now held for
+  // an entire Dart hydration rather than for one main-looper turn, so the old value of 2 would have
+  // serialised native conversion behind Dart hydration almost completely and cost load time on a
+  // ticket whose subject is a ~74 s barn load. Five keeps the two overlapped while still bounding
+  // residency — which, before the acknowledgement, was not bounded at all.
+  private static final int MAX_IN_FLIGHT_BATCHES = 5;
+
+  // SwineTech (SP30-9652): how long conversion waits for a slot before giving up and proceeding
+  // anyway.
   //
-  // SwineTech (SP30-9652): lowered 3 -> 2 after the moto g fast peak-heap measurement above. 2
-  // still lets one batch convert while another awaits delivery (keeping conversion and the main
-  // thread overlapped), but cuts native-side resident payloads from 3x500 to 2x250 documents. Drop
-  // to 1 if peak is still high — that serializes conversion behind delivery, costing load time.
-  //
-  // NOTE this bounds only the NATIVE side. Once events.success() runs the permit is released, but
-  // the payload then lives in the Dart consumer's hydration queue, which nothing here caps. Truly
-  // bounding end-to-end residency needs Dart to acknowledge hydration before the permit is
-  // returned — a native round-trip that does not exist yet.
-  private static final int MAX_IN_FLIGHT_BATCHES = 2;
+  // There must be a ceiling. The thread that blocks here is the executor handed to setExecutor,
+  // which is also the thread Firestore uses to deliver onEvent(null, error) — so parking it
+  // indefinitely stalls error delivery as well as data, and a Dart side that has stopped
+  // acknowledging (crashed hydration, a killed isolate, aggressive background throttling) would
+  // wedge the stream permanently. Timing out and continuing degrades to the pre-acknowledgement
+  // behaviour, which is merely unbounded rather than stuck. Generous on purpose: hitting this
+  // should mean "Dart has stopped acknowledging", never "Dart is busy".
+  private static final long SLOT_WAIT_TIMEOUT_MS = 30_000L;
 
   // SwineTech DEBUG: lifecycle + delivery timing for the changes-only streams, to diagnose
   // resume-after-long-background load latency and to verify the off-main-thread conversion is
@@ -127,7 +129,7 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
   // Serial (single-thread) is required, not incidental: Firestore delivers snapshots in order and
   // the consumer merges batches by document id, so conversion must not reorder them.
   private GuardedConversionExecutor conversionExecutor;
-  private Semaphore inFlightBatches;
+  private BatchDeliveryGate batchGate;
 
   // Set once the stream is torn down (onCancel) or terminated by an error. Read from both the
   // conversion thread and main, so posted deliveries can no-op against a dead sink.
@@ -135,15 +137,6 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
 
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-  // SwineTech (SP30-9652): distinct Handler tokens, so dropping queued batch deliveries at teardown
-  // cannot also drop the terminal error notification. Both used to go through an untokened post()
-  // while teardown cleared the queue with removeCallbacksAndMessages(null) — which could discard a
-  // terminateWithError that had not run yet, leaving the consumer holding isPartial=true batches
-  // with no terminal batch, no onError and no onDone. That is precisely the stranding the
-  // "terminate the stream deterministically" guard exists to prevent, just displaced onto the Dart
-  // side's inter-batch watchdog 60 s later.
-  private static final Object BATCH_TOKEN = new Object();
-  private static final Object TERMINAL_TOKEN = new Object();
 
   public QuerySnapshotChangesStreamHandler(
       Query query,
@@ -170,7 +163,7 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     }
 
     terminated.set(false);
-    inFlightBatches = new Semaphore(MAX_IN_FLIGHT_BATCHES);
+    batchGate = new BatchDeliveryGate(mainHandler, MAX_IN_FLIGHT_BATCHES, SLOT_WAIT_TIMEOUT_MS);
     conversionExecutor =
         new GuardedConversionExecutor(
             Executors.newSingleThreadExecutor(
@@ -314,9 +307,11 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       int batchCount,
       boolean debug)
       throws InterruptedException {
-    // Backpressure: block conversion while MAX_IN_FLIGHT_BATCHES payloads are already awaiting
-    // delivery, so getting ahead of the main thread cannot grow without bound.
-    inFlightBatches.acquire();
+    // Backpressure. The slot is held until the consumer acknowledges hydration, so this bounds
+    // the whole pipeline rather than just the native side. `holdsSlot` is false when the wait timed
+    // out, in which case this batch owns no permit and must not release one — releasing on its
+    // behalf would hand back a permit belonging to a different batch.
+    final boolean holdsSlot = batchGate.acquireSlot();
 
     boolean posted = false;
     try {
@@ -336,10 +331,20 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       // Firestore callback's return and on top of the decoded payload the runnable already holds.
       // Four bytes instead.
       final int docCount = changes.size();
-      mainHandler.postAtTime(
+      batchGate.postBatch(
           () -> {
+            // Already torn down: this batch will never reach Dart, so nothing will ever
+            // acknowledge it. Hand its slot back here or it stays held until shutdown.
+            if (terminated.get()) {
+              if (holdsSlot) {
+                batchGate.abandonSlot();
+              }
+
+              return;
+            }
+
             try {
-              if (!terminated.get()) {
+              {
                 long emitStartMs = debug ? SystemClock.elapsedRealtime() : 0L;
                 events.success(payload);
                 // SwineTech DEBUG: `emitMs` is the codec encode + channel send, the part that
@@ -376,20 +381,41 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
               // is process death — and if the process somehow survives, `terminated` stays false,
               // the conversion thread keeps posting, and the consumer is left with isPartial=true
               // batches and no terminal batch, no onError and no onDone. Restore the old contract.
+              if (holdsSlot) {
+                batchGate.abandonSlot();
+              }
+
               terminateWithError(events, e.getMessage(), ExceptionConverter.createDetails(e));
-            } finally {
-              inFlightBatches.release();
             }
-          },
-          BATCH_TOKEN,
-          SystemClock.uptimeMillis());
+
+            // NOTE deliberately no release on the success path. The slot stays held until the
+            // consumer calls back through acknowledgeHydration(), which is what makes
+            // MAX_IN_FLIGHT_BATCHES an end-to-end bound instead of a native-only one.
+          });
       posted = true;
     } finally {
-      if (!posted) {
-        // Conversion threw before anything was queued — releasing here keeps a failed batch from
-        // permanently consuming a permit and deadlocking later deliveries.
-        inFlightBatches.release();
+      if (!posted && holdsSlot) {
+        // Conversion threw before anything was queued, so no acknowledgement will ever arrive for
+        // this batch — hand the slot back or it is lost until shutdown.
+        batchGate.abandonSlot();
       }
+    }
+  }
+
+  /**
+   * Called by the consumer, on the main thread, once it has finished hydrating one delivered batch.
+   *
+   * <p>Returns a slot to {@link BatchDeliveryGate}. Without this the semaphore bounds only how many
+   * converted payloads exist natively; the payload then lives in the Dart hydration queue, which
+   * nothing caps. Counting rather than identifying batches is sufficient because delivery is
+   * strictly ordered and both consumers hydrate strictly in order — which also means no batch
+   * identity has to be threaded through the Pigeon payload.
+   */
+  public void acknowledgeHydration() {
+    BatchDeliveryGate gate = batchGate;
+
+    if (gate != null) {
+      gate.acknowledge();
     }
   }
 
@@ -407,14 +433,12 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     // failed, and a partial batch arriving after endOfStream would violate the delivery contract.
     // Scoped to BATCH_TOKEN, never null — see the token fields for why clearing the whole queue
     // could drop this very notification.
-    mainHandler.removeCallbacksAndMessages(BATCH_TOKEN);
-    mainHandler.postAtTime(
+    batchGate.dropPendingBatches();
+    batchGate.postTerminal(
         () -> {
           events.error(DEFAULT_ERROR_CODE, message, details);
           events.endOfStream();
-        },
-        TERMINAL_TOKEN,
-        SystemClock.uptimeMillis());
+        });
 
     releaseResources();
   }
@@ -428,7 +452,7 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     // Drop any batch already converted but still queued — the sink is going away. Scoped to
     // BATCH_TOKEN so a terminateWithError notification that has not run yet survives: the consumer
     // still needs to be told the stream failed rather than left waiting on its watchdog.
-    mainHandler.removeCallbacksAndMessages(BATCH_TOKEN);
+    batchGate.dropPendingBatches();
     releaseResources();
   }
 
@@ -449,6 +473,14 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
     conversionExecutor = null;
     if (executor != null) {
       executor.stop();
+    }
+
+    // Reclaim every slot still held by a batch the consumer will now never acknowledge, and make
+    // late acknowledgements inert. Without this a conversion thread parked in acquireSlot() would
+    // wait out the full timeout for nothing on every teardown.
+    BatchDeliveryGate gate = batchGate;
+    if (gate != null) {
+      gate.shutdown();
     }
   }
 
@@ -474,6 +506,135 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
    * <p>Dropping post-teardown submissions is correct rather than merely defensive — the sink is
    * already gone, so the converted batch would be discarded on arrival anyway.
    */
+  /**
+   * Bounds how many batches are in flight between conversion and hydrated Dart state, and owns the
+   * main-thread posting that goes with it.
+   *
+   * <p>Extracted from the handler for two reasons. It is the only part of the delivery path with no
+   * Firestore, EventChannel or Pigeon dependency, so it can be unit-tested directly — the handler
+   * cannot be constructed in a test without mocking Query, QuerySnapshot and PigeonParser. And the
+   * slot accounting is fiddly enough to deserve being reasoned about on its own: a slot is taken on
+   * the conversion thread, returned on the main thread, and may have to be reclaimed by a teardown
+   * racing both.
+   *
+   * <p>Distinct Handler tokens matter. Batch deliveries and the terminal error/endOfStream
+   * notification used to share an untokened {@code post()} while teardown cleared the queue with
+   * {@code removeCallbacksAndMessages(null)}, so a cancel arriving while main was congested could
+   * discard the very notification that guard exists to send, leaving the consumer with
+   * isPartial=true batches and no terminal batch, no onError and no onDone.
+   */
+  static final class BatchDeliveryGate {
+    private static final Object BATCH_TOKEN = new Object();
+    private static final Object TERMINAL_TOKEN = new Object();
+
+    private final Handler handler;
+    private final Semaphore slots;
+    private final long waitTimeoutMs;
+
+    /**
+     * Slots taken but not yet returned. Tracked separately from the semaphore's own count so
+     * teardown can reclaim exactly what is outstanding, and so a stray acknowledgement can never
+     * release more than were taken — which would let the bound drift upward for the rest of the
+     * stream's life.
+     */
+    private final AtomicInteger outstanding = new AtomicInteger();
+
+    private final AtomicBoolean stopped = new AtomicBoolean(false);
+
+    BatchDeliveryGate(Handler handler, int capacity, long waitTimeoutMs) {
+      this.handler = handler;
+      this.slots = new Semaphore(capacity);
+      this.waitTimeoutMs = waitTimeoutMs;
+    }
+
+    /**
+     * Conversion thread. Returns true when this batch owns a slot and is therefore responsible for
+     * returning it — via an acknowledgement from the consumer, {@link #abandonSlot()}, or {@link
+     * #shutdown()}.
+     *
+     * <p>Times out rather than blocking forever: see SLOT_WAIT_TIMEOUT_MS on the handler.
+     */
+    boolean acquireSlot() throws InterruptedException {
+      if (stopped.get()) {
+        return false;
+      }
+
+      if (slots.tryAcquire(waitTimeoutMs, TimeUnit.MILLISECONDS)) {
+        outstanding.incrementAndGet();
+
+        return true;
+      }
+
+      Log.w(
+          DEBUG_TAG,
+          "no delivery slot within "
+              + waitTimeoutMs
+              + "ms — the consumer has stopped acknowledging hydration. Proceeding unbounded for"
+              + " this batch rather than stalling the SDK callback thread, which also carries error"
+              + " delivery.");
+
+      return false;
+    }
+
+    /** Main thread, from the consumer. Returns one held slot. */
+    void acknowledge() {
+      returnSlot();
+    }
+
+    /** Returns a slot for a batch that will never be hydrated, so is never acknowledged. */
+    void abandonSlot() {
+      returnSlot();
+    }
+
+    private void returnSlot() {
+      if (stopped.get()) {
+        return;
+      }
+
+      // Only release against a slot actually outstanding. getAndUpdate keeps the check and the
+      // decrement atomic across the conversion thread and main.
+      if (outstanding.getAndUpdate(n -> n > 0 ? n - 1 : 0) > 0) {
+        slots.release();
+      }
+    }
+
+    void postBatch(Runnable delivery) {
+      handler.postAtTime(delivery, BATCH_TOKEN, SystemClock.uptimeMillis());
+    }
+
+    void postTerminal(Runnable notification) {
+      handler.postAtTime(notification, TERMINAL_TOKEN, SystemClock.uptimeMillis());
+    }
+
+    /** Drops queued batch deliveries WITHOUT touching a pending terminal notification. */
+    void dropPendingBatches() {
+      handler.removeCallbacksAndMessages(BATCH_TOKEN);
+    }
+
+    void shutdown() {
+      if (!stopped.compareAndSet(false, true)) {
+        return;
+      }
+
+      handler.removeCallbacksAndMessages(BATCH_TOKEN);
+
+      int held = outstanding.getAndSet(0);
+      if (held > 0) {
+        slots.release(held);
+      }
+    }
+
+    // Visible for testing.
+    int outstandingSlots() {
+      return outstanding.get();
+    }
+
+    // Visible for testing.
+    int availableSlots() {
+      return slots.availablePermits();
+    }
+  }
+
   // Package-private, not private, so QuerySnapshotChangesStreamHandlerTest can reach it.
   // This is the mechanism the SP30-9652 crash fix rests on, so it is the one piece that
   // most needs a regression test — and it has no Firestore or Android dependencies, so a
