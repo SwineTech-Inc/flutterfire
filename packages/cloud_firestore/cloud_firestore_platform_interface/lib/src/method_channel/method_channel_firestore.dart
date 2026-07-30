@@ -50,6 +50,24 @@ class MethodChannelFirebaseFirestore extends FirebaseFirestorePlatform {
     );
   }
 
+  /// The [MethodChannel] a consumer uses to tell the native side it has finished
+  /// hydrating one delivered batch of query snapshot changes.
+  ///
+  /// SwineTech (SP30-9652): the Android handler throttles delivery with a semaphore, but
+  /// a permit used to be returned when the payload was handed to Dart rather than when
+  /// Dart had hydrated it — so the consumer's hydration queue accumulated with nothing
+  /// capping it. This is the signal that closes that.
+  ///
+  /// Carries no batch identity: delivery and hydration are both strictly ordered, so
+  /// counting is sufficient, which keeps this out of the Pigeon payload entirely. Only
+  /// Android registers a handler for it; see [QuerySnapshotChangesPlatform.acknowledgeHydrated].
+  static MethodChannel querySnapshotChangesAckChannel(String id) {
+    return MethodChannel(
+      'plugins.flutter.io/firebase_firestore/queryChanges/$id/ack',
+      const StandardMethodCodec(PigeonCodec()),
+    );
+  }
+
   /// The [EventChannel] used for document snapshots
   static EventChannel documentSnapshotChannel(String id) {
     return EventChannel(

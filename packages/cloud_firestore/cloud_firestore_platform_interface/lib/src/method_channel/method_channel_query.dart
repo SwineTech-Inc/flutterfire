@@ -245,8 +245,9 @@ class MethodChannelQuery extends QueryPlatform {
             // directly through the Pigeon-aware codec, so we receive a fully
             // decoded `InternalQuerySnapshotChanges` here (no manual decode).
             final result = snapshot as InternalQuerySnapshotChanges;
-            controller
-                .add(MethodChannelQuerySnapshotChanges(firestore, result));
+            controller.add(
+              MethodChannelQuerySnapshotChanges(firestore, result, observerId),
+            );
           },
           onError: controller.addError,
         );

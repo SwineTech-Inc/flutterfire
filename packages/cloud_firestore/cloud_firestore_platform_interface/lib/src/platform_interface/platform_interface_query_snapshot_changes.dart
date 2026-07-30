@@ -54,4 +54,22 @@ class QuerySnapshotChangesPlatform extends PlatformInterface {
   /// When a large snapshot is split (see [isPartial]), this is the size of *this
   /// batch*, not the total for the logical snapshot.
   int get size => docChanges.length;
+
+  /// Tells the platform that this batch has been fully hydrated into application
+  /// state, so it may release the delivery slot the batch was occupying.
+  ///
+  /// SwineTech (SP30-9652): the Android handler bounds how many batches are in flight
+  /// with a semaphore, but a permit was returned when the payload was handed to Dart
+  /// rather than when Dart had hydrated it — so the consumer's hydration queue grew with
+  /// nothing capping it. Calling this is what turns that semaphore into an end-to-end
+  /// bound.
+  ///
+  /// **Consumers must call this once per delivered batch, from a `finally`.** Skipping it
+  /// — including on a hydration failure — starves the native side of slots and stalls the
+  /// stream until its acquire timeout expires on every subsequent batch.
+  ///
+  /// Deliberately a no-op default rather than abstract: only the Android handler
+  /// throttles delivery, and making this abstract would break every other
+  /// implementation of this interface, `cloud_firestore_web` included.
+  Future<void> acknowledgeHydrated() async {}
 }

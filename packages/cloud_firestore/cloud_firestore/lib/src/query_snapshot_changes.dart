@@ -32,6 +32,20 @@ abstract class QuerySnapshotChanges<T extends Object?> {
   /// When a large snapshot is split (see [isPartial]), this is the size of *this
   /// batch* (≤ the delivery batch size), not the total for the logical snapshot.
   int get size;
+
+  /// Tells the platform this batch is fully hydrated into application state, so the
+  /// delivery slot it occupies can be released.
+  ///
+  /// SwineTech (SP30-9652): on Android, delivery is throttled by a semaphore whose permit
+  /// is now held until this is called — that is what bounds how many batches exist between
+  /// the Firestore SDK and hydrated Dart state. Before it, the permit was returned when the
+  /// payload was handed over and the consumer's hydration queue grew unchecked.
+  ///
+  /// **Call this exactly once per delivered batch, from a `finally`.** Skipping it, on a
+  /// hydration failure or otherwise, starves the native side of slots: every later batch
+  /// then waits out the acquire timeout before proceeding. A no-op on platforms that do not
+  /// throttle delivery (iOS, web).
+  Future<void> acknowledgeHydrated();
 }
 
 /// Contains the results of a query.
@@ -60,6 +74,9 @@ class _JsonQuerySnapshotChanges
 
   @override
   int get size => _delegate.size;
+
+  @override
+  Future<void> acknowledgeHydrated() => _delegate.acknowledgeHydrated();
 }
 
 /// Contains the results of a query.
@@ -97,4 +114,8 @@ class _WithConverterQuerySnapshotChanges<T extends Object?>
 
   @override
   int get size => _originalQuerySnapshotChanges.size;
+
+  @override
+  Future<void> acknowledgeHydrated() =>
+      _originalQuerySnapshotChanges.acknowledgeHydrated();
 }
