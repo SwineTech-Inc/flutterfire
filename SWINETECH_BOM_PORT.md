@@ -117,28 +117,29 @@ Consequence: the codec `writeQuerySnapshotWrapper` dispatch and the iOS writer w
 are unused in this approach — **delete them** (done in 4.16.1, so the new-file set is effectively 6, not 10).
 `android/build.gradle`: **re‑add** the commented `//mavenLocal()` repos + custom Firestore impl lines — the
 swap‑in point for a locally‑built custom Firestore AAR (the separate "custom firebase‑android‑sdk" task). Pin to
-the BOM's resolved Firestore version + `-a`: for 4.16.1, firebase‑bom `34.15.0` → Firestore `26.4.0` → build the
-fork AAR as `26.4.0-a` (its transitive deps `firebase-common 22.0.1` + `play-services-tasks 18.4.0`). Derive the
+the BOM's resolved Firestore version + `-a`: for 4.20.0, firebase‑bom `34.19.0` → Firestore `26.6.0` → build the
+fork AAR as `26.6.0-a` (its transitive deps, carried over from the prior 4.16.1 baseline and to be
+re‑verified against the `26.6.0-a` POM: `firebase-common 22.0.1` + `play-services-tasks 18.4.0`). Derive the
 versions from `firebase_core/android/gradle.properties` (`FirebaseSDKVersion`) → the firebase‑bom POM →
 the firestore POM, all under `dl.google.com/dl/android/maven2`.
 
 > **⚠️ The `-a` AAR will NOT be used unless you `force` it — pinning the version is not enough.** The
 > firebase‑bom (applied transitively by `firebase_core` + every other `firebase_*` plugin the app uses)
-> pins `firebase-firestore:26.4.0`, and Gradle ranks a bare `26.4.0` **above** `26.4.0-a` (any plain `-a`
+> pins `firebase-firestore:26.6.0`, and Gradle ranks a bare `26.6.0` **above** `26.6.0-a` (any plain `-a`
 > qualifier sorts *below* the release). So the BoM silently wins, the **stock** SDK loads, and the custom
-> AAR is never even fetched (symptom: logcat prints `(26.4.0)`, not `(26.4.0-a)`). Fix: in the **consuming
+> AAR is never even fetched (symptom: logcat prints `(26.6.0)`, not `(26.6.0-a)`). Fix: in the **consuming
 > app's** `android/build.gradle` (e.g. `charlotte/android/build.gradle`) add a hard override inside `allprojects`:
 > ```groovy
 > configurations.all { resolutionStrategy {
->     force 'com.google.firebase:firebase-firestore:26.4.0-a'
+>     force 'com.google.firebase:firebase-firestore:26.6.0-a'
 > } }
 > ```
-> Use `force`, **not** `strictly` (`26.4.0-a` is below the BoM floor of `26.4.0`, so `strictly` fails the
-> build as unsatisfiable) and **not** a version bump like `26.4.1-a` (it wins only until the next BoM pins
-> `26.4.1`, then silently reverts to stock). `force` is BoM‑bump‑proof but sticky — when re‑forking against
+> Use `force`, **not** `strictly` (`26.6.0-a` is below the BoM floor of `26.6.0`, so `strictly` fails the
+> build as unsatisfiable) and **not** a version bump like `26.6.1-a` (it wins only until the next BoM pins
+> `26.6.1`, then silently reverts to stock). `force` is BoM‑bump‑proof but sticky — when re‑forking against
 > a newer BoM, bump the published version **and** this pin together. Verify (no device needed) with
 > `./gradlew :app:dependencies --configuration <flavor>RuntimeClasspath` from the app's `android/` →
-> expect `firebase-firestore:26.4.0 -> 26.4.0-a`.
+> expect `firebase-firestore:26.6.0 -> 26.6.0-a`.
 >
 > **Build the AAR with the cache OFF:** the SDK repo sets `org.gradle.caching=true`, so rebuild via
 > `./gradlew :firebase-firestore:clean :firebase-firestore:publishMavenAarPublicationToMavenLocal --no-build-cache --rerun-tasks`.
