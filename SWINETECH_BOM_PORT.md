@@ -15,7 +15,8 @@ git‑ref era.
 
 ## 1. What we customize (the deliverables)
 
-All customization lives in **`cloud_firestore`** + **`_flutterfire_internals`**:
+All package customization lives in **`cloud_firestore`** + **`_flutterfire_internals`** (plus one
+non‑package change, below):
 
 1. **QuerySnapshotChanges feature** — a "true" query snapshot that streams only the *changed* documents
    (`DocumentChange`s + metadata) instead of the whole result set. New public `Query.snapshotChanges()`.
@@ -23,6 +24,15 @@ All customization lives in **`cloud_firestore`** + **`_flutterfire_internals`**:
    plus `removeFromBatch()` and `getBatchData()` API additions.
 3. **exception.dart** — for `not-found` errors whose message contains `NOT_FOUND:`, surface the
    Firestore‑provided reason/document path instead of the generic message.
+
+**Non‑package change — CI Cloud Functions lockfile (ENG‑78):** `.github/workflows/scripts/functions/package-lock.json`
+pins `websocket-driver` ≥ 0.7.5 (CVE‑2026‑54466 / CVE‑2026‑54490); upstream still resolves 0.7.4. It lives
+outside `packages/`, so Step 1's added‑file listing won't surface it. Don't hand‑merge the lockfile — take the
+new baseline's copy and regenerate:
+```bash
+cd .github/workflows/scripts/functions && npm update websocket-driver --package-lock-only
+```
+Drop this once upstream resolves ≥ 0.7.5 on its own.
 
 **Why all the BOM packages get touched (not just cloud_firestore):** `_flutterfire_internals` carries the
 exception.dart change, and every firebase package depends on it. For a consumer to get *one* forked copy
