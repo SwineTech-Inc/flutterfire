@@ -44,15 +44,19 @@ intra‑family deps from the fork, not pub.dev.
 | Role | Name | Notes |
 |------|------|-------|
 | Pristine upstream baseline | `SwineTech/bom_X.Y.Z-baseline` | exact upstream release commit, untouched |
-| Working branch (the build) | `SwineTech/bom_X.Y.Z` | baseline + our customizations |
+| Fork branch (the default branch) | `SwineTech/bom_X.Y.Z-a` | baseline + our customizations; changes land only by pull request |
+| Work branch | any name, from `-a` | carries the port until its pull request into `-a` merges |
 | Reference (previous port) | `origin/SwineTech/bom_<prev>-a` (or `bom_<prev>`) | the last *committed* customization to copy from |
 
 - The **reference** is the diff `SwineTech/bom_<prev>-baseline` → `SwineTech/bom_<prev>(-a)`. That diff *is*
   the customization set to replicate.
-- **`-a` / `-b` suffixes are post‑initial revision markers**, not part of the first cut. Ship `bom_X.Y.Z`
-  first; if you must amend after it's consumed, cut `bom_X.Y.Z-a` so pub re‑fetches a fresh ref. With the
-  relative‑path pubspecs (below) a revision is cheap: push the fix to a new branch and flip **charlotte's one
-  `ref:`** — no fork‑pubspec churn.
+- **`-a` is the first cut, not a revision marker.** Before any fork commit exists, push `-baseline` and `-a`
+  at the upstream commit and have an organization owner make `-a` the default branch: the organization
+  ruleset protects only the default branch. Rebase-merge the work branch's pull request into `-a`, never
+  squash. Revisions are annotated tags `SwineTech/bom_X.Y.Z-a.N` on the merged `-a` commit, and consumers
+  pin the tag. With the relative‑path pubspecs (below) a revision is cheap: merge the fix, cut the next tag,
+  move charlotte's refs — no fork‑pubspec churn. The full procedure is pigflow's
+  [`charlotte/SWINETECH_FIREBASE_FORK.md` §10](https://github.com/SwineTech-Inc/pigflow/blob/master/charlotte/SWINETECH_FIREBASE_FORK.md#10-runbook-re-forking-onto-a-new-baseline).
 - An *aborted/unfinished* port branch is NOT a usable reference — use the last fully committed one.
 
 ## 3. Prerequisites
@@ -70,8 +74,9 @@ Toolchain seen for 4.16.1: flutter 3.41.0, dart 3.11.0, pigeon 26.3.4 (google-ja
 
 ### Step 0 — Create the branches
 Find the upstream release commit (its `chore(release): publish packages` commit; note the BoM version).
-Check it out and create `SwineTech/bom_X.Y.Z` + `SwineTech/bom_X.Y.Z-baseline` (identical at first).
-Bootstrap so analysis/codegen work:
+Push `SwineTech/bom_X.Y.Z-baseline` and `SwineTech/bom_X.Y.Z-a` at it (identical at first), have an
+organization owner make `-a` the default branch (§2), then create a work branch from `-a` for every step
+below. Bootstrap so analysis/codegen work:
 ```bash
 melos bootstrap   # resolves the pub workspace (flutter pub get at the root)
 ```
@@ -277,8 +282,10 @@ cd packages/cloud_firestore/cloud_firestore && flutter pub get   # standalone, v
 The true end‑to‑end check is charlotte `flutter pub get` against the pushed branch (requires a push).
 
 ### Step 9 — charlotte (separate repo, follow‑up)
-Point charlotte's `ref:` for each firebase dep at `SwineTech/bom_X.Y.Z`. Requires this branch pushed first.
-charlotte keeps a commented local `path:` line per dep for dev (uncomment to develop against a local checkout).
+Point charlotte's refs at the `SwineTech/bom_X.Y.Z-a.N` tag, which must be pushed first; pigflow's
+`charlotte/SWINETECH_FIREBASE_FORK.md` §10 Step 3 lists every place. To develop against a local checkout,
+see that document's
+[Developing against a local FlutterFire checkout](https://github.com/SwineTech-Inc/pigflow/blob/master/charlotte/SWINETECH_FIREBASE_FORK.md#developing-against-a-local-flutterfire-checkout).
 
 ---
 
@@ -390,7 +397,7 @@ Java + iOS stream handlers, the iOS plugin ×3, `FirestorePigeonParser`, and Dar
 omission shows up as the only intended residual).
 
 ## 7. Per‑port checklist
-- [ ] Branches created from the upstream release commit; `melos bootstrap` OK.
+- [ ] `-baseline` and `-a` pushed at the upstream release commit, `-a` made the default branch, work branch from `-a`; `melos bootstrap` OK.
 - [ ] New feature files copied; modified files re‑applied; `Pigeon*`→`Internal*` rename done.
 - [ ] Native mirrors the upstream direct‑emit path (Step 2b).
 - [ ] Every `*Changes` artifact verified consistent with its CURRENT non‑`*Changes` source — Java, ObjC **and** Dart (Step 2c).
@@ -399,4 +406,4 @@ omission shows up as the only intended residual).
 - [ ] Spurious repo‑wide formatting reverted.
 - [ ] Pubspecs converted to relative paths; `resolution: workspace` stripped (packages + examples); family removed from root workspace.
 - [ ] Standalone `flutter pub get` dedupes `_flutterfire_internals` to one copy.
-- [ ] (Follow‑ups) native `flutter build` check; push branch; charlotte `ref:` update; `hide Type` if Pipelines collisions surface.
+- [ ] (Follow‑ups) native `flutter build` check; pull request into `-a` (rebase-merge); `-a.N` tag; charlotte ref update; `hide Type` if Pipelines collisions surface.
