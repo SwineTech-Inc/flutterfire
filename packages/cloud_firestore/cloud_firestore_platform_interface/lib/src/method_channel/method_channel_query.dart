@@ -227,49 +227,62 @@ class MethodChannelQuery extends QueryPlatform {
     late StreamController<QuerySnapshotChangesPlatform>
         controller; // ignore: close_sinks
 
-    StreamSubscription<dynamic>? snapshotChangesStreamSubscription;
+    StreamSubscription<QuerySnapshotChangesPlatform>? subscription;
 
     controller = StreamController<QuerySnapshotChangesPlatform>.broadcast(
-      onListen: () async {
-        final observerId = await MethodChannelFirebaseFirestore.pigeonChannel
-            .querySnapshotChanges(
-          pigeonApp,
-          _pointer.path,
-          isCollectionGroupQuery,
-          _pigeonParameters,
-          InternalGetOptions(
-            source: Source.serverAndCache,
-            serverTimestampBehavior: serverTimestampBehavior,
-          ),
-          includeMetadataChanges,
-          listenSource,
-        );
-
-        snapshotChangesStreamSubscription =
-            MethodChannelFirebaseFirestore.querySnapshotChangesChannel(
-                    observerId)
-                .receiveGuardedBroadcastStream(
-          onError: convertPlatformException,
-        )
-                .listen(
-          (snapshot) {
-            // With Pigeon 26, the native side emits the generated Pigeon class
-            // directly through the Pigeon-aware codec, so we receive a fully
-            // decoded `InternalQuerySnapshotChanges` here (no manual decode).
-            final result = snapshot as InternalQuerySnapshotChanges;
-            controller.add(
-              MethodChannelQuerySnapshotChanges(firestore, result, observerId),
-            );
-          },
+      onListen: () {
+        subscription = _snapshotChanges(
+          includeMetadataChanges: includeMetadataChanges,
+          serverTimestampBehavior: serverTimestampBehavior,
+          listenSource: listenSource,
+        ).listen(
+          controller.add,
           onError: controller.addError,
         );
       },
       onCancel: () {
-        snapshotChangesStreamSubscription?.cancel();
+        subscription?.cancel();
+        subscription = null;
       },
     );
 
     return controller.stream;
+  }
+
+  // Same shape as [_snapshots]: a listener cancelled while the native listener
+  // registers never subscribes, so the native side is not left attached.
+  Stream<QuerySnapshotChangesPlatform> _snapshotChanges({
+    required bool includeMetadataChanges,
+    required ServerTimestampBehavior serverTimestampBehavior,
+    required ListenSource listenSource,
+  }) async* {
+    final observerId =
+        await MethodChannelFirebaseFirestore.pigeonChannel.querySnapshotChanges(
+      pigeonApp,
+      _pointer.path,
+      isCollectionGroupQuery,
+      _pigeonParameters,
+      InternalGetOptions(
+        source: Source.serverAndCache,
+        serverTimestampBehavior: serverTimestampBehavior,
+      ),
+      includeMetadataChanges,
+      listenSource,
+    );
+
+    yield* MethodChannelFirebaseFirestore.querySnapshotChangesChannel(
+      observerId,
+    )
+        .receiveGuardedBroadcastStream(
+      onError: convertPlatformException,
+    )
+        .map((snapshot) {
+      // With Pigeon 26, the native side emits the generated Pigeon class
+      // directly through the Pigeon-aware codec, so we receive a fully
+      // decoded `InternalQuerySnapshotChanges` here (no manual decode).
+      final result = snapshot as InternalQuerySnapshotChanges;
+      return MethodChannelQuerySnapshotChanges(firestore, result, observerId);
+    });
   }
 
   @override

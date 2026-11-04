@@ -77,6 +77,18 @@ class _MockFirebaseFirestoreHostApi extends Mock
       _nextSnapshotObserverId();
 
   @override
+  Future<String> querySnapshotChanges(
+    FirestorePigeonFirebaseApp app,
+    String path,
+    bool isCollectionGroup,
+    InternalQueryParameters parameters,
+    InternalGetOptions options,
+    bool includeMetadataChanges,
+    ListenSource source,
+  ) =>
+      _nextSnapshotObserverId();
+
+  @override
   Future<String> transactionCreate(
     FirestorePigeonFirebaseApp app,
     int timeout,
@@ -198,6 +210,7 @@ void main() {
     const channels = <String>[
       'plugins.flutter.io/firebase_firestore/document/$observerId',
       'plugins.flutter.io/firebase_firestore/query/$observerId',
+      'plugins.flutter.io/firebase_firestore/queryChanges/$observerId',
     ];
     late List<String> eventChannelCalls;
 
@@ -248,6 +261,28 @@ void main() {
               listenSource: ListenSource.defaultSource,
             ),
       );
+    });
+
+    test('Query.snapshotChanges() does not attach a native listener', () async {
+      await expectNoNativeListen(
+        firestore.collection('foo').snapshotChanges(
+              listenSource: ListenSource.defaultSource,
+            ),
+      );
+    });
+
+    test('a snapshotChanges() listener that is not cancelled still attaches',
+        () async {
+      final subscription = firestore
+          .collection('foo')
+          .snapshotChanges(listenSource: ListenSource.defaultSource)
+          .listen((_) {});
+      hostApi.snapshotObserverId.complete(observerId);
+      await pumpEventQueue();
+      expect(eventChannelCalls, <String>['listen']);
+      await subscription.cancel();
+      await pumpEventQueue();
+      expect(eventChannelCalls, <String>['listen', 'cancel']);
     });
 
     test('a listener that is not cancelled still attaches', () async {
