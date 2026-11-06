@@ -8,8 +8,9 @@ git‑ref era.
 
 > TL;DR for the next port: branch off the new upstream release → diff the *previous* SwineTech working
 > branch against *its* baseline to see our changes → re‑apply them onto the new baseline (adapting for
-> drift) → regenerate Pigeon → `dart analyze` → revert repo‑wide format noise → convert pubspecs to
-> **relative paths** → verify a standalone `flutter pub get` dedupes `_flutterfire_internals`.
+> drift), generated Pigeon files included (**never regenerate them**) → `dart analyze` → revert repo‑wide
+> format noise → convert pubspecs to **relative paths** → verify a standalone `flutter pub get` dedupes
+> `_flutterfire_internals`.
 
 ---
 
@@ -236,18 +237,17 @@ reparenting (Java/iOS/Dart/Windows) + the Windows enum‑collision fix. The old 
 path/format adaptations already absorbed upstream (and the `newIndex → index` patch was an *upstream*
 transform that upstream later dropped — do **not** re‑add it). The feature needs **no new script logic**.
 
-### Step 4 — Regenerate Pigeon, then verify (iterative)
+### Step 4 — Do NOT regenerate Pigeon; carry the generated files over by hand
+Pigeon is hand‑maintained in this fork (`pigeons/messages.dart` says so). Regenerating replaces hand edits
+in the generated files, such as the length‑tolerant `isPartial` decode in `messages.pigeon.dart` that lets
+iOS's 2‑field payload decode instead of throwing a `RangeError`. Re‑apply the
+`InternalQuerySnapshotChanges` / `isPartial` hunks with the rest of the fork's commits, then check that the
+generated files' baseline→head diffstat matches the previous fork's. For 5.1.0 against 4.20.0 both read
+6 files, +1084 −194:
 ```bash
-cd packages/cloud_firestore/cloud_firestore_platform_interface/pigeons && bash generate_pigeon.sh
+git diff --stat 39b9ef50b6 12d11df6f2 -- ':(glob)packages/cloud_firestore/**/messages.pigeon.dart' ':(glob)packages/cloud_firestore/**/GeneratedAndroidFirebaseFirestore.java' ':(glob)packages/cloud_firestore/**/FirestoreMessages.g.*' ':(glob)packages/cloud_firestore/**/messages.g.*'
+git diff --stat fee5385a40 e6fd80d61 -- ':(glob)packages/cloud_firestore/**/messages.pigeon.dart' ':(glob)packages/cloud_firestore/**/GeneratedAndroidFirebaseFirestore.java' ':(glob)packages/cloud_firestore/**/FirestoreMessages.g.*' ':(glob)packages/cloud_firestore/**/messages.g.*'
 ```
-The seds are brittle and **silently no‑op** if Pigeon's output shifts. After running, verify:
-- `InternalQuerySnapshotChanges` present in all targets: `messages.pigeon.dart`,
-  `GeneratedAndroidFirebaseFirestore.java`, iOS `FirestoreMessages.g.m/.h`, windows `messages.g.cpp/.h`.
-- Codec transforms landed (no no‑op): Dart `class PigeonCodec extends FirestoreMessageCodec`; Java
-  `public static class PigeonCodec extends FlutterFirebaseFirestoreMessageCodec`; iOS reader/writer reparented;
-  Windows `FirebaseFirestoreHostApiCodecSerializer`.
-- `DocumentChange` `newIndex` round‑trips (only add a `newIndex→index` patch if a real mismatch appears).
-If a transform didn't match the new generated output, fix that sed and re‑run. Generated files are NOT hand‑ported.
 
 ### Step 5 — `dart analyze` gate (workspace still intact)
 ```bash
@@ -414,7 +414,7 @@ omission shows up as the only intended residual).
 - [ ] New feature files copied; modified files re‑applied; `Pigeon*`→`Internal*` rename done.
 - [ ] Native mirrors the upstream direct‑emit path (Step 2b).
 - [ ] Every `*Changes` artifact verified consistent with its CURRENT non‑`*Changes` source — Java, ObjC **and** Dart (Step 2c).
-- [ ] Pigeon regenerated; `InternalQuerySnapshotChanges` + codec transforms verified.
+- [ ] Pigeon **not** regenerated; generated files carried over by hand, diffstat matching the previous fork's (Step 4).
 - [ ] `dart analyze` clean on the 3 firestore packages (workspace intact).
 - [ ] Spurious repo‑wide formatting reverted.
 - [ ] Pubspecs converted to relative paths; `resolution: workspace` stripped (packages + examples); family removed from root workspace.
