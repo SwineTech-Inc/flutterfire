@@ -449,10 +449,7 @@ public class QuerySnapshotChangesStreamHandler implements StreamHandler {
       Log.d(DEBUG_TAG, "onCancel h=" + handlerId);
     }
     terminated.set(true);
-    // Drop any batch already converted but still queued — the sink is going away. Scoped to
-    // BATCH_TOKEN so a terminateWithError notification that has not run yet survives: the consumer
-    // still needs to be told the stream failed rather than left waiting on its watchdog.
-    batchGate.dropPendingBatches();
+    // releaseResources() drops queued batches; batchGate is still null if onListen() never ran.
     releaseResources();
   }
 
