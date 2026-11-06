@@ -15,8 +15,8 @@ git‑ref era.
 
 ## 1. What we customize (the deliverables)
 
-All package customization lives in **`cloud_firestore`** + **`_flutterfire_internals`** (plus one
-non‑package change, below):
+All package customization lives in **`cloud_firestore`** + **`_flutterfire_internals`** (plus two
+non‑package changes, below):
 
 1. **QuerySnapshotChanges feature** — a "true" query snapshot that streams only the *changed* documents
    (`DocumentChange`s + metadata) instead of the whole result set. New public `Query.snapshotChanges()`.
@@ -37,6 +37,12 @@ new baseline's copy and regenerate:
 cd .github/workflows/scripts/functions && npm update websocket-driver --package-lock-only
 ```
 Drop this once upstream resolves ≥ 0.7.5 on its own.
+
+**Non‑package change — e2e checks (ENG-1695):** `.github/workflows/e2e_tests_firestore.yaml` skips its
+`ios` and `macos` jobs on the fork (`github.repository_owner != 'SwineTech-Inc'`). On the fork both fail
+to resolve Swift packages: the example resolves the published packages, and Xcode can't access the
+`firebase_core` package that upstream's `link-example-plugin-package-deps.sh` links into the plugin's
+`ios/`. Re‑apply the edit to each new baseline until ENG-1695 makes the jobs build the fork.
 
 **Why all the BOM packages get touched (not just cloud_firestore):** `_flutterfire_internals` carries the
 exception.dart change, and every firebase package depends on it. For a consumer to get *one* forked copy

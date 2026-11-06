@@ -63,7 +63,8 @@ jobs:
 
   ios:
     needs: changes
-    if: needs.changes.outputs.ios == 'true'
+    # SwineTech: off on the fork until it builds the fork's packages (ENG-1695).
+    if: needs.changes.outputs.ios == 'true' && github.repository_owner != 'SwineTech-Inc'
     uses: ./.github/workflows/reusable_e2e_ios.yaml
     with:
       package-path: 'packages/cloud_firestore/cloud_firestore'
@@ -74,7 +75,8 @@ jobs:
 
   macos:
     needs: changes
-    if: needs.changes.outputs.macos == 'true'
+    # SwineTech: off on the fork until it builds the fork's packages (ENG-1695).
+    if: needs.changes.outputs.macos == 'true' && github.repository_owner != 'SwineTech-Inc'
     uses: ./.github/workflows/reusable_e2e_macos.yaml
     with:
       package-path: 'packages/cloud_firestore/cloud_firestore'
