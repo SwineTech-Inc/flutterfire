@@ -170,8 +170,12 @@ void main() {
 
     test('swallows MissingPluginException so iOS and web are unaffected',
         () async {
-      // No handler registered at all — exactly the iOS/web situation.
-      await expectLater(wrap('obs-1').acknowledgeHydrated(), completes);
+      // No handler registered at all — exactly the iOS/web situation. Its own id, because
+      // the failure latches the id for the rest of the run.
+      await expectLater(
+        wrap('obs-unsupported').acknowledgeHydrated(),
+        completes,
+      );
     });
 
     test('stops calling the channel after the first MissingPluginException',
