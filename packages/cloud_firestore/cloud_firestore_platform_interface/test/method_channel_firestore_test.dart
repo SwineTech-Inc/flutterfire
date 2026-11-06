@@ -397,6 +397,70 @@ void main() {
     );
   });
 
+  group('snapshotChanges() end of stream', () {
+    const observerId = 'observer-id';
+    const channel =
+        'plugins.flutter.io/firebase_firestore/queryChanges/$observerId';
+    late MethodChannelFirebaseFirestore firestore;
+
+    setUp(() {
+      firestore = MethodChannelFirebaseFirestore(
+        app: app,
+        databaseId: '(default)',
+      );
+      messenger.setMockMessageHandler(
+        channel,
+        (_) async => codec.encodeSuccessEnvelope(null),
+      );
+    });
+
+    tearDown(() => messenger.setMockMessageHandler(channel, null));
+
+    Stream<Object?> changes() => firestore.collection('foo').snapshotChanges(
+          listenSource: ListenSource.defaultSource,
+        );
+
+    // Android ends a failed stream with an error followed by endOfStream().
+    Future<void> failNatively() async {
+      hostApi.snapshotObserverId.complete(observerId);
+      await pumpEventQueue();
+      await messenger.handlePlatformMessage(
+        channel,
+        codec.encodeErrorEnvelope(code: 'unavailable', message: 'failed'),
+        (_) {},
+      );
+      await messenger.handlePlatformMessage(channel, null, (_) {});
+      await pumpEventQueue();
+    }
+
+    test('forwards the error, then completion', () async {
+      final events = <String>[];
+      changes().listen(
+        (_) {},
+        onError: (Object _) => events.add('error'),
+        onDone: () => events.add('done'),
+      );
+
+      await failNatively();
+
+      expect(events, <String>['error', 'done']);
+    });
+
+    test('completes every listener, including a later one', () async {
+      final stream = changes();
+      var done = 0;
+      stream.listen((_) {}, onError: (Object _) {}, onDone: () => done++);
+      stream.listen((_) {}, onError: (Object _) {}, onDone: () => done++);
+
+      await failNatively();
+      expect(done, 2);
+
+      stream.listen((_) {}, onDone: () => done++);
+      await pumpEventQueue();
+      expect(done, 3);
+    });
+  });
+
   test('namedQueryGet binds the snapshot to the calling instance', () async {
     final firestore = MethodChannelFirebaseFirestore(
       app: app,

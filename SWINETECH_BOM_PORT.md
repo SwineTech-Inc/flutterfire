@@ -128,6 +128,8 @@ to **emit the Pigeon object directly** through the Pigeon‑aware codec. Mirror 
   listen on `querySnapshotChangesChannel`, then `final result = snapshot as InternalQuerySnapshotChanges;`.
   Since 5.1.0 `snapshots()` delegates to an `async*` `_snapshots()`, so a listener cancelled while registering
   never attaches natively (upstream `f09c359f4`); `snapshotChanges()` mirrors it with `_snapshotChanges()`.
+  Unlike `snapshots()`, it also forwards completion (`onDone: controller.close`): Android ends a failed
+  changes stream with an error and then `endOfStream()`.
 
 Consequence: the codec `writeQuerySnapshotWrapper` dispatch and the iOS writer wrapper serialization are
 **unnecessary and skipped**; the copied `QuerySnapshotWrapper.*` files **and** the `utils/method_channel_query_snapshot_changes.dart` duplicate

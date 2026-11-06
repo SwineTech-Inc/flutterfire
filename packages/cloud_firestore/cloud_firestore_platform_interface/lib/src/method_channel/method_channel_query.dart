@@ -238,6 +238,7 @@ class MethodChannelQuery extends QueryPlatform {
         ).listen(
           controller.add,
           onError: controller.addError,
+          onDone: controller.close,
         );
       },
       onCancel: () {
