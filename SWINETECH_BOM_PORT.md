@@ -25,6 +25,10 @@ non‑package change, below):
 3. **exception.dart** — for `not-found` errors whose message contains `NOT_FOUND:`, surface the
    Firestore‑provided reason/document path instead of the generic message.
 
+**Platforms:** items 1 and 2 are implemented for Android and iOS only. On web they throw, the Windows plugin
+doesn't compile, and macOS is missing the changes handler's source links (ENG-1695). Charlotte, the only user
+of this line, builds none of those.
+
 **Non‑package change — CI Cloud Functions lockfile (ENG‑78):** `.github/workflows/scripts/functions/package-lock.json`
 pins `websocket-driver` ≥ 0.7.5 (CVE‑2026‑54466 / CVE‑2026‑54490); upstream still resolves 0.7.4. It lives
 outside `packages/`, so Step 1's added‑file listing won't surface it. Don't hand‑merge the lockfile — take the
