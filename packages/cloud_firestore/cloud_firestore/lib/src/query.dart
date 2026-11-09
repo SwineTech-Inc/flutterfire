@@ -90,6 +90,21 @@ abstract class Query<T extends Object?> {
   });
 
   /// Notifies of query change results at this location.
+  ///
+  /// SwineTech (ENG-1396): on Android this is a changes-only listener. The native
+  /// view keeps documents trimmed to the fields the query orders by, and every
+  /// listener on an equal query (same path, filters, order and limit, however it
+  /// was built) shares that view. While a subscription is open:
+  ///
+  /// - Do not listen to an equal query anywhere else. A second [snapshotChanges],
+  ///   any [snapshots], and any [get] except
+  ///   `get(const GetOptions(source: Source.cache))` can receive documents
+  ///   missing fields.
+  /// - Cancel the subscription before calling [snapshotChanges] on an equal query
+  ///   again.
+  /// - Use only `doc.id` from a removed change. Its other fields can be missing.
+  ///
+  /// Queries with a limit keep full documents, so none of this applies to them.
   Stream<QuerySnapshotChanges<T>> snapshotChanges({
     bool includeMetadataChanges = false,
     ListenSource source = ListenSource.defaultSource,
