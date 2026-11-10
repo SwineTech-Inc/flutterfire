@@ -461,6 +461,96 @@ void main() {
     });
   });
 
+  group('snapshotChanges() hydration acknowledgement', () {
+    const observerId = 'ack-observer-id';
+    const channel =
+        'plugins.flutter.io/firebase_firestore/queryChanges/$observerId';
+    const ackChannel = '$channel/ack';
+    late MethodChannelFirebaseFirestore firestore;
+    late int acks;
+
+    setUp(() {
+      firestore = MethodChannelFirebaseFirestore(
+        app: app,
+        databaseId: '(default)',
+      );
+      acks = 0;
+      messenger.setMockMessageHandler(
+        channel,
+        (_) async => codec.encodeSuccessEnvelope(null),
+      );
+    });
+
+    tearDown(() {
+      messenger.setMockMessageHandler(channel, null);
+      messenger.setMockMessageHandler(ackChannel, null);
+    });
+
+    // Until this runs, the ack channel has no handler, as on iOS.
+    void registerAckHandler() {
+      messenger.setMockMessageHandler(ackChannel, (_) async {
+        acks++;
+        return codec.encodeSuccessEnvelope(null);
+      });
+    }
+
+    // Cancels before returning, so the batches are acknowledged after their
+    // stream has ended, as charlotte's can be.
+    Future<List<QuerySnapshotChangesPlatform>> receive(int count) async {
+      final batches = <QuerySnapshotChangesPlatform>[];
+      final subscription = firestore
+          .collection('foo')
+          .snapshotChanges(listenSource: ListenSource.defaultSource)
+          .listen(batches.add);
+      await pumpEventQueue();
+      for (var i = 0; i < count; i++) {
+        await messenger.handlePlatformMessage(
+          channel,
+          codec.encodeSuccessEnvelope(
+            InternalQuerySnapshotChanges(
+              documentChanges: const <InternalDocumentChange?>[],
+              metadata: InternalSnapshotMetadata(
+                hasPendingWrites: false,
+                isFromCache: false,
+              ),
+              isPartial: false,
+            ),
+          ),
+          (_) {},
+        );
+      }
+      await pumpEventQueue();
+      await subscription.cancel();
+      expect(batches, hasLength(count));
+      return batches;
+    }
+
+    test('every batch of a stream shares its latch', () async {
+      hostApi.snapshotObserverId.complete(observerId);
+      final batches = await receive(2);
+
+      await batches.first.acknowledgeHydrated();
+      registerAckHandler();
+      await batches.last.acknowledgeHydrated();
+
+      expect(acks, isZero, reason: 'the first batch latched the stream');
+    });
+
+    test("a new stream does not inherit an earlier stream's latch", () async {
+      // Native gives every stream a new id, so a latch that outlives its stream
+      // only ever grows. Reusing the id here is what makes that visible.
+      hostApi.snapshotObserverId.complete(observerId);
+      final first = await receive(1);
+      await first.single.acknowledgeHydrated();
+
+      registerAckHandler();
+      final second = await receive(1);
+      await second.single.acknowledgeHydrated();
+
+      expect(acks, 1);
+    });
+  });
+
   test('namedQueryGet binds the snapshot to the calling instance', () async {
     final firestore = MethodChannelFirebaseFirestore(
       app: app,
