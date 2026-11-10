@@ -126,11 +126,13 @@ void main() {
   group('MethodChannelQuerySnapshotChanges acknowledgeHydrated', () {
     final firestore = _MockFirestore();
 
-    MethodChannelQuerySnapshotChanges wrap([String? observerId]) =>
+    MethodChannelQuerySnapshotChanges wrap([
+      QuerySnapshotChangesAcknowledger? acknowledger,
+    ]) =>
         MethodChannelQuerySnapshotChanges(
           firestore,
           _changes(false),
-          observerId,
+          acknowledger,
         );
 
     tearDown(() {
@@ -143,8 +145,8 @@ void main() {
       );
     });
 
-    test('is a no-op when there is no observer id', () async {
-      // Constructed without an id by the fork's own older call sites, and by any platform
+    test('is a no-op without an acknowledger', () async {
+      // Constructed without one by the fork's own older call sites, and by any platform
       // that does not route through method_channel_query.
       await expectLater(wrap().acknowledgeHydrated(), completes);
     });
@@ -163,17 +165,18 @@ void main() {
         },
       );
 
-      await wrap('obs-1').acknowledgeHydrated();
+      final acknowledger = QuerySnapshotChangesAcknowledger('obs-1');
+      await wrap(acknowledger).acknowledgeHydrated();
 
       expect(calls, equals(<String>['ack']));
     });
 
     test('swallows MissingPluginException so iOS and web are unaffected',
         () async {
-      // No handler registered at all — exactly the iOS/web situation. Its own id, because
-      // the failure latches the id for the rest of the run.
+      // No handler registered at all — exactly the iOS/web situation.
+      final acknowledger = QuerySnapshotChangesAcknowledger('obs-unsupported');
       await expectLater(
-        wrap('obs-unsupported').acknowledgeHydrated(),
+        wrap(acknowledger).acknowledgeHydrated(),
         completes,
       );
     });
@@ -182,8 +185,8 @@ void main() {
         () async {
       // Latching matters: this runs once per batch, so a 66-batch herd load would
       // otherwise raise and catch 66 platform exceptions for nothing.
-      final unsupported = wrap('obs-2');
-      await unsupported.acknowledgeHydrated();
+      final acknowledger = QuerySnapshotChangesAcknowledger('obs-2');
+      await wrap(acknowledger).acknowledgeHydrated();
 
       var calls = 0;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -197,7 +200,7 @@ void main() {
         },
       );
 
-      await unsupported.acknowledgeHydrated();
+      await wrap(acknowledger).acknowledgeHydrated();
 
       expect(
         calls,

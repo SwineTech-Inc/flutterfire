@@ -271,6 +271,8 @@ class MethodChannelQuery extends QueryPlatform {
       listenSource,
     );
 
+    final acknowledger = QuerySnapshotChangesAcknowledger(observerId);
+
     yield* MethodChannelFirebaseFirestore.querySnapshotChangesChannel(
       observerId,
     )
@@ -282,7 +284,7 @@ class MethodChannelQuery extends QueryPlatform {
       // directly through the Pigeon-aware codec, so we receive a fully
       // decoded `InternalQuerySnapshotChanges` here (no manual decode).
       final result = snapshot as InternalQuerySnapshotChanges;
-      return MethodChannelQuerySnapshotChanges(firestore, result, observerId);
+      return MethodChannelQuerySnapshotChanges(firestore, result, acknowledger);
     });
   }
 

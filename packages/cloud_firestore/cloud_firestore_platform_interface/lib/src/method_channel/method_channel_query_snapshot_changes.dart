@@ -14,11 +14,11 @@ import 'method_channel_firestore.dart';
 class MethodChannelQuerySnapshotChanges extends QuerySnapshotChangesPlatform {
   /// Creates a [MethodChannelQuerySnapshotChanges] from the given [data]
   ///
-  /// [observerId] identifies the native stream this batch came from, so
+  /// The acknowledger belongs to the native stream this batch came from, so
   /// [acknowledgeHydrated] can reach the right delivery gate.
   MethodChannelQuerySnapshotChanges(
       FirebaseFirestorePlatform firestore, InternalQuerySnapshotChanges data,
-      [this._observerId])
+      [this._acknowledger])
       : super(
             data.documentChanges
                 .map((documentChange) {
@@ -39,30 +39,41 @@ class MethodChannelQuerySnapshotChanges extends QuerySnapshotChangesPlatform {
             // SwineTech: null (from platforms that don't set it) == not partial.
             data.isPartial ?? false);
 
-  final String? _observerId;
-
-  /// Platforms whose native side has no acknowledgement handler — iOS and web, neither of
-  /// which batches or throttles delivery, so neither has anything to bound. Latched after
-  /// the first MissingPluginException so the rest of the stream does not keep paying for a
-  /// channel that will never be there.
-  static final Set<String> _unsupportedObservers = <String>{};
+  final QuerySnapshotChangesAcknowledger? _acknowledger;
 
   @override
   Future<void> acknowledgeHydrated() async {
-    final String? observerId = _observerId;
+    await _acknowledger?.acknowledge();
+  }
+}
 
-    if (observerId == null || _unsupportedObservers.contains(observerId)) {
+/// Sends one native stream's hydration acknowledgements. Shared by every batch of that
+/// stream, so its latch is freed with them rather than kept for the app's lifetime.
+class QuerySnapshotChangesAcknowledger {
+  QuerySnapshotChangesAcknowledger(String observerId)
+      : _channel =
+            MethodChannelFirebaseFirestore.querySnapshotChangesAckChannel(
+                observerId);
+
+  final MethodChannel _channel;
+
+  /// Whether this platform has no acknowledgement handler — iOS and web, neither of
+  /// which batches or throttles delivery, so neither has anything to bound. Latched after
+  /// the first MissingPluginException so the rest of the stream does not keep paying for a
+  /// channel that will never be there.
+  bool _unsupported = false;
+
+  Future<void> acknowledge() async {
+    if (_unsupported) {
       return;
     }
 
     try {
-      await MethodChannelFirebaseFirestore.querySnapshotChangesAckChannel(
-        observerId,
-      ).invokeMethod<void>('ack');
+      await _channel.invokeMethod<void>('ack');
     } on MissingPluginException {
       // Expected on any platform that does not throttle delivery. Remember, so the next
       // batch on this stream skips the channel entirely.
-      _unsupportedObservers.add(observerId);
+      _unsupported = true;
     }
   }
 }
